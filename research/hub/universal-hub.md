@@ -8,6 +8,8 @@ Consequently, for every $k>K$, adjoining any number of leaves at $o$ gives a $k$
 
 The proof below constructs the labels over the integers. No bound on degrees, depths, or numbers of branches is assumed.
 
+The [endpoint refinement](endpoint-hub.md) makes the omitted weight extreme. It gives one super edge-magic labeling at every sufficiently large leaf population.
+
 ## Finding the part to label last
 
 Call a vertex with at least one child a support. A star rooted at its center admits the labels $0,1,\ldots,h-1$, omitting zero among the sums. Otherwise a hub neighbor is a support. If no vertex other than $o$ has two support children, such a neighbor has at most one support child, and the [anchor construction](branches.md) applies. Its initial magnitudes are at most $\deg(o)$, and each subsequent assignment at most doubles the maximum, including the delayed assignment of the anchor. There are $e$ such assignments, since the anchor replaces a child given its label initially. This gives span at most $2h2^e$.

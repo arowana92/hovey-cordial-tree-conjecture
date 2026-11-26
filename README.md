@@ -2,6 +2,8 @@
 
 **Work in progress.** This repository gives reproducible computer-assisted proofs that every finite tree is $k$-cordial for each modulus from 8 through 20. Hovey’s conjecture for every positive integer $k$ remains open. [Eight labels](research/eight/README.md) · [Nine through thirteen](research/rainbow/README.md) · [Fourteen through seventeen](research/rainbow/ordered-cut.md) · [Eighteen through twenty](research/rainbow/native-spine.md)
 
+For **any finite tree and any chosen vertex**, adding sufficiently many leaves at that vertex gives a super edge-magic tree. One integer labeling then works at every positive modulus. For each fixed bound on the matching number or on the number of nonleaf vertices, only finitely many trees can fail to be super edge-magic. [Construction, proof and independent checks](research/hub/endpoint-hub.md)
+
 Every tree of diameter at most four is cordial for **every** positive modulus. A computer-assisted construction gives one integer labeling with consecutive vertex labels and consecutive edge sums. [Proof, certificates and independent checks](research/hub/all-radius-two.md)
 
 For diameter five, every tree is $k$-cordial for $1\le k\le36$. At any modulus, testing only trees of order exactly $k$ suffices. Every diameter-five tree of order at least $2k-5$ is $k$-cordial regardless of that test. [Reduction, finite proofs and reproducible checks](research/hub/diameter-five.md)
