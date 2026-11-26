@@ -22,6 +22,8 @@ For every fixed $k$, **every sufficiently large tree is $k$-cordial**, with unre
 
 For every $\gamma>0$ and all sufficiently large $k$, if a counterexample exists then a smallest one has fewer than $k^{1+\gamma}$ vertices. In addition, its order must lie within $o(k)$ of a multiple of $k$ from below, including that multiple. These restrictions hold at unrestricted maximum degree. The first proof uses a larger cyclic group, and the second adapts the almost-spanning rainbow embedding theorem to prescribed parent labels. [Near-linear counterexample bound](research/bounded-degree/projection.md) · [Order residue and prescribed embeddings](research/rainbow/pinned-prefix.md)
 
+A path on at least $k^{1+\gamma}$ vertices, for any fixed $\gamma>0$ and sufficiently large $k$, also suffices for the entire tree to be $k$-cordial, regardless of the branches attached to it. At each modulus a separate criterion uses the sizes of successive neighborhoods of a cordial subtree. [Protected subtrees and the neighborhood criterion](research/large-order/balls.md)
+
 For every fixed maximum degree $\Delta$, there is a threshold $k_0(\Delta)$ above which every tree of that maximum degree is $k$-cordial, with no restriction on its order. A bounded-degree auxiliary tree realizes the prescribed forest boundary weights, so the embedding lemma of Müyesser and Pokrovskiy applies directly. [Proof and checks](research/bounded-degree/README.md)
 
 For fixed $k\ge 5$, a smallest counterexample, if one exists, has at most $k-2$ leaves and $3k^2-13k+3$ vertices. The proof combines Hall’s permutation theorem with explicit labelings of pendant paths and subdivided edges. [Counterexample size bound](research/counterexample-bound.md)
