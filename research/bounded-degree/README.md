@@ -68,3 +68,11 @@ Run the following from the repository root. The program constructs the auxiliary
 ~~~sh
 python3 -B research/bounded-degree/check.py
 ~~~
+
+A separate exhaustive traversal check verifies the crossing-edge and degree-excess bounds on 362,879 cuts through order nine. [Traversal checker](check_prefix.py)
+
+~~~sh
+python3 -B research/bounded-degree/check_prefix.py
+~~~
+
+The same method permits unbounded maximum degree under a total-excess hypothesis and yields an asymptotic bound on the smallest unrestricted counterexample. [Degree excess](excess.md) · [Near-linear order bound](projection.md)

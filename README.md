@@ -15,6 +15,8 @@ A primary-literature search on 26 November 2026 found these results and no earli
 
 ## General moduli
 
+For every $\gamma>0$ and all sufficiently large $k$, if a counterexample exists then a smallest one has fewer than $k^{1+\gamma}$ vertices. This bound holds at unrestricted maximum degree. The proof embeds a tree in a larger cyclic group and prescribes omitted colors whose projections modulo $k$ are distinct. [Near-linear counterexample bound and verification](research/bounded-degree/projection.md)
+
 For every fixed maximum degree $\Delta$, there is a threshold $k_0(\Delta)$ above which every tree of that maximum degree is $k$-cordial, with no restriction on its order. A bounded-degree auxiliary tree realizes the prescribed forest boundary weights, so the embedding lemma of Müyesser and Pokrovskiy applies directly. [Proof and checks](research/bounded-degree/README.md)
 
 For fixed $k\ge 5$, a smallest counterexample, if one exists, has at most $k-2$ leaves and $3k^2-13k+3$ vertices. The proof combines Hall’s permutation theorem with explicit labelings of pendant paths and subdivided edges. [Counterexample size bound](research/counterexample-bound.md)

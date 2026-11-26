@@ -20,7 +20,7 @@ def difference(lhs, rhs):
     return expression(*lhs.items(), *((i, -a) for i, a in rhs.items()))
 
 
-def choose_variables(label_forms, weight_forms, k, rng):
+def choose_variables(label_forms, weight_forms, k, rng, avoid=()):
     tests = defaultdict(list)
     for forms in (label_forms, weight_forms):
         for a, b in combinations(forms, 2):
@@ -30,6 +30,14 @@ def choose_variables(label_forms, weight_forms, k, rng):
                 require(row.get(-1, 0) % k != 0, "identically equal expressions")
             else:
                 tests[last].append(row)
+    for form in label_forms + weight_forms:
+        for value in avoid:
+            row = difference(form, {-1: value})
+            last = max(row, default=-1)
+            if last >= 0:
+                tests[last].append(row)
+            else:
+                require(row.get(-1, 0) % k != 0, "fixed value in reserved set")
     point = {-1: 1}
     for i in sorted({j for f in label_forms + weight_forms for j in f if j >= 0}):
         banned = set()
@@ -64,7 +72,7 @@ def match(others, parents):
     return {j: i for i, j in owner.items()}
 
 
-def construct(parents, k, cap, rng):
+def construct(parents, k, cap, rng, avoid=()):
     n = len(parents)
     children = [[] for _ in parents]
     roots = {i for i, p in enumerate(parents) if p < 0}
@@ -129,7 +137,7 @@ def construct(parents, k, cap, rng):
     edge_forms = list(weights.values()) + [
         expression((v, 1), (p, 1)) for v, p in kept if v in fixed and p in fixed
     ]
-    evaluate = choose_variables(list(forms.values()), edge_forms, k, rng)
+    evaluate = choose_variables(list(forms.values()), edge_forms, k, rng, avoid)
     pins = {v: evaluate(f) for v, f in forms.items()}
     return order, kept, kept + connectors, pins, leaves, protected
 
