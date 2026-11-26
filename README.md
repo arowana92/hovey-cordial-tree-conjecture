@@ -12,11 +12,15 @@ A vertex labeling takes values in the residues modulo $k$. Each edge receives th
 - Youssef’s Theorem 4 shows that consecutive vertex labels and consecutive edge sums imply cordiality at every modulus. This relates the tree question to super edge-magic labelings. [*On k-cordial labelling* (2009)](https://ajc.maths.uq.edu.au/pdf/43/ajc_v43_p031.pdf)
 - Müyesser and Pokrovskiy discuss how their bounded-degree methods could approach Hovey’s conjecture when the modulus is sufficiently large relative to the degree bound. Section 6 describes the extra strengthening that such a proof would require. [*On the Graham–Sloane harmonious labelling conjecture* (2025 preprint, version 2)](https://arxiv.org/html/2509.05280v2#S6)
 
+At modulus $k=n-1$, a cordial labeling of an $n$-vertex tree uses every edge residue once and repeats exactly one vertex residue. Thus the full conjecture includes the Graham–Sloane harmonious tree conjecture. [Müyesser and Pokrovskiy, introduction](https://arxiv.org/html/2509.05280v2#S1)
+
 A related polynomial argument by Gnang and Williams concerns the order-equals-modulus base case. A check of its symmetrized term on the roots of unity gives zero when $n$ does not divide 4. A degree-dependent normalization gives an exact count of valid labelings. [Calculation and corrected polynomial stabilizer](research/orbit-polynomial.md) · [Gnang and Williams, version 1](https://arxiv.org/abs/2201.02240v1)
 
 A primary-literature search on 26 November 2026 found these results and no earlier all-orders proof for eight labels. The eight-label argument here uses a finite attachment lemma and induction on tree order. The certificate verifies that lemma.
 
 ## General moduli
+
+Put $J=\lceil\log_2(2k)\rceil+2$. A smallest counterexample has order $O(kJ^5)$. Every counterexample has order $O(k^{3/2}J^{9/2})$ and maximum degree $O(k^{3/2}J^{5/2})$. If the largest prime factor of $k$ is $k^{o(1)}$, the order bound for **every** counterexample improves to $k^{1+o(1)}$, including along all powers of two. [Proof by integer histogram corrections](research/large-order/dyadic.md) · [Cyclic subgroup argument](research/large-order/smooth.md)
 
 For every fixed $k$, **every sufficiently large tree is $k$-cordial**, with unrestricted degrees. In fact order $(2^{34}+4)k^2$ suffices, and independently a single vertex of degree at least $4k^2$ suffices at any order. For every fixed $\gamma>0$ and sufficiently large $k$, a vertex of degree at least $k^{3/2+\gamma}$ also suffices. [Asymptotic degree bound](research/large-order/pruning-depth.md) [Quadratic bound for every counterexample](research/large-order/quadratic.md) · [High-degree construction](research/large-order/high-degree.md) · [Basic correction and Lean verification](research/large-order/README.md)
 
