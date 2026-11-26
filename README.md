@@ -2,6 +2,8 @@
 
 **Work in progress.** This repository gives reproducible computer-assisted proofs that every finite tree is $k$-cordial for each modulus from 8 through 20. Hovey’s conjecture for every positive integer $k$ remains open. [Eight labels](research/eight/README.md) · [Nine through thirteen](research/rainbow/README.md) · [Fourteen through seventeen](research/rainbow/ordered-cut.md) · [Eighteen through twenty](research/rainbow/native-spine.md)
 
+Every tree of diameter at most four is cordial for **every** positive modulus. A computer-assisted construction gives one integer labeling with consecutive vertex labels and consecutive edge sums. [Proof, certificates and independent checks](research/hub/all-radius-two.md)
+
 A vertex labeling takes values in the residues modulo $k$. Each edge receives the sum of its endpoint labels modulo $k$. Among vertices, every two residue counts must differ by at most one. The same condition holds independently among edges, including residues with count zero.
 
 ## Primary literature
@@ -56,7 +58,7 @@ For each fixed $0<\delta<1/9$ and all sufficiently large $k$, every radius-two t
 
 At every even modulus $k=2s$, a radius-two tree is $k$-cordial if a center has degree at least $s-1$, for every tree order. A subgroup construction reduces the order-$2s$ proof to a permutation sum. Two explicit labelings handle the remaining fork-shaped exceptions. [Even-modulus theorem and subgroup criterion](research/hub/even-radius.md)
 
-At every modulus, a radius-two tree is cordial if the number of neighbors of its center having children is at most six, is odd and at most 33, or is even and between 38 and 100. The child counts and number of ordinary hub leaves are arbitrary. For six and the stated larger even counts, one integer labeling has consecutive vertex labels and consecutive edge sums. [Six and larger even branch counts](research/hub/even-layers.md) · [Other branch counts](research/hub/branch-levels.md)
+Signed Langford sequences extend six sets of finite labelings to unbounded numbers of branching neighbors. Combined with the layer constructions, this proves that every radius-two tree is super edge-magic and hence cordial for all moduli. [Full diameter-four theorem](research/hub/all-radius-two.md) · [Six-branch example](research/hub/even-layers.md) · [Earlier layer constructions](research/hub/branch-levels.md)
 
 For any fixed tree with at least three nonsingleton branches at a specified hub, every sufficiently large modulus works uniformly over all numbers of extra leaves at the hub. The edge sums around a cycle of branches use every nonzero vertex label once. Branch shapes and branching depths are unrestricted. [Proof, explicit bounds and checks](research/hub/cyclic-transfer.md)
 

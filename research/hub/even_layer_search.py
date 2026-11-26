@@ -9,11 +9,10 @@ from ortools.sat.python import cp_model
 from .even_layers import parents
 
 
-def search(c, extra, seconds):
-    p = parents(c)
-    required = Counter(p + extra*p[:5])
-    lo = -sum(label * count for label, count in required.items())
-    interval = set(range(lo, lo + 2*c + 5*extra + 1))
+def assign(p, child_parents, seconds, admissible=None):
+    required = Counter(child_parents)
+    lo = -sum(child_parents)
+    interval = set(range(lo, lo + len(p) + len(child_parents) + 1))
     vertices = sorted(interval - {0, *p})
     targets = interval - {lo, *p}
     model = cp_model.CpModel()
@@ -23,7 +22,7 @@ def search(c, extra, seconds):
     for x in vertices:
         options = {}
         for label in required:
-            if x + label in targets:
+            if x + label in targets and (admissible is None or admissible(x, label)):
                 chosen = model.new_bool_var("")
                 options[label] = chosen
                 weight_uses[x + label].append(chosen)
@@ -41,6 +40,11 @@ def search(c, extra, seconds):
     if status not in (cp_model.OPTIMAL, cp_model.FEASIBLE):
         return solver.status_name(status)
     return [next(label for label, v in row.items() if solver.value(v)) for row in rows]
+
+
+def search(c, extra, seconds):
+    p = parents(c)
+    return assign(p, p + extra*p[:5], seconds)
 
 
 if __name__ == "__main__":
