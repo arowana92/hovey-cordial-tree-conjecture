@@ -74,3 +74,20 @@ python3 -B -m research.prime.verify_templates /tmp/hovey-template-counts
 ~~~
 
 The executable handles only the auxiliary primes below 64 used by this verification. The stability lemma is what extends the result to arbitrarily large primes. [Counter](template_counts.cpp) · [Verifier](verify_templates.py)
+
+## A second proof at eleven labels
+
+**Theorem.** At $p=11$ every rooted forest on at most ten free vertices has the rainbow extension, with arbitrary prescribed external parent labels and any forbidden vertex label. This removes the terminal-vertex bound from the [first eleven-label certificate](../rainbow/README.md).
+
+A separate counter enumerates distinct nonzero vertex labels in parent-first order, discarding any repeated weight immediately. Its sign calculation keeps the inversion parities of the vertex tuple and the weight tuple. When a weight $d$ is missing, prepending $d$ to the weight tuple contributes $d$ additional inversions, and prepending zero to the vertex tuple contributes none. Multiplying the signs gives $\operatorname{sgn}(\theta)$. At zero boundary fix the first vertex label to 1 and multiply the scalar count by $p-1$ to restore its dilation orbit.
+
+For 1,592 of the 1,842 forest shapes the scalar is nonzero. Of the remaining 250, the matrix of first moments has kernel dimension zero for 245 shapes, one for three shapes, and two for two shapes. For each of the 250 shapes, the checker verifies a direct witness at zero boundary. For each nonzero one-dimensional subspace of a kernel it also verifies one witness there. Multiplying all labels by a unit gives witnesses along the rest of that line. A two-dimensional kernel over $\mathbb F_{11}$ has 12 such lines. This requires $250+3+2\cdot12=277$ direct witnesses in total. The signed count or a first moment certifies every other boundary vector.
+
+The stronger extension property directly implies the ordinary eleven-label tree theorem. For order eleven, choose a root, give it label zero and apply the extension to the other ten vertices. Restriction from an eleven-vertex supertree deals with smaller orders. For larger orders, take a connected core on $11m+1$ vertices when the remaining order is between one and ten. A cordial labeling on this smaller core has equal edge counts and one surplus vertex residue. Use that residue as forbidden and apply the extension. At orders $11m+1$, deleting a single leaf leaves one deficient edge weight, which the leaf can fill. This induction uses neither a contour traversal nor Hall's theorem.
+
+~~~sh
+c++ -O2 -std=c++17 -Wall -Wextra -pedantic research/prime/forest_moments.cpp -o /tmp/hovey-forest-moments
+python3 -B -m research.prime.verify_forests 11 /tmp/hovey-forest-moments
+~~~
+
+The same check at 3, 5 and 7 finds the scalar nonzero on all 2, 9 and 48 forest shapes respectively. [Enumeration by label assignments](forest_moments.cpp) · [Kernel and witness verifier](verify_forests.py)

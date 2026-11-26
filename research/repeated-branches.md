@@ -27,3 +27,5 @@ The proof applies to arbitrary orders and moduli. The executable check below rec
 ~~~sh
 python3 -B -m research.repeated_branches
 ~~~
+
+For odd $k$ the $k$ attached branches may even have different shapes, provided they all have the same order $n$. The constant labeling of each copy uses only its numbers of vertices and edges.

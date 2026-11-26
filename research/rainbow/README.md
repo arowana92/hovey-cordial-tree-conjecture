@@ -56,3 +56,5 @@ gzip -dc "research/rainbow/k$k.jsonl.gz" | cmp - /tmp/hovey-rainbow-regenerated.
 ```
 
 The finite hypotheses here differ from the eight-label hypotheses checked by the earlier scripts. The contour argument above is a mathematical proof. The certificate checks run in Python.
+
+At eleven labels a second computation using signed moments proves the extension property for all 1,842 forest shapes, including shapes with more than six terminal vertices. It gives an alternative induction for all tree orders. [Unrestricted eleven-label proof](../prime/README.md#a-second-proof-at-eleven-labels)
