@@ -1,6 +1,6 @@
 # Joining cordial pieces through an odd quotient
 
-**Theorem.** Partition a tree into $q$ connected pieces of the same order $s$, for odd $q\ge3$. Suppose the quotient tree has a bijection onto $\mathbb Z_q$ with distinct edge sums. There is a positive integer $D$ determined by that labeled quotient, with $q\mid D$ and $D\le2^{q-1}$. If each piece is $m$-cordial and $\gcd(D,m)=1$, the whole tree is $qm$-cordial. The connecting edges may use arbitrary vertices of the pieces. More generally the same conclusion holds whenever
+**Theorem.** Partition a tree into $q$ connected pieces of the same order $s$, for odd $q\ge3$. Suppose the quotient tree has a bijection onto $\mathbb Z_q$ with distinct edge sums. There is a positive odd integer $D$ determined by that labeled quotient, with $q\mid D$ and $D\le2^{q-1}$. If each piece is $m$-cordial and $\gcd(D,m)=1$, the whole tree is $qm$-cordial. The connecting edges may use arbitrary vertices of the pieces. More generally the same conclusion holds whenever
 $$
 (s-1)\bmod m < m/\gcd(D,m).
 $$
@@ -15,6 +15,8 @@ Name each piece by its quotient label $i$. Its internal edges will lie in residu
 Every vertex reaches $r$ along arrows. Otherwise the nonempty set of vertices unable to reach $r$ would be closed under both arrows. For every $c$ in this set there would be a different quotient edge inside it, an impossibility for an induced forest. Form the matrix $M$ with rows and columns indexed by the residues other than $r$: in row $c$ put 2 on the diagonal and $-1$ at each of its two arrow targets still present. Set $D=\det M$.
 
 The directed matrix-tree theorem identifies $D$ with the number of ways to choose one arrow at every $c\ne r$ so all chosen paths lead to $r$. There is at least one choice, for instance by decreasing distance to $r$, and at most $2^{q-1}$. Alternatively expand the determinant by multilinearity in its rows. Each row is a sum of its two possible single-arrow rows $e_c-e_j$ with $e_r=0$. A chosen cycle makes the rows dependent; a choice leading to $r$ is triangular with diagonal 1 in distance order. Finally the column vector of residues $c-r$ is killed by $M$ modulo $q$. One entry is 1, so multiplying by the adjugate proves $q\mid D$. [De Leenheer, *An elementary proof of a matrix tree theorem for directed graphs*](https://arxiv.org/abs/1904.12221)
+
+**Power-of-two factors.** Modulo 2, $M$ is the ordinary edge-vertex incidence matrix of the quotient tree with column $r$ deleted: the diagonal terms vanish and the two endpoint entries become ones. If this matrix kills a vector, extend it by zero at $r$. The endpoint values agree along every edge, so connectedness makes every value zero. Thus $D$ is odd and *every* power of two is coprime to $D$. For instance, a tree with a perfect matching on $2q$ vertices, $q$ odd, is $2q$-cordial if contracting its matching gives a $q$-cordial tree. Each matched pair supplies a two-vertex piece. The case of an odd path of arbitrary pieces has a further improvement. [Path quotients and exact singular criterion](path-quotient.md)
 
 ## Solving for translations within the pieces
 

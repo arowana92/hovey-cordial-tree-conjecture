@@ -54,7 +54,7 @@ def make_system(edges, q):
                 break
         else:
             count += 1
-    assert count == d and d > 0 and d % q == 0
+    assert count == d and d > 0 and d % 2 == 1 and d % q == 0
     return mid, root, keys, d, adjugate(a)
 
 
