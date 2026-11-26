@@ -26,7 +26,7 @@ A primary-literature search on 26 November 2026 found these results and no earli
 
 ## General moduli
 
-Put $J=\lceil\log_2(2k)\rceil+2$. A smallest counterexample has order $O(kJ^5)$. Every counterexample has order $O(k^{3/2}J^{9/2})$ and maximum degree $O(k^{3/2}J^{5/2})$. If the largest prime factor of $k$ is $k^{o(1)}$, the order bound for **every** counterexample improves to $k^{1+o(1)}$, including along all powers of two. [Proof by integer histogram corrections](research/large-order/dyadic.md) · [Cyclic subgroup argument](research/large-order/smooth.md)
+Every possible counterexample at modulus $k$ has order $O(k\log^5(2k))$ and maximum degree $O(k\log(2k))$. On any tree, attaching $O(k\log(2k))$ leaves at any prescribed vertex suffices. The construction first makes the vertex and edge histograms differ by exactly one unit, with logarithmic error in every bin, then fills the bins with leaves. [Twelve-vertex path, integer rounding and proof](research/large-order/flexible-path.md) · [Dyadic correction theorem](research/large-order/dyadic.md)
 
 For every fixed $k$, **every sufficiently large tree is $k$-cordial**, with unrestricted degrees. In fact order $(2^{34}+4)k^2$ suffices, and independently a single vertex of degree at least $4k^2$ suffices at any order. For every fixed $\gamma>0$ and sufficiently large $k$, a vertex of degree at least $k^{3/2+\gamma}$ also suffices. [Asymptotic degree bound](research/large-order/pruning-depth.md) [Quadratic bound for every counterexample](research/large-order/quadratic.md) · [High-degree construction](research/large-order/high-degree.md) · [Basic correction and Lean verification](research/large-order/README.md)
 
