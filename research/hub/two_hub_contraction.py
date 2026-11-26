@@ -53,7 +53,7 @@ def remove_fillers(interval, removed):
     fresh = []
     count = 0
     for p,start,stop in interval.blocks:
-        if p==1:
+        if p!=0:
             fresh.append((p,start,stop))
             continue
         a,b = bisect_left(removed,start),bisect_left(removed,stop)
