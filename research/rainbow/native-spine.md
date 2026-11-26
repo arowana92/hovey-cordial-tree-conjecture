@@ -72,3 +72,11 @@ shasum -a 256 -c "$src/spine20.sha256"
 ~~~
 
 Alternatively pass `--files-stdin` to the verifier and write one completed shard path per line to its standard input. It checks shapes across all inputs and requires the full rooted-tree count at end of file in both modes.
+
+## Counting the required cases from integer partitions
+
+A third program reproduces the rooted-base, eligible-forest and boundary-assignment columns without reading witnesses or listing individual trees. For each partition of $k-1$, group components of the same order $s$. If there are $R$ available rooted shapes of order $s$ with a given leaf count, taking $a$ of them with repetitions gives $\binom{R+a-1}{a}$ choices. Convolve these counts by the number of leaves; summing over partitions at smaller orders supplies the initial rooted-shape counts. For a fixed sorted size list, count colorings by their current number $r$ of runs. The next color can stay the same, or change in $k-1$ ways when the next size is at least the preceding mass plus $r$. Multiplying by the terminal-limited count of forests of each profile recovers exactly 17,333,648,400 colorings at 20. The explicit witness verifier establishes the labelings for these cases. [Partition count](spine_counts.py)
+
+~~~sh
+python3 -B research/rainbow/spine_counts.py 18 19 20
+~~~
