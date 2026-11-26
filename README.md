@@ -32,3 +32,5 @@ Starting with any tree of order at most thirteen, add arbitrarily many leaves at
 An arbitrary cordial labeling modulo $k$ can fail to lift modulo $sk$ for every even factor $s$. A matching in a labeled caterpillar gives a short obstruction. [Why lifting a fixed labeling can fail](research/cyclic-lifts.md)
 
 For any fixed rooted core $H$, testing cordiality after adding arbitrarily many leaves at its root, for every modulus, reduces to a finite problem. In particular, failure of an explicit rational linear-algebra test produces ordinary counterexamples on exactly $p$ vertices for every sufficiently large prime $p$. [Equivalence, finite bound and exact search](research/hub/rational.md)
+
+The large-modulus result also allows unbounded degrees. For any fixed $D\ge3$ and $\epsilon>0$ with $\epsilon<1$, every tree with total degree excess $\sum_v(\deg(v)-D)_+\le k^{1-\epsilon}$ is $k$-cordial for sufficiently large $k$. The proof cuts excess child edges and uses a matching to restore all original weights. [Unbounded-degree extension](research/bounded-degree/excess.md)
