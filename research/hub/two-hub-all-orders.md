@@ -2,6 +2,8 @@
 
 **Theorem.** At all sufficiently large $k$, let $H$ be any tree with at most $2^{\sqrt{\log_2 k}/40}$ leaves. At any two specified vertices add arbitrary numbers of leaves. The result is $k$-cordial. There is no restriction on the order of $H$, the lengths of its branches, the distance between the sites, or either population.
 
+The [polynomial interval construction](polynomial-two-hubs.md) strengthens the exceptional-leaf bound to $k^{1/6600}$, using the prescribed forest reduction below.
+
 Equivalently the same large-$k$ conclusion holds when all but at most $2^{\sqrt{\log_2 k}/40}$ leaves of a tree are adjacent to two vertices. Removing direct leaves other than the two sites may create at most two additional core leaves; the estimates below allow this additive constant. For a fixed bound on the number of exceptional leaves, only finitely many tree–modulus pairs can fail, by the [linear order bound](../large-order/linear.md) at the remaining finitely many moduli.
 
 There is also an integer result. At a fixed core leaf bound $l$, one can complete an $h$-vertex core to consecutive vertex labels and consecutive edge sums with $O_l(h)$ leaves at one chosen site and $O_l(\log(2h))$ at the other, except in the residual caterpillar cases which already work for all populations. Further leaves can be added at either site independently. The two bounds below keep their dependence on $l$ explicit.

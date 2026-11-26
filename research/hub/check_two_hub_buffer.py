@@ -8,8 +8,8 @@ from research.hub.two_hub_buffer import buffered_complete
 from research.hub.two_hub_contraction import complete
 
 
-def audit(tree,a,b):
-    witness = buffered_complete(tree,a,b)
+def audit(tree,a,b,**options):
+    witness = buffered_complete(tree,a,b,**options)
     if witness is None:
         enlarged = tree+[a,b]
         degree = Counter(range(1,len(enlarged)))+Counter(enlarged[1:])

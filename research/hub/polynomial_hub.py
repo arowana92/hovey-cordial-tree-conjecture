@@ -1,6 +1,7 @@
 """Injective integer labels at a prescribed zero hub, with polynomial span."""
 
 from collections import deque
+from math import gcd
 from random import Random
 
 from research.check_large_order_subdivision import children, compress
@@ -61,19 +62,25 @@ def bottom_fringe(tree, kids, deep, height=8):
     return kind,boundary,(a,b,c,d),plus,minus,outside
 
 
-def trials(width, rng):
+def trials(width, rng, spread=False):
     start = rng.randrange(width)
-    return (1+(start+i)%width for i in range(width))
+    step = 1
+    if spread and width>1:
+        step = rng.randrange(1,width)
+        while gcd(step,width)!=1:
+            step = 1+step%(width-1)
+    return (1+(start+i*step)%width for i in range(width))
 
 
-def add_transfer(labels, used, targets, path, p, s, t, width, rng):
+def add_transfer(labels, used, targets, path, p, s, t, width, rng, avoid_radius=-1):
     middle = (-(p+s+2*t))//3
-    for j in trials(width,rng):
+    for j in trials(width,rng,spread=avoid_radius>=0):
         z = middle+j
         first = gap_path(p,s,z)
         values = first+gap_path(first[-1],z,t)
         moving = values[:7]+values[8:11]+values[12:]
-        if len(set(values))==14 and not used.intersection(values) and not targets.intersection(moving):
+        if (len(set(values))==14 and not used.intersection(values) and
+                not targets.intersection(moving) and all(abs(x)>avoid_radius for x in values)):
             for v,x in zip(path,values):
                 labels[v] = x
             used.update(values)
@@ -81,15 +88,15 @@ def add_transfer(labels, used, targets, path, p, s, t, width, rng):
     raise AssertionError("no injective transfer")
 
 
-def elongate(labels, used, path, width, rng):
+def elongate(labels, used, path, width, rng, avoid_radius=-1):
     a,b = labels[path[0]],labels[path[-1]]
     assert a and b and a+b
     left, right = [], []
     for _ in range((len(path)-2)//12):
-        for u in trials(width,rng):
+        for u in trials(width,rng,spread=avoid_radius>=0):
             v = 4*u
             values = [pa*a+pb*b+cu*u+cv*v for pa,pb,cu,cv in POSITIONS]
-            if len(set(values))==12 and not used.intersection(values):
+            if len(set(values))==12 and not used.intersection(values) and all(abs(x)>avoid_radius for x in values):
                 break
         else:
             raise AssertionError("no injective subdivision")
@@ -103,7 +110,7 @@ def elongate(labels, used, path, width, rng):
         labels[w] = x
 
 
-def seed(tree, depth, rng):
+def seed_layout(tree, depth):
     kids = children(tree)
     live,_,_,chains = prune(tree,{0},depth)
     pins = {v for v in kids[0] if v in live}
@@ -112,6 +119,11 @@ def seed(tree, depth, rng):
     for chain in chains:
         for v in chain[:3]:
             edges[v] = tree[v]
+    return edges,chains,holes
+
+
+def seed(tree, depth, rng):
+    edges,chains,holes = seed_layout(tree,depth)
     small_kids = {v:[] for v in [0,*edges]}
     for v,p in edges.items():
         small_kids[p].append(v)

@@ -1,0 +1,63 @@
+# A polynomial two-site bound and a power of the modulus at every order
+
+**Theorem.** For all sufficiently large $k$, every tree with all but at most $k^{1/6600}$ of its leaves adjacent to two specified vertices is $k$-cordial. Its order, its branch lengths and the leaf populations at the two vertices are unrestricted.
+
+We prove an integer statement first. In an arbitrary $h$-vertex tree with distinct specified vertices $a,b$, put
+$$
+N(x)=(100(x+1))^{8\lceil\log_2(2x)\rceil+1},\qquad
+C_0=800(N(73)+1),\qquad P(h)=2^{24}(C_0+1)(h+1)^{434}.
+$$
+Either the tree and every extension by leaves at $a,b$ are caterpillars, or adding a total of at most $P(h)-h$ leaves at the two sites permits distinct integer vertex labels $[L,U]$ and distinct edge sums $[L+1,U]$, with $a=0,b=1$. One may then add any further numbers of leaves independently at the two sites. In particular adding at least $P(h)$ leaves at each site suffices for a super edge-magic labeling outside the caterpillar alternative. For arbitrary populations, $k>100(h+P(h)+1)^{14}$ suffices for cordiality. Uniformly, $h\le k^{1/6100}$ suffices for all large $k$, since $14\cdot434=6076$.
+
+## A supply of leaves with weight equal to their label
+
+Start with the path between the two sites. Optionally prescribe one more path, and include it and the unique connecting edges in the subtree. At hub distances two and four include one eligible seed twig from the full tree. If none exists the [short-path classification](two-hubs.md#completing-the-two-short-even-paths-inside-larger-trees) gives exactly the stated residual caterpillars. This starting subtree has at most five leaves. Orient the remaining components away from it.
+
+If its exterior has depth at least four, choose a deepest exterior vertex $v$, its parent $z$, and its grandparent $q$. Include the stem up through $q$ in the starting subtree, leaving $z,v$ outside. Every other child of $z$ is terminal. The resulting skeleton $S$ has at most six leaves. Apply the [parity compression and simultaneous elongation](two-hub-contraction.md#a-bound-in-terms-of-the-number-of-core-leaves) to $S$. The compressed skeleton has order at most 73 and includes the required twig at short hub distances, or another eligible twig. The width satisfies
+$$
+ W\le 100(N(73)+1)(h+1)^2(6+1)\le C_0(h+1)^2 .
+$$
+This applies also when the exterior had depth at most three and no stem was needed. In that case insert the remaining vertices in at most three breadth-first levels using the [ordinary child rule](two-hubs.md#growing-a-labeled-subtree). A level multiplies the width by at most $h+1$, since every parent was present at its start and the cost per child is at most that starting width. This proves the integer claim in this case.
+
+In the deep case, reflect $x\mapsto1-x$, exchanging the two sites for the duration of the construction, if necessary to make the label $p$ of $q$ nonpositive. Reflection takes an interval completion to another of the stated form. Keep $L$ for the present lower end, and put
+$$
+ B=h+W+1,\qquad R=2^{19}B.
+$$
+Extend the upper end to $R$ with leaves at zero. Insert $z$ below $q$ by the child rule, giving it $y=R+1-p$. Insert $v$ below $z$ with label $L-y$. This fills $[L-y+1,L)$ with leaves at zero. The width is at most $2R+3W+5$. Every integer $j$ with $W<|j|<R$ is now the label **and** weight of a leaf at zero. The only original vertices with labels outside $[-W,W]$ are $z,v$.
+
+## A partially labeled forest with its incoming edges
+
+Collapse the original vertices labeled so far to a virtual root, retaining every exterior edge incident with an original vertex. Record the actual parent label for each virtual-root child. We construct a subtree at this root whose free labels and actual incoming weights are equal as multisets. All its free labels will lie in $W<|j|<R$.
+
+Peel 432 layers of nonroot terminal vertices. Let $u$ be the number of nonroot terminals of the residual tree. Keep the empty forest if $u=0$. Otherwise compress unary chains in the residual tree modulo twelve, keeping the first edge out of the virtual root on every chain that starts there. Keep three further original vertices below each residual terminal on a downward path of 432 peeled vertices. There are at most $2u$ compressed segments of length at most thirteen and at most $29u$ initial edges in total. The 432-vertex paths below distinct residual terminals are disjoint. These are the shape and slot counts of the [polynomial one-site construction](polynomial-hub.md). Every retained virtual-root child has actual parent label in $[-W,W]$ because any exterior children of $z,v$ were terminal.
+
+Consider the initially retained free sites in parent-before-child order. At a child choose a new positive integer $s$ from $(4B,24B]$. With $p$ the actual or already assigned parent, let $t=s+p$. Keep $s$ distinct from preceding labels and reserved targets. If $p\ne0$, also keep $t$ distinct from all preceding labels and targets, then reserve both $t,-t$. Each of these two tests excludes at most $3h$ choices. We have $W<s,t\le48B$ and $t=s$ precisely for a zero parent. Each nonzero parent creates an error $[t]-[s]$ in the edge histogram minus the vertex histogram, where brackets denote point masses.
+
+For each error, use [two consecutive seven-edge transfers](polynomial-hub.md) on a 14-vertex slot. Each of the $u$ downward paths supplies 29 slots after its first three sites, leaving at least ten vertices unused at the end. Use the first slot on each path for the error at its second initially retained site, whose parent is positive. Later slots follow completed ones on the same path. With $d$ the attachment label of the slot, the four integers $0,d,s,t$ are distinct: initially $d$ is the distinct third label, later it is newly assigned and avoids initial labels and reserved targets. Using an intermediate integer $w$ transfers $s$ to $w$ and then $w$ to $t$; the net contribution to edges minus vertices is $[s]-[t]$. The two constant arrivals are $t,-t$. The other twelve have nonzero slopes in $w$ with distinct intercepts for each repeated slope, as in the [coefficient table](polynomial-hub.md). Positivity of $s,t$ applies here even for signed external parents. [Formal transfer identity](../large-order/GapPath.lean)
+
+Choose $w$ among the next $D=256(B+1)$ integers above $\lfloor-(d+s+2t)/3\rfloor$. Forbid the occupied labels, reserved targets and all of $[-W,W]$ for every moving arrival. At most $12(3h+2W+1)+91<D$ values of $w$ are excluded, including pair collisions among the fourteen arrivals. The two constants are reserved for this job and already have magnitude above $W$. The final arrival $d+s+3w+2t$ has magnitude at most $3D$. Initially $|d|\le24B$ and so inductively $|d|\le3D$ throughout. The coefficient table now gives magnitude below $16D<R$ for every arrival.
+
+Restore each compressed edge with the [neutral twelve-vertex path](../large-order/FlexiblePath.lean), taking its parameters $j,4j$ with $1\le j\le D$. Both original endpoints are positive because the virtual-root edges were pinned. On subsequent insertions the two endpoints are $j,4j$ from the preceding insertion. Each of the twelve slopes is nonzero and the equal-slope differences are nonzero. Avoiding previous labels, $[-W,W]$, and all pair collisions costs at most $12(h+2W+1)+66<D$ choices. The affine rows have magnitude below $16D$ and each insertion adds equal multisets to vertices and edges.
+
+Replace the leaves at zero at the constructed labels by the labeled partial forest. It has distinct labels outside $[-W,W]$ and inside $[-R,R]$. Its incoming weights use exactly those labels, including the weights of the actual edges from the original subtree. Both complete integer histograms are therefore preserved. Every remaining vertex is within 432 downward edges of the new original subtree, since it contains the entire residual tree. Insert all remaining children in breadth-first levels, multiplying width by at most $(h+1)^{432}$. Restoring the original orientation of the two sites if needed finishes with width at most $P(h)$. If a leaf population is smaller than $P(h)$, absorb it into the core and use the [one-site theorem](modular-injection.md) on at most $h+P(h)$ vertices. This proves the claimed modulus cutoff for every pair of populations.
+
+## Preserving a long branch and removing the restriction on tree order
+
+Use the reductions in the [all-orders two-site proof](two-hub-all-orders.md). For the modulus-order step write $l$ for the number of leaves of the original core. It suffices to allow $l\le k^{1/6600}+2$. In fact deleting leaf neighbors of the two chosen sites, while keeping the sites, creates new terminal vertices only at those sites. Mark the sites and all vertices of degree different from two. Shorten every segment longer than twenty to its congruent length in $[9,20]$ modulo twelve. The short core has order $b\le40l+1$. Choose a segment requiring the largest number of new sites. In completing the short core to width $W\le P(b)$ **protect the retained part of this segment** as the optional path in $S$.
+
+This protection ensures the sign condition for the subsequent buffer construction. In the skeleton the hub path and its attached branches cross the cut between $(-\infty,0]$ and $[1,\infty)$ at every edge except possibly inside the six-edge path seed or the short hub path and its twig. These seeds have at most six edges. Child insertions and the exterior two-vertex subdivisions preserve crossing on the exterior, and the alternating odd elongation of a crossing edge consists of crossing edges. On a retained segment of length at least nine, at most two edges touch zero, so there is an edge with strictly opposite signs. The protected edge survives the partial forest replacement and the final child insertions. The conclusion also holds after reflection by $1-x$: the cut is unchanged as an unordered partition and the count of edges touching the final zero is still at most two on the path.
+
+For $h\le k$ put $J=100+6\lceil\log_2(3+h+W)\rceil=O(\log k)$. If every segment requires fewer than $2J$ extra sites, the **whole original core** has $h=O((l+1)(J+1))$ vertices. Apply the polynomial interval theorem directly to this core. Its width is $O(k^{434/6600}(\log k)^{434})=o(k^{1/15})$. Alternatively the older simultaneous extension on an eligible short seed uses $O((W+1)(l+1)(J+1)^2)=o(k^{1/15})$, since $435\cdot15<6600$.
+
+Otherwise use the protected crossing edge on the longest segment to create the interval of the [asymmetric construction](two-hub-all-orders.md#creating-an-interval-with-few-leaves-at-the-second-site). On every segment with increments left, choose an untouched short-core edge with both endpoints and sum nonzero. At most two edges meet zero, at most one weighs zero, and at most one was used to create the interval. Thus no further sign condition on these segments is needed. Neutral subdivisions restore all lengths. The old proof gives leaf thresholds $Ch+O((W+1)(J+8))$ at the first site and $O((W+1)(J+8))$ at the second, with absolute $C$. Since $434\cdot15<6600$, the latter is $o(k^{1/15})$.
+
+For order $k$ and $h<\delta k$ choose fixed $\delta>0$ sufficiently small that the larger leaf population meets the first threshold. If the smaller population misses its threshold, apply the one-site result, since at most $l+o(k^{1/15})\le k^{1/15}$ leaves lie away from the larger site. When $\delta k\le h\le k$ use the [positive-density theorem](permuted-pools.md). Its leaf extension handles the other populations with $h\le k$. For $h>k$ the [prescribed forest and suffix induction](two-hub-all-orders.md#a-prescribed-forest-at-larger-core-orders) applies unchanged: the bound on ordinary terminals and components is $O(l+1)$, which is at most $k^{1/2}$ for large $k$. This proves the all-orders theorem.
+
+## Reproduction
+
+The checker recomputes the edge sums using the input tree. It tests interval multiplicities by sweeping range endpoints; this remains exact even when the filler ranges are very large. It checks 7,068 ordered marked cores through order nine, sixteen deeper examples through order 20,742, eight forced uses of the polynomial construction in the branch proof, and a partial forest with repeated, signed and zero external labels. These are checks of the construction. The uniform exponents follow from the inequalities above. [Constructor](polynomial_two_hubs.py) · [Independent interval and boundary-edge checks](check_polynomial_two_hubs.py)
+
+~~~sh
+python3 -B -m research.hub.check_polynomial_two_hubs
+python3 -B -m research.hub.check_two_hub_buffer
+~~~

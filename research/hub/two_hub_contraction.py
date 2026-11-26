@@ -1,6 +1,7 @@
 """Complete a two-hub core to integer intervals, recording whole filler ranges."""
 
 from collections import deque
+from bisect import bisect_left
 
 from research.hub.two_hubs import path_seed, short_seed
 
@@ -45,6 +46,26 @@ class Interval:
         self.fill(1,y+q,y,reflected)
         self.lo,self.hi = sorted((flip(x),flip(y)))
         return (flip(x),flip(y)) if a==p else (flip(y),flip(x))
+
+
+def remove_fillers(interval, removed):
+    removed = sorted(removed)
+    fresh = []
+    count = 0
+    for p,start,stop in interval.blocks:
+        if p==1:
+            fresh.append((p,start,stop))
+            continue
+        a,b = bisect_left(removed,start),bisect_left(removed,stop)
+        count += b-a
+        for x in removed[a:b]:
+            if start<x:
+                fresh.append((p,start,x))
+            start = x+1
+        if start<stop:
+            fresh.append((p,start,stop))
+    assert count==len(removed)
+    interval.blocks = fresh
 
 
 def elongate_group(interval, jobs):
