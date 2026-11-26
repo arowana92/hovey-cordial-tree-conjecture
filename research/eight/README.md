@@ -69,4 +69,16 @@ gzip -dc research/eight/certificate.jsonl.gz | cmp - /tmp/hovey-eight-regenerate
 
 The SHA-256 of the **decompressed** JSON Lines is `4b1467798598a00cff52c6964ce67a266b5a18ae8f88fc91afc35650b5e6f5c8`.
 
-Lean 4.14.0 checks the general passage from the two finite hypotheses to arbitrary order, including the split into internal and boundary edges and the change of the deficient weight. Run `lean research/Reduction.lean` from the repository root. The theorem `Cordial.reduction` uses the parent-array representation of a tree. Its hypotheses `BaseTest` and `ForestTest` depend only on the indicated finite prefixes. The Python certificate verifier establishes these hypotheses at eight. The Lean proof is conditional on these two hypotheses. [Lean proof](../Reduction.lean)
+## The complete eight-label theorem in Lean
+
+Lean 4.36.0 proves `Cordial.Eight.allTrees` with no finite-test hypothesis. For any natural number $n$ and parent function $p$ with $p(i)\le i$, the conclusion supplies $n$ vertex labels and proves the two pairwise frequency inequalities modulo eight. Every finite tree admits this numbering by rooting it and listing parents before children. The formal statement uses this parent-array representation. [Final theorem and certificate checker](Certificate.lean) · [General induction](../Reduction.lean)
+
+A fresh Lean search tries injective assignments on all $1\cdot2\cdots7=5{,}040$ order-eight parent arrays and recounts their edge sums. For attachments, the table builder rearranges the existing witnesses into absolute boundary colors. It also proposes an index map after adding each possible leaf. Lean checks 1,434,136 witness–deficit combinations and 773,848 proposed transitions. On each transition it checks that the index map is a permutation and preserves the actual parent or external boundary color. The proof composes these maps from the empty forest and transports both histograms. Thus a missing case anywhere in the reachable states would fail the closure test. [Base search](Base.lean) · [Reindexing and tally proofs](Representation.lean) · [Table builder](lean_tables.py)
+
+Run the following from the repository root with Lean 4.36.0 and Python 3. All generated tables and module files go in a fresh temporary directory.
+
+~~~sh
+research/eight/verify_lean.sh
+~~~
+
+The script prints the axioms of the final theorem. Its three finite evaluations use Lean's `native_decide`, which trusts compiled evaluation. The table builder writes data, and Lean checks their mathematical content. As negative controls, changing one order-one witness label and the destination of the first leaf insertion caused the witness and closure evaluations to fail separately. The standard-library Python checker above remains an independent verification route.
