@@ -37,3 +37,9 @@ Every path is $k$-cordial by the caterpillar theorem, so a minimum counterexampl
 Each pendant edge represents a path of length at most $k-1$ in the original tree. Otherwise delete its last $k$ vertices and use the first path construction to extend a labeling of the smaller tree. Each edge between branching vertices represents a path of length at most $2k$. A longer path has at least $2k$ internal vertices of degree two. Suppress $2k$ consecutive such vertices and apply the subdivision construction to restore them. Both reductions contradict minimality.
 
 The number of edges is at most $L(k-1)+(L-3)2k$. Substituting $L\le k-2$ gives the stated bound. For example, at nine labels a smallest counterexample would have at most seven leaves and 129 vertices. The argument also excludes minimum counterexamples at three and four labels directly via $3\le L\le k-2$.
+
+### Odd moduli
+
+For any odd $k$, subdivide an edge by $k$ vertices. If the first endpoint has label $a$, insert $a+1,\ldots,a+k$ in that order. The last new vertex has label $a$, so the last edge has the original edge weight. The first $k$ edges have weights $2a+2i+1$ for $0\le i<k$. Multiplication by two permutes the residues, so the net increment is one of each vertex label and one of each edge weight. Thus an internal segment of a minimum counterexample has length at most $k$ for these moduli.
+
+For odd $k\ge5$ the order bound improves to $1+L(k-1)+(L-3)k\le 2k^2-8k+3$. At odd primes a star extension further improves the leaf bound. [Prime-modulus argument](rainbow/prime-star.md)
