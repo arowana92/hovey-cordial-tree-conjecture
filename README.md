@@ -52,6 +52,8 @@ For every fixed $D$ and all sufficiently large $k$, every finite tree with **at 
 
 For fixed $D,\epsilon$ with $D\ge3$ and $0<\epsilon<1$, the same all-orders conclusion holds with up to $k^{1-\epsilon}$ vertices of degree greater than $D$, provided at most $k^{1-\epsilon}$ leaves lie within distance two of those vertices. In particular, subdividing each pendant edge at least twice suffices for every tree in this degree-count class at large $k$. The high-degree vertices may be adjacent. [Multiple boundary labels, consecutive preorder blocks and checks](research/hub/subdivided-blocks.md)
 
+It suffices to bound the number of leaves **directly adjacent** to those high-degree vertices by $k^{1-\epsilon}$. Consequently a single subdivision of each pendant edge at a high vertex suffices throughout this class, at every sufficiently large modulus. The proof allocates prescribed shifts to terminal parents and completes their edges in three matchings. [Forest theorem, primary inputs and independent checks](research/hub/terminal-shifts.md)
+
 For fixed $k\ge 5$, a smallest counterexample, if one exists, has at most $k-2$ leaves and $3k^2-13k+3$ vertices. The proof combines Hall’s permutation theorem with explicit labelings of pendant paths and subdivided edges. [Counterexample size bound](research/counterexample-bound.md)
 
 A second sufficient test uses rainbow labelings of forests on $k-1$ free vertices. Choosing a connected core that contains several original leaves reduces the number of forest shapes needed. For composite moduli, a prescribed star can fail the unrestricted version of this test by an explicit divisibility condition. [Rainbow forest reduction](research/rainbow/README.md) · [Pinned star obstruction](research/rainbow/pinned-star.md)
