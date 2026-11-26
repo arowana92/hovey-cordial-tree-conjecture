@@ -11,7 +11,7 @@ from research.hub.signed_tree import construct as signed
 from research.hub.universal_hub import construct as integer
 
 
-def group_branches(tree,d):
+def group_branches(tree,d,protect_four=False):
     kids = children(tree)
     height = [1]*len(tree)
     shape = {}
@@ -26,6 +26,14 @@ def group_branches(tree,d):
     protected = {deepest}
     secondary = [v for v in tops if tree[v] == 1 and kids[v]]
     protected.update(secondary[:2])
+    if protect_four and height[deepest] < 5:
+        by_shape = {}
+        for v in secondary:
+            copies = by_shape.setdefault(shape[v],[])
+            copies.append(v)
+            if len(copies) == 4:
+                protected.update(copies)
+                break
     waiting = {}
     groups = []
     omitted = set()

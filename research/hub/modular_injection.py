@@ -87,13 +87,17 @@ def advance(front, path, tree, labels, occupied, k, rng):
     return mode,len(cycles)
 
 
-def finish(tree, kids, labels, fringe, k, rng, max_levels=12):
-    kind, boundary, nodes, plus, minus, other = fringe
-    removed = set(nodes) | set(plus) | set(minus) | set(other)
+def bulk_forms(tree, kids, labels, removed, k, rng, guard=None):
+    """Label the ordinary layers, leaving the difference [terminal]-[X]."""
     group = [v for v,p in enumerate(tree) if v and v not in removed and v not in labels and p in labels]
+    if guard is not None:
+        group.remove(guard)
+        group.append(guard)
     cycles, residual, delta = walks(group,tree,labels,k)
     forms = {v:(0,x) for v,x in labels.items()}
     intercepts = {delta} | {x for _,x in residual}
+    if guard is not None:
+        intercepts.update((0, labels[tree[guard]]))
     for v,x in residual:
         forms[v] = (1,x)
     for cycle in cycles:
@@ -102,9 +106,6 @@ def finish(tree, kids, labels, fringe, k, rng, max_levels=12):
 
     def add(left, right):
         return left[0]+right[0], (left[1]+right[1])%k
-
-    def neg(row):
-        return -row[0], (-row[1])%k
 
     terminal = (1,delta)
     levels = 1
@@ -115,6 +116,20 @@ def finish(tree, kids, labels, fringe, k, rng, max_levels=12):
         for v in group:
             forms[v] = terminal
             terminal = add(terminal,forms[tree[v]])
+    return forms,terminal,levels
+
+
+def finish(tree, kids, labels, fringe, k, rng, max_levels=12):
+    kind, boundary, nodes, plus, minus, other = fringe
+    removed = set(nodes) | set(plus) | set(minus) | set(other)
+    forms,terminal,levels = bulk_forms(tree,kids,labels,removed,k,rng)
+
+    def add(left, right):
+        return left[0]+right[0], (left[1]+right[1])%k
+
+    def neg(row):
+        return -row[0], (-row[1])%k
+
     p = forms[boundary]
     assert 1<=levels<=max_levels
     if p[0] == 0:

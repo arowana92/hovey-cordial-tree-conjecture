@@ -43,7 +43,7 @@ At smaller orders pad with leaves at a site and restrict the resulting order-$k$
 
 ## Reproduction
 
-The checker uses every rooted shape through order seven to reconstruct 120,980 actual weights on 1,445 complete groups, with all possible subgroup parents at three different divisors. It separately checks 120 two-site trees through order 3,128 and the changes to both counts after adding leaves at zero. The deep tests include a retained branch of height exactly five and 24 cases with zero leaves at the second site. The shallow tests delete the temporary leaves and then restore groups on both sides. [Constructor](odd_branch_groups.py) · [Independent verifier](check_odd_branch_groups.py)
+The checker uses every rooted shape through order seven to reconstruct 120,980 actual weights on 1,445 complete groups, with all possible subgroup parents at three different divisors. It separately checks 120 two-site trees through order 3,128 and the changes to both counts after adding leaves at zero. The deep tests include a retained branch of height exactly five and 24 cases with zero leaves at the second site. The current constructor uses the stronger fixed-boundary completion when two nontrivial branches survive at the second site. The fiber checker separately verifies the alternative order-$k$ labelings used above. [Constructor](odd_branch_groups.py) · [Independent verifier](check_odd_branch_groups.py) · [Fixed-boundary improvement](adjacent-odd-divisor.md)
 
 ~~~sh
 python3 -B -m research.hub.check_odd_branch_groups

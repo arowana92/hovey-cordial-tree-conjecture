@@ -60,6 +60,8 @@ At every sufficiently large **even** modulus, suppose all degrees except at two 
 
 For any fixed odd $d\ge3$, at every sufficiently large multiple $k$ of $d$ **every tree with two adjacent exceptional vertices is $k$-cordial**, with a fixed degree bound $D$ on all other vertices. The construction covers all diameters and all leaf populations. It uses two ordinary branches below the same prescribed site to complete the last edge weights. [Proof and independent checks](research/hub/adjacent-odd-divisor.md) · [Neutral groups of repeated branches](research/hub/odd-branch-groups.md)
 
+The same all-orders theorem holds at **every sufficiently large even modulus**. Consequently the moduli for which every tree in this two-site class is cordial have natural density one. Any unbounded sequence of counterexample moduli in the class must have least prime factor tending to infinity. [Even-modulus proof, density consequence and independent checks](research/hub/adjacent-even.md)
+
 For fixed $k\ge 5$, a smallest counterexample, if one exists, has at most $k-2$ leaves and $3k^2-13k+3$ vertices. The proof combines Hall’s permutation theorem with explicit labelings of pendant paths and subdivided edges. [Counterexample size bound](research/counterexample-bound.md)
 
 A second sufficient test uses rainbow labelings of forests on $k-1$ free vertices. Choosing a connected core that contains several original leaves reduces the number of forest shapes needed. For composite moduli, a prescribed star can fail the unrestricted version of this test by an explicit divisibility condition. [Rainbow forest reduction](research/rainbow/README.md) · [Pinned star obstruction](research/rainbow/pinned-star.md)
