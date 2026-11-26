@@ -4,6 +4,8 @@
 
 This is an unconditional existence result at large orders. The [smaller bound for a *minimum* counterexample](../counterexample-bound.md) serves a different purpose: checking small orders suffices to prove a fixed modulus. The large-order theorem here requires no checks at small orders. At $n=k$ the original problem still asks for a bijective labeling with distinct sums. [Hovey, *A-cordial graphs*](https://doi.org/10.1016/0012-365X(91)90254-Y)
 
+Distributing the corrections across translated groups of sites improves the bound to $(2^{34}+4)k^2$. [Quadratic theorem and checks](quadratic.md)
+
 ## Correcting two histograms by local changes
 
 Index every vector cyclically by $0,\ldots,k-1$. Write $(\tau h)_j=h_{j-1}$ and $s(h)=\sum_j j h_j\pmod k$. Suppose some pairwise nonadjacent vertices have degree $d\in\{1,2\}$ and come in two types. Type A has all its neighbors labeled zero. Type B has one neighbor labeled 1 and the other $d-1$ labeled zero. Changing a type A vertex from $x$ to $y$ changes the vertex vector by $v=e_y-e_x$ and the edge vector by $dv$. A type B change gives $v$ and $(d-1)v+\tau v$. Nonadjacency lets all changes add without interaction, even when some neighbors coincide.

@@ -18,7 +18,7 @@ A primary-literature search on 26 November 2026 found these results and no earli
 
 ## General moduli
 
-For every fixed $k$, **every sufficiently large tree is $k$-cordial**, with unrestricted degrees. One explicit sufficient order is $2^{26}k^8\log(2k)$. Independent random vertex labels first give near-balanced histograms, then local changes at leaves or degree-two vertices make both histograms exactly balanced. Thus only finitely many ordinary trees can fail at each fixed modulus. [Proof, construction and Lean correction lemma](research/large-order/README.md)
+For every fixed $k$, **every sufficiently large tree is $k$-cordial**, with unrestricted degrees. In fact order $(2^{34}+4)k^2$ suffices, and independently a single vertex of degree at least $4k^2$ suffices at any order. The construction corrects both histograms at once using leaves or degree-two vertices. [Quadratic bound for every counterexample](research/large-order/quadratic.md) · [High-degree construction](research/large-order/high-degree.md) · [Basic correction and Lean verification](research/large-order/README.md)
 
 For every $\gamma>0$ and all sufficiently large $k$, if a counterexample exists then a smallest one has fewer than $k^{1+\gamma}$ vertices. This bound holds at unrestricted maximum degree. The proof embeds a tree in a larger cyclic group and prescribes omitted colors whose projections modulo $k$ are distinct. [Near-linear counterexample bound and verification](research/bounded-degree/projection.md)
 
