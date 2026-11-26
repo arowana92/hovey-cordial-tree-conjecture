@@ -32,7 +32,7 @@ For every prime $p$, a forest on at most $p-1$ free vertices admits a rainbow ex
 
 Starting with any tree of order at most thirteen, add arbitrarily many leaves at any one specified vertex. Every resulting tree is $k$-cordial for every positive $k$. Integer witnesses on 12,486 rooted cores and a periodic sequence of leaf labels give the large-modulus construction. [Proof for one attachment vertex](research/hub/README.md)
 
-An arbitrary cordial labeling modulo $k$ can fail to lift modulo $sk$ for every even factor $s$. A matching in a labeled caterpillar gives a short obstruction. [Why lifting a fixed labeling can fail](research/cyclic-lifts.md)
+For every $k,s\ge2$, a prescribed cordial labeling modulo $k$ of a caterpillar on $sk$ vertices can fail to lift modulo $sk$. Summing one fiber of leaf weights forces its two parents to have the same lifted label. [Why lifting a fixed labeling can fail](research/cyclic-lifts.md)
 
 For any fixed rooted core $H$, testing cordiality after adding arbitrarily many leaves at its root, for every modulus, reduces to a finite problem. In particular, failure of an explicit rational linear-algebra test produces ordinary counterexamples on exactly $p$ vertices for every sufficiently large prime $p$. [Equivalence, finite bound and exact search](research/hub/rational.md)
 
