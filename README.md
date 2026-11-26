@@ -22,3 +22,5 @@ A second sufficient test uses rainbow labelings of forests on $k-1$ free vertice
 For every prime $p$, a star together with any number of singleton leaves admits the required rainbow extension with arbitrary prescribed parent labels, up to $p-1$ new vertices. The proof computes a signed count modulo $p$. It sharpens the minimum-counterexample bounds to $p-3$ leaves and, for $p\ge7$, $2p^2-10p+4$ vertices. [Prime-modulus extension and proof](research/rainbow/prime-star.md)
 
 For every positive modulus $k$, attaching $k$ identical copies of an arbitrary rooted branch at one vertex preserves any cordial labeling of the core. If the branch has $n$ vertices, the construction adds exactly $n$ of each vertex label and each edge weight. [Repeated-branch theorem and construction](research/repeated-branches.md)
+
+For every prime $p$, a forest on at most $p-1$ free vertices admits a rainbow extension if at most four edges join free vertices, with arbitrary prescribed external parent labels and any forbidden vertex label. A signed count and its first moments reduce all primes to a finite computation on 30 shapes. [Proof and reproducible checks](research/prime/README.md)
