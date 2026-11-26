@@ -1,6 +1,6 @@
 # Hovey’s cordial tree conjecture
 
-**Work in progress.** This repository gives reproducible computer-assisted proofs that every finite tree is $k$-cordial for each modulus from 8 through 17. Hovey’s conjecture for every positive integer $k$ remains open. [Eight labels](research/eight/README.md) · [Nine through thirteen](research/rainbow/README.md) · [Fourteen through seventeen](research/rainbow/ordered-cut.md)
+**Work in progress.** This repository gives reproducible computer-assisted proofs that every finite tree is $k$-cordial for each modulus from 8 through 18. Hovey’s conjecture for every positive integer $k$ remains open. [Eight labels](research/eight/README.md) · [Nine through thirteen](research/rainbow/README.md) · [Fourteen through seventeen](research/rainbow/ordered-cut.md) · [Eighteen](research/rainbow/native-spine.md)
 
 A vertex labeling takes values in the residues modulo $k$. Each edge receives the sum of its endpoint labels modulo $k$. Among vertices, every two residue counts must differ by at most one. The same condition holds independently among edges, including residues with count zero.
 
