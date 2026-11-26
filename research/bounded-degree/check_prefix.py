@@ -26,6 +26,18 @@ def check(parents):
         sources = {p for p, _ in crossing}
         if not sources <= prefix or len(sources) > 1 + t.bit_length():
             raise ValueError((parents, prefix, crossing))
+        # The source identity itself acts as a distinct boundary color.
+        mass = runs = 0
+        previous = None
+        for order_size, parent in sorted((size[j], p) for p, j in crossing):
+            if parent != previous:
+                if order_size < mass + max(1, runs):
+                    raise ValueError(("ineligible boundary change", parents, prefix, crossing))
+                runs += 1
+            mass += order_size
+            previous = parent
+        if mass != t or runs != len(sources) or 3 * 2 ** (runs - 1) - runs - 1 > t:
+            raise ValueError("ordered boundary size bound failed")
         if len(crossing) > 3 * (1 + t.bit_length()) + excess:
             raise ValueError("excess bound failed")
     return n - 1

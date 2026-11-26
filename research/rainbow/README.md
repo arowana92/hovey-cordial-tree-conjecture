@@ -1,6 +1,6 @@
 # A rainbow forest test for cordial trees
 
-**Theorem.** Every finite tree is $k$-cordial for $k=9,10,11,12,13$. These are computer-assisted results. The reduction below applies to all moduli $k\ge5$. Its finite hypotheses are verified here at nine, ten, eleven, twelve and thirteen. The last two cases use the leaf-centroid bound below.
+**Theorem.** Every finite tree is $k$-cordial for $k=9,10,11,12,13$. These are computer-assisted results. The reduction below applies to all moduli $k\ge5$. Its finite hypotheses are verified here at nine, ten, eleven, twelve and thirteen. The last two cases use the leaf-centroid bound below. Ordering the branches in the cut proves the next four cases. [Proof and certificates for fourteen through seventeen](ordered-cut.md)
 
 ## The two finite hypotheses
 

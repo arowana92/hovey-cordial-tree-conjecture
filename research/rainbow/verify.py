@@ -4,6 +4,7 @@ import argparse
 import gzip
 import json
 from collections import Counter, defaultdict
+from functools import lru_cache
 from math import comb, gcd, prod
 from pathlib import Path
 
@@ -23,18 +24,67 @@ def rooted_shapes(order):
     return trees
 
 
-def verify(path, k, centroid=False, grouped=False):
-    if centroid:
+def ordered_count(shape, k, spine=False):
+    """Count colorings independently by their actual color changes."""
+    sizes = sorted(len(code) // 2 for code in shape)
+    count = 0
+    for cuts in range(1 << (len(sizes) - 1)):
+        mass = sizes[0]
+        ways = k
+        runs = 1
+        for position, size in enumerate(sizes[1:]):
+            if cuts & (1 << position):
+                if size < mass + (runs if spine else 1):
+                    ways = 0
+                    break
+                ways *= k - 1
+                runs += 1
+            mass += size
+        count += ways
+    return count
+
+
+def ordered_colors(roots, spine=False):
+    """Changes between unlike colors must begin beyond the earlier mass."""
+    mass = 0
+    previous = None
+    runs = 0
+    colors = []
+    for size, color in sorted((len(code) // 2, color) for color, code in roots):
+        if color != previous:
+            require(size >= mass + (max(1, runs) if spine else 1),
+                    "boundary color changes at an ineligible size")
+            runs += 1
+        colors.append(color)
+        mass += size
+        previous = color
+    return tuple(colors)
+
+
+@lru_cache(maxsize=65536)
+def ordered_orbit(colors, units, k):
+    images = {tuple(a * c % k for c in colors) for a in units}
+    return min(images), len(images)
+
+
+def verify(path, k, centroid=False, grouped=False, ordered=False, spine=False):
+    ordered = ordered or spine
+    if centroid or ordered:
         limit = max(leaves - (leaves + 2) // 3 for leaves in range(2, k - 1))
     else:
         limit = max(leaves - 1 - leaves // 4 for leaves in range(2, k - 1))
     trees = rooted_shapes(k)
     base = set()
-    coverage = defaultdict(set)
+    coverage = defaultdict(dict if ordered else set)
+
+    def take_count(shape):
+        covered = coverage.pop(shape, {})
+        return sum(covered.values()) if ordered else len(covered)
+
     closed_counts = {}
     previous = None
     rows = 0
-    units = [a for a in range(k) if gcd(k, a) == 1]
+    units = tuple(a for a in range(k) if gcd(k, a) == 1)
     with gzip.open(path, "rt", encoding="ascii") as source:
         for lineno, line in enumerate(source, 1):
             try:
@@ -59,18 +109,23 @@ def verify(path, k, centroid=False, grouped=False):
                 require(len(set(weights)) == k - 1, "repeated edge weight")
                 shape = tuple(sorted(code for _, code in roots))
                 if grouped and previous is not None and shape != previous:
-                    closed_counts[previous] = len(coverage.pop(previous))
+                    closed_counts[previous] = take_count(previous)
                     require(shape not in closed_counts, "shape appears in multiple groups")
                 previous = shape
-                for a in units:
-                    pairs = sorted((code, a * color % k) for color, code in roots)
-                    coverage[shape].add(tuple(c for _, c in pairs))
+                if ordered:
+                    colors = ordered_colors(roots, spine)
+                    key, size = ordered_orbit(colors, units, k)
+                    coverage[shape][key] = size
+                else:
+                    for a in units:
+                        pairs = sorted((code, a * color % k) for color, code in roots)
+                        coverage[shape].add(tuple(c for _, c in pairs))
                 rows += 1
             except (TypeError, ValueError, IndexError) as error:
                 raise ValueError(f"record {lineno}: {error}") from error
 
     if grouped and previous is not None:
-        closed_counts[previous] = len(coverage.pop(previous))
+        closed_counts[previous] = take_count(previous)
     require(base == set(trees), "base tree coverage failed")
     shapes_checked = all_colorings = 0
     for parents in trees.values():
@@ -81,8 +136,11 @@ def verify(path, k, centroid=False, grouped=False):
             continue
         shape = tuple(sorted(code for _, code in components(forest)))
         # The colors on c identical components form a multiset of size c.
-        count = prod(comb(k + c - 1, c) for c in Counter(shape).values())
-        actual = closed_counts.pop(shape, 0) if grouped else len(coverage.pop(shape, set()))
+        if ordered:
+            count = ordered_count(shape, k, spine)
+        else:
+            count = prod(comb(k + c - 1, c) for c in Counter(shape).values())
+        actual = closed_counts.pop(shape, 0) if grouped else take_count(shape)
         require(actual == count, f"shape {shape} covers {actual} of {count}")
         all_colorings += count
         shapes_checked += 1
@@ -98,7 +156,10 @@ if __name__ == "__main__":
     parser.add_argument("--centroid", action="store_true", help="use the leaf-centroid bound")
     parser.add_argument("--grouped", action="store_true",
                         help="release each forest shape after its consecutive records")
+    parser.add_argument("--ordered", action="store_true",
+                        help="verify the size-ordered leaf-centroid test")
+    parser.add_argument("--spine", action="store_true", help="check the exact ordered-cut profile")
     args = parser.parse_args()
     if args.modulus < 5:
         parser.error("this reduction uses k >= 5")
-    verify(args.certificate, args.modulus, args.centroid, args.grouped)
+    verify(args.certificate, args.modulus, args.centroid, args.grouped, args.ordered, args.spine)
