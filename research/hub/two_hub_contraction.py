@@ -207,13 +207,13 @@ def complete(tree, a, b):
     return [labels[v] for v in range(len(tree))],interval,(path_rounds,len(rounds))
 
 
-def segment_core(tree, a, b, keep_length):
+def segment_core(tree, a, b, keep_length, pins=()):
     """Compress chains between marked vertices using the supplied length rule."""
     graph = [[] for _ in tree]
     for v,p in enumerate(tree[1:],1):
         graph[p].append(v)
         graph[v].append(p)
-    marks = {v for v,nb in enumerate(graph) if len(nb)!=2} | {a,b}
+    marks = {v for v,nb in enumerate(graph) if len(nb)!=2} | {a,b} | set(pins)
     marked_ids = {a:0}
     compact = [-1]
     segments = []

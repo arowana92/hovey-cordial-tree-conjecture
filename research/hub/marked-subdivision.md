@@ -1,0 +1,50 @@
+# Linear leaf thresholds on a tree with several marked vertices
+
+**Theorem.** Fix integers $l,s\ge2$. There is a computable constant $K(l,s)$ with the following property. Let $H$ be any tree of order $h$ with at most $l$ leaves and at most $s$ marked vertices. Add any numbers of leaves at the marks. If the second-largest population is at least $K(l,s)h$, the resulting tree is super edge-magic and hence cordial at every positive modulus. All branch lengths, distances between marks and ratios between populations are unrestricted. [Consecutive sums and cordiality, Youssef, Theorem 4](https://ajc.maths.uq.edu.au/pdf/43/ajc_v43_p031.pdf)
+
+## Restoring long segments at linear cost
+
+Split $H$ into segments at all marks and all vertices of degree different from two. There are at most $2l+s$ such segments. Retain segments of length at most sixteen. For each longer segment take a length in $[1,12]$ so that the number of omitted vertices is $4+12n$ for $n\ge0$. For fixed $l,s$ there are finitely many resulting marked cores. Choose any subset of $j\ge3$ marks as the large sites. For every population profile on those sites the [marked seed theorem](marked-leaf-threshold.md#covering-the-three--and-four-site-geometries) gives an integer interval seed on the entire shortened tree from a finite family. Its selected anchors are $-1,0,2$ or $-a,0,1,b$ with $a\ge1,b\ge2$. Its site labels $f_i$ satisfy
+$$
+\min(W,M-W)\ge\eta (M-\max_i m_i),\qquad
+W=\sum f_i m_i,\quad M=\sum m_i
+$$
+over the chosen $j$ large sites, for a computable $\eta>0$. All site labels and widths at this stage are bounded in terms of $l,s$. Set $b$ equal to the largest anchor, also in the triple case.
+
+On each segment needing expansion, select one retained edge $p,q$. Use the marked insertion rules to put a new child $x$ at $p$ below and a new child $y=p+q-x$ at $q$ above. Reconnect $x,y$ in place of $p,q$. Take $x$ to be a sufficiently negative multiple of $b$. Next subdivide $x,y$ the same way with a sufficiently negative multiple $x'$ adjacent to $x$ and $y'=x+y-x'$ adjacent to $y$. This uses four of the available vertices and leaves the edge $x,x'$ with strictly negative endpoints both divisible by $b$. Each pair of new children preserves the replaced weight, and both interval identities hold. There are boundedly many operations on a finite family of starting seeds. Choosing the closest eligible positions by the marked insertion algorithm bounds all their widths and all labels so far solely in terms of $l,s$. [Child positions and padding](marked_leaf_geometry.py)
+
+Align the lower endpoint to $L=1\bmod b$ by bounded padding. At a triple every sufficiently large lower padding length is feasible and at a quadruple any length works. Protect the entire present interval. On each edge $x,x'$ insert the required $n$ neutral twelve-vertex paths on the **scaled integer lattice** $b\mathbb Z$. Divide both endpoints by $b$ and use the [twelve affine rows](../large-order/FlexiblePath.lean) with parameters $u,4u$, scaling all coordinates back by $b$. Forbid all previously chosen new labels and the fixed protected interval. Both divided endpoints and their sum are nonzero, including on later substitutions inside the edge $u,4u$. The twelve slopes are nonzero and equal-slope intercepts are distinct. At most $12(h+2A+1)+66$ integer choices are excluded, where $A$ bounds the initial magnitudes in divided coordinates. One may thus choose $1\le u=O_{l,s}(h+1)$ throughout. The explicit affine rows give this same order of magnitude for all new labels. Each substitution adds the same multiset to edges and vertices.
+
+Extend the upper interval with leaves at zero. Below the aligned $L$, fill successive bands of length $b$ with parents $(b,0,\ldots,0)$, starting at the lowest coordinate in each band. Their lower-band displacements are $(b-1,-1,\ldots,-1)$ and hence permute the new colors. The only nonzero parent lies at a coordinate $1\bmod b$. All desired lattice coordinates below the old interval therefore carry leaves at zero; the same holds above. Extend only as far as necessary. Replace the leaves at the new coordinates by the actual neutral path vertices. Labels at every original mark are preserved. The total number of seed and buffer fillers is $O_{l,s}(h)$, attached solely at the chosen large sites. This proves a linear-cost completion seed for every long-segment geometry.
+
+## Paying for the precise populations
+
+List the positive populations in nonincreasing order as $m_1,\ldots,m_r$, with $r\le s$. First suppose for some $j\ge3$ that
+$$
+m_j\ge C\left(h+\sum_{i>j}m_i\right). \tag{1}
+$$
+Use the first $j$ sites above. Restoring all the smaller sites' contributions to $W$ and $M-W$ costs at most $F\sum_{i>j}m_i$ in either slack, since their labels were fixed on the short core and $F$ bounds $|f_i|,|1-f_i|$. Deducting seed fillers costs $O_{l,s}(h)$ in either slack and at any parent. Initially the slacks were at least $\eta m_j$. Choose $C=C(l,s)$ large enough to pay for both deductions and the remaining constant reserves at the three or four anchors. The [exact block completion](marked-leaf-threshold.md#realizing-the-exact-leaf-populations) now produces the specified counts. Its reserve depends only on the number and labels of the sites with requests, including the anchors. Intermediate path vertices receive no leaf requests and are omitted from that calculation.
+
+For $j=2$ first put one leaf from each positive population into $H$, so all sites are nonleaves. In the [two-site asymmetric construction](two-hub-all-orders.md), also mark each minority site when shortening segments. There are still boundedly many segments and a bounded short core. All the extra marks retain their bounded short-core labels during elongation. If no segment is long enough to create the buffer, $h=O_{l,s}(1+\log(2h))$ and $h$ itself is bounded. In the other case the two-site completion uses $O_{l,s}(h)$ leaves at the two large sites. In a residual caterpillar all marks are already nonleaves, so arbitrary further leaves there preserve the caterpillar and the [consecutive-sums construction](all-radius-two.md) applies. Otherwise $f_1=0,f_2=1$. Before deductions the large-site slacks are $m_2,m_1$, up to the initial one leaf per site. All minority site labels are bounded. Condition (1) again covers the deductions and the constant reserve for the [zero-and-one exact completion](uniform-leaf-threshold.md#extending-a-fixed-labeling).
+
+There is one uniform computable $C$ over the finitely many shortened shapes, subsets, seed families and insertion choices. If (1) fails for every $2\le j\le r$, descending induction gives $h+\sum_{i\ge2}m_i<(1+C)^{r-1}h$. Thus $K(l,s)=(1+C)^s$ suffices. This argument requires a large second population and allows arbitrarily many leaves at the largest site.
+
+## A positive-density core at every order
+
+A separate modulus result also applies when the original core order exceeds $k$. Fix $0<\delta,\alpha,\epsilon<1$. At sufficiently large $k$ suppose $H$ has at least $\delta k$ vertices and at most $k^{1/16}$ leaves. Allow at most $k^{1-\epsilon}$ attachment sites and suppose one receives at least the fraction $\alpha$ of all added leaves. The decorated tree is $k$-cordial, with no upper bound on its order. In particular, for any fixed upper bound $s$ on the number of sites, all leaf distributions qualify with $\alpha=1/s$ (or any smaller positive constant).
+
+For $h\le k$ this is the [positive-density theorem](permuted-pools.md) with the smaller available exponent. For $h>k$ keep a largest site $o$ fixed and induct on the added population. With no added leaves use the [one-site all-orders theorem](modular-injection.md). At total order $1\bmod k$ remove one added leaf and restore the deficient color. Otherwise let $t=(n-1)\bmod k$, $1\le t\le k-1$. If at least $t$ leaves were added, remove $t$ of them, use induction and restore them by the [Hall leaf lemma](../counterexample-bound.md#removing-leaves). At either removal use leaves away from $o$ first, so its required fraction persists.
+
+When the added population $m<t$, let $e=m-m_o$. Root $H$ at $o$, set aside all $e$ leaves away from it and a suffix of $t-e$ original vertices in parent-before-child order. The connected prefix has only the population at $o$ and at most $k^{1/16}+1$ ordinary leaves: the terminal subtrees below distinct prefix terminals are disjoint. The one-site theorem labels it, with one surplus vertex residue and uniform edge counts. Extend an ordinary suffix terminal by a temporary path of $k-1-t$ vertices. The ordinary forest has $k-1-e\ge\alpha(k-1)$ vertices, since $e\le(1-\alpha)m$. Its components and ordinary terminals total at most $2k^{1/16}+2$. The $e$ set-aside leaves have the specified parents, either inside the ordinary forest or prescribed in the prefix. The [prescribed forest theorem](two-hub-all-orders.md#a-prescribed-forest-at-larger-core-orders) supplies distinct weights and distinct labels avoiding the surplus, after decreasing the exponent for the site and terminal bounds if necessary. Restriction to the real suffix finishes the induction.
+
+In particular, in a sequence of counterexamples at $k\to\infty$ with fixed bounds on ordinary leaves and sites, necessarily $h=o(k)$ and $m_2<K(l,s)h$ whenever there are at least two positive populations.
+
+## Reproduction
+
+The checker walks the supplied graph through every subdivided edge to recover the original marked core and specified lengths. It recalculates vertex labels and endpoint sums, verifies each remaining block's permutation, and counts leaves at their requested parents. It exercises lattice steps two, three and four, two-site completions with extra prescribed vertices on long segments, and 245 suffix cuts with up to eight sites. [Subdivision constructor](marked_subdivision.py) · [Independent topology, interval and population checks](check_marked_subdivision.py)
+
+~~~sh
+python3 -B -m research.hub.check_marked_subdivision
+python3 -B -m research.hub.marked_leaf_verify
+python3 -B -m research.hub.marked_leaf_check
+~~~

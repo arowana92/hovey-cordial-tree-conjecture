@@ -43,9 +43,9 @@ def insert_neutral(edge, blocks, width, used, minority, rng):
     return prefix+[x for tail in reversed(tails) for x in tail]+[right]
 
 
-def buffered_complete(tree, a, b, *, use_polynomial=False):
+def buffered_complete(tree, a, b, *, use_polynomial=False, pins=()):
     """Return a compressed interval witness with few filler leaves at b."""
-    compact,other,segments = segment_core(tree,a,b,lambda n:n if n<=20 else 9+(n-9)%12)
+    compact,other,segments = segment_core(tree,a,b,lambda n:n if n<=20 else 9+(n-9)%12,pins)
     witness = complete(compact,0,other)
     if witness is None:
         assert all(len(full)==len(short) for full,short in segments)
