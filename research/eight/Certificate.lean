@@ -1,5 +1,6 @@
 import research.eight.Base
 import research.eight.Representation
+import research.eight.Tree
 import research.eight.Data
 
 namespace Cordial.Eight
@@ -123,6 +124,13 @@ theorem forest : ForestTest 8 := by
 theorem allTrees (p : Nat → Nat) (hp : ∀ i, p i ≤ i) (n : Nat) :
     ∃ f : Nat → Fin 8, IsCordial p n f := reduction forest p hp n
 
+/-- Every nonempty finite tree, built by joining rooted subtrees, has balanced
+    label counts on its vertices and on its intrinsic list of endpoint pairs. -/
+theorem trees (t : GraftTree) : ∃ f : Nat → Fin 8,
+    Balanced (fun a => ((List.range t.order).map f).count a) ∧
+    Balanced (fun a => (t.edges.map (fun e => f e.1+f e.2)).count a) :=
+  GraftTree.ofParentArrays allTrees t
+
 end Cordial.Eight
 
-#print axioms Cordial.Eight.allTrees
+#print axioms Cordial.Eight.trees
