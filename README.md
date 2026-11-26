@@ -50,6 +50,8 @@ For every fixed maximum degree $\Delta$, there is a threshold $k_0(\Delta)$ abov
 
 For every fixed $D$ and all sufficiently large $k$, every finite tree with **at most one vertex of degree greater than $D$** is $k$-cordial. That vertex can have arbitrarily many nonleaf neighbors. Consequently, if counterexamples exist along a sequence with $k\to\infty$, their second-largest vertex degrees must tend to infinity. [Common-boundary forest theorem, all-orders induction and independent checks](research/hub/one-exceptional-degree.md)
 
+For fixed $D,\epsilon$ with $D\ge3$ and $0<\epsilon<1$, the same all-orders conclusion holds with up to $k^{1-\epsilon}$ vertices of degree greater than $D$, provided at most $k^{1-\epsilon}$ leaves lie within distance two of those vertices. In particular, subdividing each pendant edge at least twice suffices for every tree in this degree-count class at large $k$. The high-degree vertices may be adjacent. [Multiple boundary labels, consecutive preorder blocks and checks](research/hub/subdivided-blocks.md)
+
 For fixed $k\ge 5$, a smallest counterexample, if one exists, has at most $k-2$ leaves and $3k^2-13k+3$ vertices. The proof combines Hall’s permutation theorem with explicit labelings of pendant paths and subdivided edges. [Counterexample size bound](research/counterexample-bound.md)
 
 A second sufficient test uses rainbow labelings of forests on $k-1$ free vertices. Choosing a connected core that contains several original leaves reduces the number of forest shapes needed. For composite moduli, a prescribed star can fail the unrestricted version of this test by an explicit divisibility condition. [Rainbow forest reduction](research/rainbow/README.md) · [Pinned star obstruction](research/rainbow/pinned-star.md)
