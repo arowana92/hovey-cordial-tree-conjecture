@@ -1,6 +1,6 @@
 # Hovey’s cordial tree conjecture
 
-**Work in progress.** This repository gives a reproducible computer-assisted proof that every finite tree is 8-cordial. Hovey’s conjecture for every positive integer $k$ remains open. [Eight-label proof, certificate and reproduction instructions](research/eight/README.md)
+**Work in progress.** This repository gives reproducible computer-assisted proofs that every finite tree is 8-, 9- and 10-cordial. Hovey’s conjecture for every positive integer $k$ remains open. [Eight-label proof](research/eight/README.md) · [Nine- and ten-label proofs and certificates](research/rainbow/README.md)
 
 A vertex labeling takes values in the residues modulo $k$. Each edge receives the sum of its endpoint labels modulo $k$. Among vertices, every two residue counts must differ by at most one. The same condition holds independently among edges, including residues with count zero.
 
@@ -16,3 +16,5 @@ A primary-literature search on 26 November 2026 found these results and no earli
 ## General moduli
 
 For fixed $k\ge 5$, a smallest counterexample, if one exists, has at most $k-2$ leaves and $3k^2-13k+3$ vertices. The proof combines Hall’s permutation theorem with explicit labelings of pendant paths and subdivided edges. [Counterexample size bound](research/counterexample-bound.md)
+
+A second sufficient test uses rainbow labelings of forests on $k-1$ free vertices. Choosing a connected core that contains several original leaves reduces the number of forest shapes needed. For composite moduli, a prescribed star can fail the unrestricted version of this test by an explicit divisibility condition. [Rainbow forest reduction](research/rainbow/README.md) · [Pinned star obstruction](research/rainbow/pinned-star.md)
