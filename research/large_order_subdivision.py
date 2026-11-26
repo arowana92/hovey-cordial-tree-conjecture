@@ -37,12 +37,13 @@ def dependence(columns):
     raise ValueError("no dependence among the selected columns")
 
 
-def round_groups(groups, k):
+def round_groups(groups, k, *, probabilities=None):
     """Choose one integer histogram per group near the mean of its options."""
     if not groups:
         return []
     mass = max(sum(c) for g in groups for c in g)
-    weights = [[Fraction(1,len(g))]*len(g) for g in groups]
+    weights = ([[Fraction(1,len(g))]*len(g) for g in groups] if probabilities is None
+               else [list(row) for row in probabilities])
     while True:
         live = [[j for j,w in enumerate(row) if 0 < w < 1] for row in weights]
         moves = [(i, j, js[0]) for i, js in enumerate(live) for j in js[1:]]
