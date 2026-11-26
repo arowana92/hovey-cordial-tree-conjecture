@@ -12,10 +12,10 @@ from research.large_order_subdivision import POSITIONS
 DEPTH = 432
 
 
-def bottom_fringe(tree, kids, deep):
-    """Set aside a path or two arms in a rooted subtree of height eight."""
+def bottom_fringe(tree, kids, deep, height=8):
+    """Set aside a path or two arms in a rooted subtree of the indicated height."""
     top = deep
-    for _ in range(8):
+    for _ in range(height):
         top = tree[top]
     levels = [[top]]
     while levels[-1]:
