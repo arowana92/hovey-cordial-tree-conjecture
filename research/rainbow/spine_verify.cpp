@@ -1,4 +1,4 @@
-// Independent verifier for the binary SPN1 forest certificates.
+// Independent verifier for the binary SPN1 and SPN2 forest certificates.
 #include <algorithm>
 #include <array>
 #include <cstdint>
@@ -274,7 +274,13 @@ int main(int argc, char** argv) {
     if (k < 5 || k > 26) return 2;
     try {
         Audit audit(k);
-        for (int i = 2; i < argc; ++i) audit.verify(argv[i]);
+        if (argc == 3 && std::string(argv[2]) == "--files-stdin") {
+            std::string path;
+            while (std::getline(std::cin, path)) audit.verify(path.c_str());
+            check(std::cin.eof(), "could not read shard list");
+        } else {
+            for (int i = 2; i < argc; ++i) audit.verify(argv[i]);
+        }
         audit.finish();
     } catch (const std::exception& e) {
         std::cerr << e.what() << '\n';

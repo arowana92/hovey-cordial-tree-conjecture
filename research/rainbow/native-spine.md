@@ -1,11 +1,12 @@
-# A certificate for every finite tree at eighteen and nineteen labels
+# Certificates for every finite tree at eighteen through twenty labels
 
-**Theorem.** Every finite tree is 18-cordial and 19-cordial. The [ordered-cut theorem](ordered-cut.md) reduces the claim at all orders to two finite hypotheses. The witness stream verifies both, using the sharp condition on actual runs of boundary colors. For every required colored forest the verifier checks a bijection to the nonzero residues and computes all parent-edge sums, including the prescribed boundary edges.
+**Theorem.** Every finite tree is 18-cordial, 19-cordial and 20-cordial. The [ordered-cut theorem](ordered-cut.md) reduces the claim at all orders to two finite hypotheses. The witness stream verifies both, using the sharp condition on actual runs of boundary colors. For every required colored forest the verifier checks a bijection to the nonzero residues and computes all parent-edge sums, including the prescribed boundary edges.
 
 | Modulus | Rooted base trees | Eligible forests | Base-only shapes | Witness rows | Eligible boundary colorings before unit symmetry |
 |---:|---:|---:|---:|---:|---:|
 | 18 | 1,721,159 | 1,587,279 | 133,880 | 239,253,064 | 1,276,116,192 |
 | 19 | 4,688,676 | 4,479,243 | 209,433 | 266,718,296 | 4,721,012,403 |
+| 20 | 12,826,228 | 12,508,236 | 317,992 | 638,068,501 | 17,333,648,400 |
 
 ## One representation for the two hypotheses
 
@@ -15,7 +16,7 @@ The [generator](spine_generate.cpp) recursively lists multisets of rooted childr
 
 The [verifier](spine_verify.cpp) parses balanced parentheses and verifies that components and siblings are sorted by size and then code. These comparisons make the representation unique by induction on size. It rejects repeated forest codes across all shards. Independently, the product $\prod_{j\ge1}(1-x^j)^{-R_j}$ counts multisets of rooted trees, where $R_j$ is the number of rooted trees of order $j$. Its coefficient at $x^{s-1}$ is $R_s$. The verifier computes the coefficients by multiset binomial counts. Consequently the final number of distinct valid forests proves complete shape coverage.
 
-For each size profile the verifier enumerates boundary patterns, counts actual color runs on the components, tests the separation inequalities and partitions the valid patterns into unit orbits. The rows for each eligible shape must hit every orbit exactly once. On every row the verifier checks residue ranges, injectivity with zero forbidden, and weight distinctness from the original endpoint labels. The all-zero row must occur even at ineligible shapes.
+For each size profile the verifier enumerates boundary patterns, counts actual color runs on the components, tests the separation inequalities and partitions the valid patterns into unit orbits. At 18 and 19 the rows for each eligible shape must hit every orbit exactly once. At 20 the verifier checks the shared-witness coverage described below. On every row the verifier checks residue ranges, injectivity with zero forbidden, and weight distinctness from the original endpoint labels. The all-zero row must occur even at ineligible shapes.
 
 ## Reproduction
 
@@ -55,3 +56,19 @@ A small comparison can be reproduced after building the two executables above.
 ~~~
 
 Both streams certify 719 rooted bases and 46,630 boundary colorings on 550 eligible forests. The first uses 13,157 witness rows and the second uses 4,901.
+
+## Reproducing the twenty-label proof
+
+Use the same compiler commands and working directory as above. The twenty-label certificate uses 32 independently generated shards, approximately 11.4 GiB total. The two programs share no orbit-checking or tree-enumeration code. The complete verified stream covers all 12,826,228 rooted shapes. The [SHA-256 manifest](spine20.sha256) identifies every shard.
+
+~~~sh
+k=20
+mkdir "out$k"
+for i in $(seq 0 31); do
+  ./generate "$k" "$i" 32 "out$k/$i.spn" --cover
+done
+shasum -a 256 -c "$src/spine20.sha256"
+./verify "$k" "out$k"/*.spn
+~~~
+
+Alternatively pass `--files-stdin` to the verifier and write one completed shard path per line to its standard input. It checks shapes across all inputs and requires the full rooted-tree count at end of file in both modes.
