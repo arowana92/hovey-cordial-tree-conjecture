@@ -39,7 +39,7 @@ For precision, here is a uniform bound on $B$ throughout the recursion. Initiall
 
 ## Verification
 
-The checker constructs suffixes in weighted trees, rebuilds the components after cutting at actual high vertices and sites, and verifies the internal-edge and new-leaf bounds on both branches of the reduction.
+The checker constructs 1,950 suffixes in weighted trees, rebuilds the components after cutting at actual high vertices and sites, and verifies the internal-edge and new-leaf bounds on both branches of the reduction. It checks the order and leaf arithmetic on 162,688 core/order pairs through $k=64$. An independent backtracking search finds distinct labels and distinct edge weights for every one of the 8,780 nonempty parent-shift multisets of size below $k$ for $2\le k\le8$, with zero omitted from the new labels. Translating the new labels realizes any other omission.
 
 ~~~sh
 python3 -B -m research.hub.check_concentrated_leaves

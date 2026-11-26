@@ -1,6 +1,7 @@
-"""Check the two weighted cuts used to isolate a dense ordinary suffix."""
+"""Check weighted cuts, the order reduction, and distinct-leaf restoration."""
 
 from collections import Counter
+from itertools import combinations_with_replacement
 from random import Random
 
 from research.hub.branching_pools import rooted_order, two_suffixes
@@ -49,6 +50,60 @@ def audit(graph, high, leaves, near, sites, chosen, decorations, k, t, removed):
     return len(cut),len(single),len(rest-leaves)
 
 
+def check_order_reduction():
+    steps = Counter()
+    for k in range(3, 65):
+        for core in range(1, (k+1)//2):
+            for order in range(core, 4*k+1):
+                n = order
+                while n > k:
+                    t = (n-1) % k
+                    removed = t or 1
+                    assert n-core >= removed
+                    n -= removed
+                    assert n % k == (1 if t else 0)
+                    steps['distinct' if t else 'single'] += 1
+                assert core <= n <= k
+                steps['pad' if n < k else 'exact'] += 1
+    assert min(steps[name] for name in ('distinct','single','pad','exact')) > 0
+    return steps
+
+
+def check_leaf_assignments():
+    # Translating a solution for omitted vertex label 0 realizes any omission.
+    # Search the actual leaf labels without using Hall's permutation theorem.
+    cases = 0
+    for k in range(2, 9):
+        full = (1 << k)-1
+        for t in range(1, k):
+            for shifts in combinations_with_replacement(range(k), t):
+                labels = []
+
+                def extend(unused, weights):
+                    if len(labels) == t:
+                        return True
+                    shift = shifts[len(labels)]
+                    choices = unused
+                    while choices:
+                        bit = choices & -choices
+                        choices ^= bit
+                        label = bit.bit_length()-1
+                        weight = 1 << ((label+shift) % k)
+                        if weight & weights:
+                            continue
+                        labels.append(label)
+                        if extend(unused ^ bit, weights | weight):
+                            return True
+                        labels.pop()
+                    return False
+
+                assert extend(full ^ 1, 0)
+                assert 0 not in labels and len(set(labels)) == t
+                assert len({(v+p) % k for v,p in zip(labels,shifts)}) == t
+                cases += 1
+    return cases
+
+
 def main():
     rng = Random(99381)
     modes = Counter()
@@ -88,6 +143,11 @@ def main():
     assert maxima[0]>1 and maxima[1]>3 and maxima[2]>=1
     print(f"{sum(modes.values()):,} decorated cuts, including {modes['split']:,} chosen "
           f"by comparing two suffixes; up to {maxima[0]} cut sites and {maxima[1]} singletons.")
+    steps = check_order_reduction()
+    assignments = check_leaf_assignments()
+    print(f"{steps['pad']+steps['exact']:,} core/order pairs, "
+          f"{steps['single']+steps['distinct']:,} reductions, "
+          f"and all {assignments:,} nonempty parent-shift multisets through k=8.")
 
 
 if __name__ == '__main__':
