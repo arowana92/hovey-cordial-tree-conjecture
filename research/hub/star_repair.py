@@ -38,6 +38,32 @@ def alternating(left,right):
     return [v for pair in zip(left,right) for v in pair]
 
 
+def close_leaf_walk(row,backward,parents,gap,k,blocked,rng):
+    """Assign the remaining children so their jumps change the omitted weight."""
+    jumps = {v:row[parents[v]] for v in backward}
+    next_gap = (gap-sum(jumps.values())) % k
+    used = set(row.values())
+    if next_gap == gap or next_gap in blocked or next_gap in used:
+        return None
+    residual,cycles,end = erasures(backward[::-1],jumps,next_gap,k)
+    assert end == gap
+    if any(x in used or x in blocked for _,x in residual):
+        return None
+    row.update(residual)
+    occupied = blocked | set(row.values())
+    for cycle in cycles:
+        for shift in candidates(k,rng):
+            translated = [(v,(x+shift) % k) for v,x in cycle]
+            if all(x not in occupied for _,x in translated):
+                row.update(translated)
+                occupied.update(x for _,x in translated)
+                break
+        else:
+            return None
+    blocked.update(row.values())
+    return next_gap,len(cycles)
+
+
 def group_layout(p,m):
     """Local vertex IDs in root, then m children order on each pendant star."""
     groups = []
@@ -68,38 +94,18 @@ def repair(p,m,s,t,gap,k,blocked,rng):
     for a,b,c,d in chain(samples,line):
         shifts = [a,b,(s-t-a-b) % k,c,d]
         row = {}
-        jumps = {}
-        for (roots,filled,open_leaves),shift in zip(groups,shifts):
+        for (roots,filled,_),shift in zip(groups,shifts):
             xs,ys = five_roots(p,shift) if p else ([shift],[])
             row.update((v,x % k) for v,x in zip(roots+filled,xs+ys))
-            jumps.update((v,row[parents[v]]) for v in open_leaves)
         distinguished = [t,(t+a) % k,(t+a+b) % k]
         row.update(zip(primary,distinguished))
         used = set(row.values())
         if len(used) != len(row) or not blocked.isdisjoint(used-{t}):
             continue
-        next_gap = (gap-sum(jumps[v] for v in backward)) % k
-        if next_gap == gap or next_gap in blocked or next_gap in used:
-            continue
-        # Read the backward construction in forward order for cycle erasure.
-        residual,cycles,end = erasures(backward[::-1],jumps,next_gap,k)
-        assert end == gap
-        if any(x in used or x in blocked for _,x in residual):
-            continue
-        row.update(residual)
-        occupied = blocked | set(row.values())
-        for cycle in cycles:
-            for shift in candidates(k,rng):
-                translated = [(v,(x+shift) % k) for v,x in cycle]
-                if all(x not in occupied for _,x in translated):
-                    row.update(translated)
-                    occupied.update(x for _,x in translated)
-                    break
-            else:
-                break
-        else:
-            blocked.update(row.values())
-            return parents,[row[i] for i in range(len(parents))],next_gap,len(cycles)
+        result = close_leaf_walk(row,backward,parents,gap,k,blocked,rng)
+        if result is not None:
+            next_gap,count = result
+            return parents,[row[i] for i in range(len(parents))],next_gap,count
     raise ValueError("no disjoint placement for the five groups")
 
 

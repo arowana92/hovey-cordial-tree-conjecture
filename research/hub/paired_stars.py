@@ -5,7 +5,7 @@ from random import Random
 
 from research.hub.modular_injection import candidates
 from research.hub.pendant_repair import finish_leaves, prepare
-from research.hub.star_repair import erasures
+from research.hub.star_repair import close_leaf_walk, erasures
 
 
 def root_values(a,q,c,h,d):
@@ -78,29 +78,11 @@ def repair(parents,stars,arities,roles,extra,labels,blocked,s,t,gap,k,rng):
         used = set(row.values())
         if len(used) != len(row) or not blocked.isdisjoint(used-{t}):
             continue
-        jumps = {w:row[parents[w]] for w in backward}
-        new_gap = (gap-sum(jumps.values())) % k
-        if new_gap in blocked or new_gap in used or new_gap == gap:
-            continue
-        residual,loops,end = erasures(backward[::-1],jumps,new_gap,k)
-        assert end == gap
-        if any(x in blocked or x in used for _,x in residual):
-            continue
-        row.update(residual)
-        occupied = blocked | set(row.values())
-        for loop in loops:
-            for shift in candidates(k,rng):
-                placed = [(w,(x+shift) % k) for w,x in loop]
-                if all(x not in occupied for _,x in placed):
-                    row.update(placed)
-                    occupied.update(x for _,x in placed)
-                    break
-            else:
-                break
-        else:
-            blocked.update(row.values())
+        result = close_leaf_walk(row,backward,parents,gap,k,blocked,rng)
+        if result is not None:
             labels.update(row)
-            return new_gap,cycles,len(loops)
+            new_gap,loops = result
+            return new_gap,cycles,loops
     raise ValueError("no specialization for the distributed repair")
 
 
