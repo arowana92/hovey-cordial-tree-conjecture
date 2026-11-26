@@ -116,20 +116,8 @@ def bridge(left,right,weight,k,blocked,rng):
     raise ValueError("no bridge specialization")
 
 
-def construct(core,counts,anchor,length,k,palette,seed=81,*,subdivide=None):
-    """Append length bare path vertices at anchor and counts[v] leaves at each site.
-
-    If subdivide is a child of anchor, insert the path inside that core edge.
-    The parent-before-child core starts at its largest leaf site 0 and excludes
-    the supplied path and direct leaves. The expanded order must equal k.
-    """
-    bridge_size = 0 if subdivide is None else 21
-    if subdivide is not None and (subdivide == 0 or core[subdivide] != anchor):
-        raise ValueError("the specified edge is absent")
-    if (len(core)+length+sum(counts.values()) != k or counts[0] != max(counts.values())
-            or length < 10+bridge_size or (length-10-bridge_size) % 14):
-        raise ValueError("incompatible order, path length or choice of root")
-    rng = Random(seed)
+def prepare(core,counts,k,palette,rng,*,guard_digits=False):
+    """Place the sparse core and nonzero-site direct leaves, reserving all surplus weights."""
     kids,spine,marks,chains,height,shape = layout(core,set(counts))
     labels = {0:0}
     for j,v in enumerate(sorted(marks-{0})):
@@ -140,6 +128,9 @@ def construct(core,counts,anchor,length,k,palette,seed=81,*,subdivide=None):
     blocked = set(labels.values())
     assert admissible(bills,k,blocked,set())
     blocked.update(targets(bills,k))
+    if guard_digits:
+        radius = 3*max(labels.values())+1
+        blocked.update(x % k for x in range(-radius,radius+1))
     leaves,leaf_bills = leaf_runs(counts,labels,set(palette),blocked,k)
     leaf_values = {x for row in leaves.values() for x in row}
     assert len(leaf_values) == sum(counts.values())-counts[0]
@@ -237,6 +228,37 @@ def construct(core,counts,anchor,length,k,palette,seed=81,*,subdivide=None):
         single(v)
         short.extend(kids[v])
 
+    return labels,bills,blocked,leaves,statistics
+
+
+def finish_leaves(parents,labels,leaves,counts,k):
+    values = [labels[v] for v in range(len(parents))]
+    for v,row in leaves.items():
+        parents.extend([v]*len(row))
+        values.extend(row)
+    rest = sorted(set(range(k))-set(values))
+    assert len(rest) == counts[0]
+    parents.extend([0]*len(rest))
+    values.extend(rest)
+    return parents,values
+
+
+def construct(core,counts,anchor,length,k,palette,seed=81,*,subdivide=None):
+    """Append length bare path vertices at anchor and counts[v] leaves at each site.
+
+    If subdivide is a child of anchor, insert the path inside that core edge.
+    The parent-before-child core starts at its largest leaf site 0 and excludes
+    the supplied path and direct leaves. The expanded order must equal k.
+    """
+    bridge_size = 0 if subdivide is None else 21
+    if subdivide is not None and (subdivide == 0 or core[subdivide] != anchor):
+        raise ValueError("the specified edge is absent")
+    if (len(core)+length+sum(counts.values()) != k or counts[0] != max(counts.values())
+            or length < 10+bridge_size or (length-10-bridge_size) % 14):
+        raise ValueError("incompatible order, path length or choice of root")
+    rng = Random(seed)
+    labels,bills,blocked,leaves,statistics = prepare(core,counts,k,palette,rng)
+
     if 10+14*len(bills)+bridge_size > length:
         raise ValueError(f"path needs {10+14*len(bills)+bridge_size} vertices for these choices")
     parents = list(core)+[anchor]+list(range(len(core),len(core)+length-1))
@@ -265,12 +287,5 @@ def construct(core,counts,anchor,length,k,palette,seed=81,*,subdivide=None):
         row = bridge(labels[parents[offset]],labels[subdivide],weight,k,blocked,rng)
         labels.update(zip(range(offset,offset+21),row))
         parents[subdivide] = len(parents)-1
-    values = [labels[v] for v in range(len(parents))]
-    for v,row in leaves.items():
-        parents.extend([v]*len(row))
-        values.extend(row)
-    rest = sorted(set(range(k))-set(values))
-    assert len(rest) == counts[0]
-    parents.extend([0]*len(rest))
-    values.extend(rest)
+    parents,values = finish_leaves(parents,labels,leaves,counts,k)
     return parents,values,dict(statistics)
