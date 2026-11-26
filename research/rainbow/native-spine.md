@@ -95,7 +95,7 @@ shasum -a 256 -c "$src/spine21.sha256"
 ./verify 21 out21/*.spn
 ~~~
 
-The shards can be generated in parallel. A second complete replay using a verifier rebuilt from a fresh public checkout, with a different shard order, returned the same six counts. All 36 generated file hashes matched the manifest. Each shard contains a five-byte header, twelve bytes per rooted shape and twenty bytes per witness. Its file length therefore provides a separate check of the serialized row count. Substituting a forbidden zero for the first vertex of the first witness causes the verifier to reject the row.
+The shards can be generated in parallel. A second complete replay using a verifier rebuilt from a fresh public checkout, with a different shard order, returned identical totals for rooted bases, eligible forests, base-only shapes, witness rows and eligible boundary assignments. All 36 generated file hashes matched the manifest. Each shard contains a five-byte header, twelve bytes per rooted shape and twenty bytes per witness. Its file length therefore provides a separate check of the serialized row count. Substituting a forbidden zero for the first vertex of the first witness causes the verifier to reject the row.
 
 ## Counting the required cases from integer partitions
 
