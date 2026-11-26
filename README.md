@@ -4,6 +4,8 @@
 
 Every tree of diameter at most four is cordial for **every** positive modulus. A computer-assisted construction gives one integer labeling with consecutive vertex labels and consecutive edge sums. [Proof, certificates and independent checks](research/hub/all-radius-two.md)
 
+For diameter five, every tree is $k$-cordial for $1\le k\le36$. At any modulus, testing only trees of order exactly $k$ suffices. Every diameter-five tree of order at least $2k-5$ is $k$-cordial regardless of that test. [Reduction, finite proofs and reproducible checks](research/hub/diameter-five.md)
+
 A vertex labeling takes values in the residues modulo $k$. Each edge receives the sum of its endpoint labels modulo $k$. Among vertices, every two residue counts must differ by at most one. The same condition holds independently among edges, including residues with count zero.
 
 ## Primary literature
