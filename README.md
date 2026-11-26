@@ -47,3 +47,5 @@ Every star with any subset of its edges subdivided once is cordial for every pos
 At every even modulus $k=2s$, a radius-two tree is $k$-cordial if a center has degree at least $s-1$, for every tree order. A subgroup construction reduces the order-$2s$ proof to a permutation sum. Two explicit labelings handle the remaining fork-shaped exceptions. [Even-modulus theorem and subgroup criterion](research/hub/even-radius.md)
 
 At every modulus, a radius-two tree is cordial if at most five neighbors of its center have children, or if their number is odd and at most 33. The child counts and number of ordinary hub leaves are arbitrary. [Integer construction, finite certificates and verification](research/hub/branch-levels.md)
+
+For any fixed tree with at least three nonsingleton branches at a specified hub, every sufficiently large modulus works uniformly over all numbers of extra leaves at the hub. The edge sums around a cycle of branches use every nonzero vertex label once. Branch shapes and branching depths are unrestricted. [Proof, explicit bounds and checks](research/hub/cyclic-transfer.md)
