@@ -24,3 +24,5 @@ For every prime $p$, a star together with any number of singleton leaves admits 
 For every positive modulus $k$, attaching $k$ identical copies of an arbitrary rooted branch at one vertex preserves any cordial labeling of the core. If the branch has $n$ vertices, the construction adds exactly $n$ of each vertex label and each edge weight. [Repeated-branch theorem and construction](research/repeated-branches.md)
 
 For every prime $p$, a forest on at most $p-1$ free vertices admits a rainbow extension if at most four edges join free vertices, with arbitrary prescribed external parent labels and any forbidden vertex label. A signed count and its first moments reduce all primes to a finite computation on 30 shapes. [Proof and reproducible checks](research/prime/README.md)
+
+Starting with any tree of order at most twelve, add arbitrarily many leaves at any one specified vertex. Every resulting tree is $k$-cordial for every positive $k$. Integer witnesses on 4,766 rooted cores and a periodic sequence of leaf labels give the large-modulus construction. [Proof for one attachment vertex](research/hub/README.md)
