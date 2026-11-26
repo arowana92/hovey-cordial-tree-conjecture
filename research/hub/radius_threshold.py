@@ -28,10 +28,10 @@ def split(m):
     return {p: m[p]-n for p, n in lower.items()}, lower
 
 
-def tile_list(counts, offset):
+def weighted_tiles(counts, offset):
     parts = {p-offset: Fraction(n) for p, n in counts.items() if n}
     if 0 in parts:
-        yield (0, 1, int(parts.pop(0)))
+        yield (0, 1, parts.pop(0))
     positives = [a for a in parts if a > 0]
     negatives = [-x for x in parts if x < 0]
     while positives and negatives:
@@ -39,12 +39,17 @@ def tile_list(counts, offset):
         copies = min(parts[a]/b, parts[-b]/a)
         parts[a] -= b*copies
         parts[-b] -= a*copies
-        yield (a, b, int(copies))
+        yield (a, b, copies)
         if not parts[a]:
             positives.pop()
         if not parts[-b]:
             negatives.pop()
     assert all(not n for n in parts.values())
+
+
+def tile_list(counts, offset):
+    for a, b, copies in weighted_tiles(counts, offset):
+        yield a, b, int(copies)
 
 
 def construct(populations):

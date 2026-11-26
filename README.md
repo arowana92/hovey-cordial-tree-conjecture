@@ -62,6 +62,8 @@ Signed Langford sequences extend six sets of finite labelings to unbounded numbe
 
 For any fixed tree with at least three nonsingleton branches at a specified hub, every sufficiently large modulus works uniformly over all numbers of extra leaves at the hub. The edge sums around a cycle of branches use every nonzero vertex label once. Branch shapes and branching depths are unrestricted. [Proof, explicit bounds and checks](research/hub/cyclic-transfer.md)
 
+For **any** fixed tree, attaching at least a constant times $\sqrt M$ leaves to each vertex gives a super edge-magic tree, where $M$ is the total number attached. A sharper test needs large populations at only five vertices. For diameter five there is also a criterion in terms of the fifth-largest branch population and the size of the core. [Proof, construction and checks](research/hub/many-leaf-parents.md)
+
 Choose any two distinct vertices of an arbitrary finite tree. After adding sufficiently many leaves at each, the resulting tree is cordial at every modulus. The proof uses consecutive integer intervals and Hovey’s caterpillar theorem. The two leaf counts may grow independently. This also gives a finite decision for all leaf counts at the chosen hubs. [Two-hub construction and exact checks](research/hub/two-hubs.md)
 
 For every core of order at most thirteen, arbitrary leaf counts at **two** specified vertices work at every modulus, including small counts at either hub. The independent coverage check verifies 31,820 marked-core witnesses and six residual one-hub cases. [Proof and reproducible certificate](research/hub/two-hubs-small.md)
