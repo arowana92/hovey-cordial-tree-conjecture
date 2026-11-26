@@ -86,7 +86,7 @@ def advance(front, path, tree, labels, occupied, k, rng):
     return mode,len(cycles)
 
 
-def finish(tree, kids, labels, fringe, k, rng):
+def finish(tree, kids, labels, fringe, k, rng, max_levels=12):
     kind, boundary, nodes, plus, minus, other = fringe
     removed = set(nodes) | set(plus) | set(minus) | set(other)
     group = [v for v,p in enumerate(tree) if v and v not in removed and v not in labels and p in labels]
@@ -115,7 +115,7 @@ def finish(tree, kids, labels, fringe, k, rng):
             forms[v] = terminal
             terminal = add(terminal,forms[tree[v]])
     p = forms[boundary]
-    assert p[0]>0 and 1<=levels<=12
+    assert p[0]>0 and 1<=levels<=max_levels
     a = neg(add(p,terminal))
     if kind == "arms":
         values = (a,terminal,neg(p),neg(terminal))
