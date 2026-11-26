@@ -54,7 +54,7 @@ For fixed $D,\epsilon$ with $D\ge3$ and $0<\epsilon<1$, the same all-orders conc
 
 It suffices to bound the number of leaves **directly adjacent** to those high-degree vertices by $k^{1-\epsilon}$. Consequently a single subdivision of each pendant edge at a high vertex suffices throughout this class, at every sufficiently large modulus. The proof allocates prescribed shifts to terminal parents and completes their edges in three matchings. [Forest theorem, primary inputs and independent checks](research/hub/terminal-shifts.md)
 
-Along any sequence of counterexamples with $k\to\infty$ and at most $k^{1-\epsilon}$ vertices of degree greater than a fixed $D$, deleting the leaves adjacent to those vertices must leave **$o(k)$ vertices**. This applies even when the deleted populations are unrestricted. [Leaf concentration theorem and weighted cut checks](research/hub/concentrated-leaves.md)
+For fixed $D,\epsilon$ and sufficiently large $k$, **testing only trees of order exactly $k$ suffices** for the class with at most $k^{1-\epsilon}$ vertices of degree greater than $D$. Along any sequence of counterexamples in this class with $k\to\infty$, deleting the leaves adjacent to those vertices must leave $o(k)$ vertices. [Order-$k$ reduction, leaf concentration and weighted cut checks](research/hub/concentrated-leaves.md)
 
 For fixed $k\ge 5$, a smallest counterexample, if one exists, has at most $k-2$ leaves and $3k^2-13k+3$ vertices. The proof combines Hall’s permutation theorem with explicit labelings of pendant paths and subdivided edges. [Counterexample size bound](research/counterexample-bound.md)
 

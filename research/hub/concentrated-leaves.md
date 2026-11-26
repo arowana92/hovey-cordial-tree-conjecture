@@ -6,6 +6,10 @@
 
 Indeed take precisely the vertices above $D$ in the original tree as sites and delete all their adjacent leaves to form $H$. Only sites can become new ordinary leaves and ordinary degrees never increase. Thus an ordinary leaf adjacent to an ordinary high vertex must be a newly created leaf, since any original leaf there was deleted. If the ordinary order were at least $\delta k$ on a subsequence, the theorem would apply. The single-vertex and two-vertex cases are immediate.
 
+**Order-$k$ reduction.** For fixed $D,\epsilon$ and all sufficiently large $k$, every tree in this degree-count class is $k$-cordial if and only if every tree of order **exactly $k$** in the class admits a bijective labeling with distinct edge sums. In particular, failure along an unbounded sequence of moduli would give order-$k$ counterexamples with only $o(k)$ vertices left after the deletion above.
+
+For the forward implication use the two balance conditions at order $k$. Conversely, form $H$ by the same deletion. The theorem settles $h=|H|\ge k/2$, and a tree without high sites is covered by the bounded-degree theorem. For $h<k/2$ fix the original high sites. Variations of their leaf populations have no high vertices outside those sites. At orders below $k$, pad at one site to exactly $k$, label by hypothesis, and restrict. At orders $n>k$ proceed by induction on the leaf population. Remove one added leaf at order $1\bmod k$, and otherwise remove $t=(n-1)\bmod k$ added leaves. There are enough, since $n-h>t$. Restore the deficient weight in the first case and use the distinct-leaf extension in the second. This proves the converse for every population. Applying the concentration consequence to the resulting order-$k$ counterexamples gives its final assertion.
+
 ## Counting the internal edges after cutting
 
 We use the [terminal-shift forest lemma](terminal-shifts.md). It needs a positive proportion of internal edges after cutting below free high vertices. Also cut below all free decoration sites, including those of low ordinary degree. These cuts make the added leaves into singletons with prescribed shifts, once the free sites are pinned by the lemma.
