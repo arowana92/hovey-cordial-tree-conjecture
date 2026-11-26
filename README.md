@@ -1,13 +1,14 @@
 # Hovey’s cordial tree conjecture
 
-**Work in progress.** The first research target is the case of eight labels.
+**Work in progress.** This repository gives a reproducible computer-assisted proof that every finite tree is 8-cordial. Hovey’s conjecture for every positive integer $k$ remains open. [Eight-label proof, certificate and reproduction instructions](research/eight/README.md)
 
-Hovey conjectured in 1991 that every finite tree has a cordial labeling modulo every positive integer (k). Label each vertex with a residue modulo (k), and give each edge the sum of its endpoint labels modulo (k). Among vertices, every two residue counts must differ by at most one. The same condition must hold independently among edges, including residues with count zero.
+A vertex labeling takes values in the residues modulo $k$. Each edge receives the sum of its endpoint labels modulo $k$. Among vertices, every two residue counts must differ by at most one. The same condition holds independently among edges, including residues with count zero.
 
-For (k=8), we seek a proof that works for every finite tree or a tree with a verifiable certificate that no such labeling exists. A successful labeling certifies one tree. Extending a finite check to all trees requires a mathematical argument.
+## Primary literature
 
-## Starting references
+- Hovey introduced the conjecture, proved the tree results for three through five labels, and gave a sufficient finite test using rooted forests. His caterpillar theorem includes the case of eight labels for that family. [Mark Hovey, *A-cordial graphs* (1991)](https://doi.org/10.1016/0012-365X(91)90254-Y)
+- Driscoll, Krop and Nguyen proved the six-label case by choosing smaller families of rooted pieces and fitting their label and weight counts to the core. Their paper states Hovey’s finite test in Theorem 2.2. [*All trees are six-cordial* (2017)](https://www.ejgta.org/index.php/ejgta/article/view/231)
+- Driscoll proved the seven-label case by splitting trees, listing local labelings and matching them to deficient weights or surplus vertex labels. [*All Trees are Seven-Cordial* (2019 preprint, version 2)](https://arxiv.org/abs/1909.12351)
+- Müyesser and Pokrovskiy discuss how their bounded-degree methods could approach Hovey’s conjecture when the modulus is sufficiently large relative to the degree bound. Section 6 describes the extra strengthening that such a proof would require. [*On the Graham–Sloane harmonious labelling conjecture* (2025 preprint, version 2)](https://arxiv.org/html/2509.05280v2#S6)
 
-- [Mark Hovey, *A-cordial graphs* (1991)](https://www.sciencedirect.com/science/article/pii/0012365X9190254Y)
-- [Driscoll, Krop and Nguyen, *All trees are six-cordial*](https://arxiv.org/abs/1604.02105)
-- [Keith Driscoll, *All Trees are Seven-Cordial*](https://arxiv.org/abs/1909.12351)
+A primary-literature search on 26 November 2026 found these results and no earlier all-orders proof for eight labels. The eight-label argument here uses a finite attachment lemma and induction on tree order. The certificate verifies that lemma.
