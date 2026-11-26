@@ -70,6 +70,8 @@ On any fixed tree, select any two or more vertices and attach leaves only there.
 
 Every tree with at most five nonleaf vertices is super edge-magic and cordial at every modulus. This includes all trees of matching number at most three. The fork-shaped nonleaf core uses 2,619 finite labelings whose repeatable leaf layers cover every population vector. [Proof, certificate and coverage check](research/hub/five-nonleaf.md)
 
+For a fixed core the exact successful combinations of modulus and leaf counts form an effectively semilinear set. A bound on just the second-largest leaf count from below, depending only on core order, suffices at every modulus. With a fixed bound on the number of nonleaf vertices, the set of moduli admitting a counterexample is effectively ultimately periodic. [Spectrum theorem, one-site projections and checks](research/hub/bounded-core-spectra.md)
+
 Choose any two distinct vertices of an arbitrary finite tree. After adding sufficiently many leaves at each, the resulting tree is cordial at every modulus. The proof uses consecutive integer intervals and Hovey’s caterpillar theorem. The two leaf counts may grow independently. This also gives a finite decision for all leaf counts at the chosen hubs. [Two-hub construction and exact checks](research/hub/two-hubs.md)
 
 For every core of order at most thirteen, arbitrary leaf counts at **two** specified vertices work at every modulus, including small counts at either hub. The independent coverage check verifies 31,820 marked-core witnesses and six residual one-hub cases. [Proof and reproducible certificate](research/hub/two-hubs-small.md)
