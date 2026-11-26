@@ -69,6 +69,8 @@ def core_data(tree, live, pins):
 
 
 def expand_core(labels, holes, k):
+    if not holes:
+        return
     specs = [(labels[a[0]], labels[a[-1]], (len(a)-2)//12) for a in holes]
     for path, vals in zip(holes, expand(specs, k)):
         for v, x in zip(path, vals):

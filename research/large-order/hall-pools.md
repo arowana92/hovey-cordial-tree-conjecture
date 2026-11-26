@@ -1,6 +1,6 @@
 # A linear order test at every modulus
 
-**Theorem.** Fix any $k$. If every tree of order below $2^{26}k$ is $k$-cordial, then every finite tree is $k$-cordial. More precisely, every tree of order $n\ge 2^{26}k$ with fewer than $n/32$ leaves is $k$-cordial, and a smallest counterexample has fewer than $k$ leaves. The linear test concerns a smallest counterexample. The [unconditional bound for every counterexample](primitive.md) is $O(k\log(2k))$.
+**Theorem.** Fix any $k$. If every tree of order below $2^{26}k$ is $k$-cordial, then every finite tree is $k$-cordial. More precisely, every tree of order $n\ge 2^{26}k$ with fewer than $n/32$ leaves is $k$-cordial, and a smallest counterexample has fewer than $k$ leaves. The decision test uses a smallest counterexample. A [separate linear bound](linear.md) controls the order of every counterexample.
 
 The construction uses three collections of degree-two vertices. Instead of correcting one bin at a time, we realize an entire prescribed multiset of weights or labels on each collection.
 

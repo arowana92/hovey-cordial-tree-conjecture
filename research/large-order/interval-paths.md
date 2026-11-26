@@ -2,6 +2,8 @@
 
 **Theorem.** At every positive modulus $k$, every counterexample has order $O(k\sqrt{\log(2k)})$. For each fixed $0<\delta<1$, if at most $k^{1-\delta}$ vertices have leaf neighbors, the order bound is $O_\delta(k)$, with arbitrary leaf populations at those vertices.
 
+A [later construction](linear.md) gives a linear order bound without restricting the number of leaf parents.
+
 The previous [leaf concentration estimate](leaf-routing.md) left the largest $k^\varepsilon$ leaf populations unrestricted. The argument here includes those populations. It uses two features of a tree. A sufficiently large downward fringe supplies [paths that transfer a missing weight](gap-path.md). When that fringe is too small, the compressed problem can instead be labeled in a short integer interval. Only the widest available set of jumps is needed for its repairs.
 
 ## Nested intervals of parent labels
