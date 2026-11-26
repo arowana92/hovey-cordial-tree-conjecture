@@ -1,5 +1,6 @@
 """Sparse rooted labeling with at most seven protected surplus weights."""
 
+from math import gcd
 from random import Random
 
 from research.check_large_order_subdivision import children
@@ -9,7 +10,16 @@ from research.hub.pendant_repair import bridge
 from research.large_order_gap_paths import paired_path
 
 
-def prepare(tree,k,rng):
+def preimages(d,value,k):
+    g = gcd(d,k)
+    if value%g:
+        return ()
+    step = k//g
+    first = value//g*pow(d//g,-1,step)%step
+    return tuple(first+j*step for j in range(g))
+
+
+def prepare(tree,k,rng,*,guard_multiples=False):
     """Return an injection, protected (deficit, surplus) pairs, and occupied values."""
     kids = children(tree)
     height = [1]*len(tree)
@@ -21,6 +31,11 @@ def prepare(tree,k,rng):
     labels = {0:0}
     labels.update((v,i) for i,v in enumerate(kids[0],1))
     blocked = set(labels.values())
+    if guard_multiples:
+        torsion = set(preimages(2,0,k)+preimages(3,0,k))-{0}
+        if not blocked.isdisjoint(torsion):
+            raise ValueError("modulus too small for guarded initial labels")
+        blocked.update(torsion)
     bills = []
     rounds = levels = 0
     while len(labels)<len(tree):
@@ -50,9 +65,16 @@ def prepare(tree,k,rng):
                 continue
             row = {v:(x+a)%k for v,a in offsets.items()}
             used = set(row.values())
+            forbidden = set()
+            if guard_multiples:
+                forbidden.update(preimages(2,t,k))
+                for d in (1,2,3):
+                    forbidden.update(preimages(d,-x,k))
+                if not forbidden.isdisjoint(used) or not forbidden.isdisjoint(labels.values()):
+                    continue
             if t not in used and (-t)%k not in used and blocked.isdisjoint(used):
                 labels.update(row)
-                blocked.update(used|{t,(-t)%k})
+                blocked.update(used|forbidden|{t,(-t)%k})
                 bills.append((x,t))
                 break
         else:
