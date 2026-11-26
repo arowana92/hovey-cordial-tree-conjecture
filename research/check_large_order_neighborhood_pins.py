@@ -19,14 +19,43 @@ def check_labels(tree, k, pins, limit):
             incident[p] += 1
         if p in pins:
             incident[i] += 1
-    u = sum(n > limit for n in incident.values())
-    d = limit+u+1
-    assert cap == max(2*u+2,4*((len(tree)+k-1)//k)*(d+1))+d
+    exceptions = {v for v,n in incident.items() if n > limit}
+    u = len(exceptions)
+    size = 1
+    while size*size < u:
+        size += 1
+    d = limit+2*size+1
+    average = (len(tree)+k-1)//k
+    adjacent = Counter()
+    for i,p in enumerate(tree[1:],1):
+        if i in exceptions:
+            adjacent[p] += 1
+        if p in exceptions:
+            adjacent[i] += 1
+    extra = {v for v,n in adjacent.items() if v not in pins and n>size}
+    assert len(extra) <= size
+    other_fixed = set(pins) | extra
+    pin_children, extra_children, exceptional_children = Counter(), Counter(), Counter()
+    for i,p in enumerate(tree[1:],1):
+        weight = (labels[i]+labels[p]) % k
+        if i in exceptions and p in other_fixed:
+            exceptional_children[weight] += 1
+        if p in exceptions and i in pins:
+            pin_children[weight] += 1
+        if p in exceptions and i in extra:
+            extra_children[weight] += 1
+    assert max(exceptional_children.values(),default=0) <= 3*size+average
+    assert max(pin_children.values(),default=0) <= size
+    assert sum(extra_children.values()) <= size
+    assert max(Counter(labels[v] for v in exceptions).values(),default=0) <= 2*size+average
+    assert cap == max(6*size+average+2,4*average*(d+1))+d
     assert max(vertex.values()) <= cap and max(edge.values(),default=0) <= cap
 
 
-def check_subforest(tree, t):
-    parts = extract(tree,t)
+def check_subforest(tree, t, count=None):
+    if count is None:
+        count = t
+    parts = extract(tree,t,count)
     degree = Counter(tree[1:])
     degree.update(range(1,len(tree)))
     if not parts:
@@ -41,9 +70,9 @@ def check_subforest(tree, t):
             if degree[i]>1 and degree[p]>1:
                 nearby[p] += int(populations[i] >= t)
                 nearby[i] += int(populations[p] >= t)
-        assert sum(n>=2*t-1 for n in nearby.values()) < 2*t-1
+        assert sum(n>=t+3 for n in nearby.values()) < 4*count-1
         return False
-    assert len(parts) == t
+    assert len(parts) == count
     all_sites = []
     claimed = set()
     for center,arms in parts:
@@ -55,23 +84,23 @@ def check_subforest(tree, t):
             claimed.add(tuple(sorted((center,parent))))
             claimed.update(tuple(sorted((parent,v))) for v in tips)
     sites = set(all_sites)
-    assert len(sites) == len(all_sites) == t*(1+t+t*t)
+    assert len(sites) == len(all_sites) == count*(1+t+t*t)
     actual = {(p,i) for i,p in enumerate(tree[1:],1) if p in sites and i in sites}
     assert claimed == actual
     return True
 
 
-def crowded_tree(t, rng):
+def crowded_tree(t, count, rng):
     # Consecutive centers share a rich neighbor. Additional arms have spare leaves.
     tree = [-1]
     centers = [0]
-    for _ in range(2*t-2):
+    for _ in range(2*count-1):
         bridge = len(tree)
         tree += [centers[-1],bridge]
         centers.append(bridge+1)
         tree.extend([bridge]*t)
     for center in centers:
-        for _ in range(2*t-1):
+        for _ in range(t+3):
             parent = len(tree)
             tree.append(center)
             tree.extend([parent]*(t+rng.randrange(3)))
@@ -100,8 +129,9 @@ def main():
                 inspected += 1
     max_order = 0
     for t in range(2,15):
-        tree = crowded_tree(t,rng)
-        assert check_subforest(tree,t)
+        count = t*t if t <= 9 else t
+        tree = crowded_tree(t,count,rng)
+        assert check_subforest(tree,t,count)
         max_order = max(max_order,len(tree))
         inspected += 1
         induced += 1
@@ -115,6 +145,24 @@ def main():
             pins[len(tree)] = x
             tree.extend([center]*(3*k))
         check_labels(tree,k,pins,1)
+        pinned += 1
+    # Many exceptional vertices, overlapping neighborhoods and nonzero sorted parent labels.
+    for k in (3,13,47,127):
+        tree = [-1]
+        pins = {}
+        for j in range(k):
+            center = len(tree)
+            tree.append(0)
+            tree.append(center)
+            pins[center+1] = (5*j+1) % k
+            for _ in range(3):
+                other = len(tree)
+                tree.extend([center+1,other])
+        check_labels(tree,k,pins,0)
+        pinned += 1
+    for k in (2,4,7):
+        tree = [-1] + [0]*(5*k*k)
+        check_labels(tree,k,{0:k-1},0)
         pinned += 1
     print(f"{pinned:,} pinned trees with independently recounted bins.")
     print(f"{inspected:,} extraction checks, {induced:,} induced forests, "
