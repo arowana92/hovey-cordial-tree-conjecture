@@ -36,6 +36,8 @@ At $s=m$, an end star with center label 0 may give its attaching leaf label 1 an
 
 The criterion also exhibits a limitation for every noncoprime pair $q,m$. Take $q$ stars of order $m$ with all connections between their centers. In any bijective high labeling write $z_i$ for the center label, making the unique missing slot $2z_i$. Then each $B_i$ vanishes modulo $g$ since the endpoint coefficients total $2i+1\pmod q$, including at the ends. These stars admit no cordial lift with the prescribed successive low cosets when $g>1$. The ordinary tree is a caterpillar and is cordial at every modulus by [Hovey's theorem](https://doi.org/10.1016/0012-365X(91)90254-Y).
 
+For these same center-joined stars, putting positions inside each star into the low residues gives an explicit cordial labeling for every factor $m$. The construction also joins copies of other trees at compatible vertices. [Repeated tree products](repeated-product.md)
+
 ## Verification
 
 The checker solves the difference equations, constructs full tree labelings and counts all vertex and edge residues. Among 2,832 instances on paths of up to 45 pieces, it constructs 2,766 full labelings and identifies 66 obstructions to this lift. On 45 small instances it independently tries the units and translations and compares the resulting full histograms with the arithmetic test.
