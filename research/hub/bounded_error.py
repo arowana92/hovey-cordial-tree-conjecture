@@ -63,14 +63,17 @@ def packet_layout(tree):
     return kids,heights,packets
 
 
-def place_packet(branch,rows,k,blocked,rng):
+def place_packet(branch,rows,k,blocked,rng,*,accept=None):
     w = len(rows)//2
     m = w//2
     template = signed(branch)
     for scale in candidates(k,rng):
         present = {(sign*x*scale+j) % k for sign in (-1,1) for x in template
                    for j in range(-m,m+1)}
-        if len(present) == len(rows)*len(branch) and blocked.isdisjoint(present):
+        if len(present) != len(rows)*len(branch) or not blocked.isdisjoint(present):
+            continue
+        starts = [(sign*scale*template[0]-m) % k for sign in (-1,1)]
+        if accept is None or accept(present,starts,w):
             break
     else:
         raise ValueError("no available packet placement in this palette")
