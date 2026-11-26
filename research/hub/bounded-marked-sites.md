@@ -35,7 +35,7 @@ On an edge with positive endpoint $p$ and fixed negative endpoint $q$ put
 $$
 x=L-p,\qquad y=p+q-x .
 $$
-Give $p$ its new child $x$ and fill $[x+1,L)$ with leaves at zero. Their sums, together with $p+x=L$, form exactly $[x+1,L]$. Put the upper block at start $y-i$, filling the gap from $U+1$ through $y-i-1$ with leaves at zero, and make $y$ the required child at $q$. Replace the old edge $p,q$ by $x,y$, retaining the two new child edges. Its sum is still $p+q$. The new intervals are $[x,y+e']$ and $[x+1,y+e']$. This uses at most $b-1$ leaves away from zero.
+Give $p$ its new child $x$ and fill $[x+1,L)$ with leaves at zero. Their sums, together with $p+x=L$, form exactly $[x+1,L]$. Put the upper block at start $y-i$, filling the gap from $U+1$ through $y-i-1$ with leaves at zero, and make $y$ the required child at $q$. Replace the old edge $p,q$ by $x,y$, retaining the two new child edges. Its sum is still $p+q$. The new intervals are $[x,y+e']$ and $[x+1,y+e']$. This uses at most $b-1$ leaves away from zero. Lean checks that the lower rotation, upper padding and upper permutation together give a bijection onto exactly the new weights. It also checks the restored middle sum and the inequalities for the next move. [Formal band and recurrence lemmas](MarkedBuffer.lean)
 
 For the first move only, pad the lower end sufficiently to ensure $x\le q-b-2$ and $y-i>U$. Such padding is bounded on the finite seed family (take at least two extra positions if using triple padding). Repeat on the positive endpoint $y$ and the **same** negative endpoint $q$. Now the next lower value is $x'=x-y<x$. The next upper child satisfies $y'=2y+q-x>2y$, and $y'-(y+e')=y+q-x-e'>i$. Hence upper insertion remains feasible forever. The negative magnitude after the next move is at least $y$. Conversely each move multiplies $\max(|L|,U,1)$ by at most three plus a bounded additive cost, directly from the formulas.
 
@@ -63,4 +63,5 @@ The checker recovers all original edges and specified lengths by walking through
 python3 -B -m research.hub.check_dominant_marked
 python3 -B -m research.hub.check_marked_subdivision
 python3 -B -m research.hub.check_permuted_pools
+lean research/hub/MarkedBuffer.lean
 ~~~
