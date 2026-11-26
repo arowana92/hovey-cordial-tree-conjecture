@@ -1,5 +1,6 @@
 """Injective rooted certificates directly in a cyclic group."""
 
+from math import gcd
 from random import Random
 
 from research.check_large_order_subdivision import children
@@ -115,7 +116,9 @@ def finish(tree, kids, labels, fringe, k, rng, max_levels=12):
             forms[v] = terminal
             terminal = add(terminal,forms[tree[v]])
     p = forms[boundary]
-    assert p[0]>0 and 1<=levels<=max_levels
+    assert 1<=levels<=max_levels
+    if p[0] == 0:
+        assert p[1] and neg(p) not in forms.values()
     a = neg(add(p,terminal))
     if kind == "arms":
         values = (a,terminal,neg(p),neg(terminal))
@@ -125,10 +128,27 @@ def finish(tree, kids, labels, fringe, k, rng, max_levels=12):
         values = (a,neg(terminal),terminal,add(a,neg(terminal)))
     forms.update(zip(nodes,values))
     gap = (1,0)
-    for v in sorted(other+minus[len(plus):],key=lambda w:forms[tree[w]][0]):
+    unmatched = sorted(other+minus[len(plus):],key=lambda w:forms[tree[w]][0])
+    weak = []
+    for v in unmatched:
+        if forms[tree[v]][0] == 0:
+            assert forms[tree[v]] == neg(p)
+            weak.append(v)
+            continue
         gap = add(gap,neg(forms[tree[v]]))
         forms[v] = gap
     top = max(x[0] for x in forms.values())
+    if weak:
+        assert gap[0] > terminal[0]
+        order = k//gcd(p[1],k)
+        rem = len(weak) % order
+        for v in weak[:rem]:
+            gap = add(gap,p)
+            forms[v] = gap
+        for start in range(rem,len(weak),order):
+            top += 1
+            for j,v in enumerate(weak[start:start+order]):
+                forms[v] = (top,(j*p[1]) % k)
     for u,v in zip(plus,minus):
         forms[u] = (top+1,0)
         forms[v] = add(forms[u],terminal)
