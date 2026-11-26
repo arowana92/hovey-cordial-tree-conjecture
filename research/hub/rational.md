@@ -1,5 +1,7 @@
 # A finite test over all moduli for each rooted core
 
+The [subsequent integer construction](universal-hub.md) proves the rational criterion for every rooted tree. In particular, the conditional obstruction below never occurs, and there are only finitely many exceptional tree–modulus pairs for each bound on the number of nonleaf vertices.
+
 Let $H$ have $h$ vertices, rooted at $o$. Write $T_\ell$ for the tree obtained by adjoining $\ell$ new leaves at $o$, and let $m$ be the number of edges of $H$ not incident to $o$. The following test concerns ordinary trees, with no vertex labels prescribed.
 
 **Theorem.** The following are equivalent.

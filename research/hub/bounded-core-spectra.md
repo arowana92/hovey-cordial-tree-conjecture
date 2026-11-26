@@ -1,5 +1,7 @@
 # Exact leaf-count and modulus spectra at bounded core order
 
+The [subsequent integer construction](universal-hub.md) proves the rational criterion for every rooted tree. In particular, the conditional obstruction below never occurs, and there are only finitely many exceptional tree–modulus pairs for each bound on the number of nonleaf vertices.
+
 **Theorem.** Fix a tree $H$ and any set $S$ of its vertices. Write $H(\mathbf m)$ for the tree obtained by attaching $m_v\ge0$ leaves at each $v\in S$. Both of the following sets are effectively semilinear:
 $$
 \{(k,\mathbf m): k\ge1,\ H(\mathbf m)\text{ is }k\text{-cordial}\},\qquad
