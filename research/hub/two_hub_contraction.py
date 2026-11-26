@@ -186,8 +186,8 @@ def complete(tree, a, b):
     return [labels[v] for v in range(len(tree))],interval,(path_rounds,len(rounds))
 
 
-def compact_complete(tree, a, b):
-    """Run the interval algorithm on a parity representative, then restore all segments."""
+def segment_core(tree, a, b, keep_length):
+    """Compress chains between marked vertices using the supplied length rule."""
     graph = [[] for _ in tree]
     for v,p in enumerate(tree[1:],1):
         graph[p].append(v)
@@ -206,7 +206,7 @@ def compact_complete(tree, a, b):
             while full[-1] not in marks:
                 full.append(next(x for x in graph[full[-1]] if x!=full[-2]))
             length = len(full)-1
-            retained = length if length<=6 else 6-length%2
+            retained = keep_length(length)
             short = [marked_ids[v]]
             for _ in range(retained):
                 compact.append(short[-1])
@@ -215,7 +215,13 @@ def compact_complete(tree, a, b):
             segments.append((full,short))
             stack.append((full[-1],full[-2]))
 
-    witness = complete(compact,0,marked_ids[b])
+    return compact,marked_ids[b],segments
+
+
+def compact_complete(tree, a, b):
+    """Run the interval algorithm on a parity representative, then restore all segments."""
+    compact,other,segments = segment_core(tree,a,b,lambda n:n if n<=6 else 6-n%2)
+    witness = complete(compact,0,other)
     if witness is None:
         assert all(len(full)==len(short) for full,short in segments)
         return None
