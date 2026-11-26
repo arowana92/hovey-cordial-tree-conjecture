@@ -6,7 +6,7 @@ from research.large_order_check import balanced_target, histograms, moment
 from research.large_order_dyadic import terms
 
 
-def run(k, leaves, seed):
+def run(k, leaves, seed, diagonal=False):
     rng = Random(seed)
     powers = [1 << j for j in range((2*k).bit_length()+2)]
     lab, parents = [0], [-1]
@@ -21,10 +21,10 @@ def run(k, leaves, seed):
         vertex(apex, q)
         return apex
 
-    reserve = 6
+    reserve = 16 if diagonal else 6
     for s in powers:
         for x in range(k):
-            for t in powers:
+            for t in ([s] if diagonal else powers):
                 for sign in (-1, 1):
                     for z in (0, 1):
                         for kind in ('vertex', 'edge'):
@@ -73,7 +73,12 @@ def run(k, leaves, seed):
     v, e = histograms(parents, lab, k)
     def rectangles(kind, diff):
         used = 0
-        for s, t, w in terms(diff):
+        if diagonal:
+            from research.large_order_diagonal import squared_terms
+            decomposition = ((s,s,w) for s,w in squared_terms(diff).items())
+        else:
+            decomposition = terms(diff)
+        for s, t, w in decomposition:
             for x, val in enumerate(w):
                 sign = 1 if val > 0 else -1
                 for _ in range(abs(val)):

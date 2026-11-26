@@ -2,6 +2,8 @@
 
 **Theorem.** For every modulus $k\ge2$, every possible counterexample has maximum degree $O(k\log(2k))$ and order $O(k\log^5(2k))$. The constants are absolute. Both bounds apply to **every** counterexample, including at prime moduli.
 
+The [squared-difference refinement](diagonal.md) improves the order bound to $O(k\log^2(2k))$.
+
 The underlying labeling estimate is independent of tree order. Put
 $$
 D_k=100+288\lceil\log_2(24k+1)\rceil .
