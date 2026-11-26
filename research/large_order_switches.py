@@ -6,7 +6,7 @@ from research.large_order_check import balanced_target, histograms, moment
 from research.large_order_dyadic import terms
 
 
-def run(k, leaves, seed, diagonal=False):
+def run(k, leaves, seed, diagonal=False, square_builder=None):
     rng = Random(seed)
     powers = [1 << j for j in range((2*k).bit_length()+2)]
     lab, parents = [0], [-1]
@@ -75,7 +75,8 @@ def run(k, leaves, seed, diagonal=False):
         used = 0
         if diagonal:
             from research.large_order_diagonal import squared_terms
-            decomposition = ((s,s,w) for s,w in squared_terms(diff).items())
+            builder = squared_terms if square_builder is None else square_builder
+            decomposition = ((s,s,w) for s,w in builder(diff).items())
         else:
             decomposition = terms(diff)
         for s, t, w in decomposition:

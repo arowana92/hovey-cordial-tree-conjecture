@@ -2,6 +2,8 @@
 
 **Theorem.** For an absolute $C$, every $k$-counterexample has fewer than $Ck\log^2(2k)$ vertices. The [degree bound](flexible-path.md) remains $O(k\log(2k))$. These estimates apply to every tree and every modulus. At each particular modulus the earlier explicit quadratic bound is also available.
 
+The [interval-rounding refinement](primitive.md) improves the order bound to $O(k\log(2k))$.
+
 Two changes in the [dyadic correction proof](dyadic.md) give the order bound. An integer correction of zero mass and zero first moment needs only **squared** differences, one type per dyadic stride. Also the location of each leaf switch can be rounded along with its vertex and edge labels, so its prescribed locations have almost equal supplies without a binomial error term.
 
 ## An integer decomposition using one stride per term

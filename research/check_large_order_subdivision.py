@@ -35,17 +35,17 @@ def children(tree):
     return kids
 
 
-def compress(tree, kids, live):
+def compress(tree, kids, live, pins=()):
     paths = []
     keep = {0}
     for i in sorted(live):
         current = [u for u in kids[i] if u in live]
-        if i and len(current)==1:
+        if i and i not in pins and len(current)==1:
             continue
         for u in current:
             path = [i,u]
             nexts = [v for v in kids[u] if v in live]
-            while len(nexts)==1:
+            while u not in pins and len(nexts)==1:
                 u, = nexts
                 path.append(u)
                 nexts = [v for v in kids[u] if v in live]
@@ -83,11 +83,11 @@ def restore(tree, labels, undo, k):
     return labels[:len(tree)]
 
 
-def peel(tree, kids, k, rounds):
+def peel(tree, kids, k, rounds, pins=()):
     live = set(range(len(tree)))
     undo = []
     while True:
-        leaves = sorted(v for v in live if v and not live.intersection(kids[v]))
+        leaves = sorted(v for v in live if v and v not in pins and not live.intersection(kids[v]))
         if rounds is None:
             if len(leaves)<k:
                 break
