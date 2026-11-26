@@ -75,13 +75,17 @@ def attach_batch(tree, labels, occupied, ordinary, path, k, rng):
     return len(row),len(cycles)
 
 
-def residual_labels(tree, k, rng):
+def residual_labels(tree, k, rng, initial=None):
     kids = children(tree)
+    labels = {0:0} if initial is None else dict(initial)
     depth = [0]*len(tree)
     for v,p in enumerate(tree[1:],1):
-        depth[v] = depth[p]+1
+        if v not in labels:
+            depth[v] = depth[p]+1
     tip = max(range(len(tree)),key=depth.__getitem__)
     if depth[tip]<=4:
+        if initial is not None:
+            raise ValueError("the prescribed seed needs an exterior path of five vertices")
         values,gap,_ = integer_certificate(tree)
         reduced = [x%k for x in values]
         if len(set(reduced))!=len(tree):
@@ -105,10 +109,11 @@ def residual_labels(tree, k, rng):
         if eligible[v]:
             (short if height[v]<10 else tall).append(v)
 
-    for v in kids[0]:
-        expose(v)
-    labels = {0:0}
-    occupied = {0}
+    for parent in labels:
+        for v in kids[parent]:
+            if v not in labels:
+                expose(v)
+    occupied = set(labels.values())
     rounds = largest = cycles = 0
     while tall:
         start = tall.pop()

@@ -6,12 +6,14 @@ from math import gcd
 from research.large_order_hall_pools import hall_pair, zero_block
 
 
-def lift(core, digits, quotient, q, d, populations):
+def lift(core, digits, quotient, q, d, populations, *, omit_zero_leaves=False):
     """Site vertices come first. Their digits include 0 and 1. Total order is q*d."""
     s = len(digits)
     k = q*d
     if len(set(digits)) != s or not {0,1} <= set(digits) <= set(range(d)):
         raise ValueError("distinct site digits including 0 and 1 required")
+    if omit_zero_leaves and s != 2:
+        raise ValueError("the partial completion requires two sites")
     if len(populations) != s or min(populations) < 0 or sum(populations)+len(core) != k:
         raise ValueError("leaf counts must give order equal to the modulus")
     if len(quotient) != len(core)-s+1 or quotient[0] != 0:
@@ -43,9 +45,10 @@ def lift(core, digits, quotient, q, d, populations):
 
     def leaf(fiber, digit, shift):
         assert remaining[shift] > 0
-        parents.append(site_by_digit[shift])
-        labels.append(fiber+q*digit)
         remaining[shift] -= 1
+        if not (omit_zero_leaves and shift == 0):
+            parents.append(site_by_digit[shift])
+            labels.append(fiber+q*digit)
 
     for j in sorted(set(range(d))-set(digits)):
         leaf(0,j,0)
@@ -68,7 +71,18 @@ def lift(core, digits, quotient, q, d, populations):
         if j != gap_digit:
             leaf(gap,j,int((j-start) % d < units))
 
-    for fiber in sorted(set(range(q))-set(quotient)):
+    occupied_fibers = set(quotient)
+    for fiber in range(q):
+        if omit_zero_leaves and remaining[1] == 0:
+            remaining[0] = 0
+            break
+        if fiber in occupied_fibers:
+            continue
+        if omit_zero_leaves:
+            assert remaining[1] >= d
+            for digit in range(d):
+                leaf(fiber,digit,1)
+            continue
         block = zero_block([remaining[j] for j in range(d)])
         for shift,(p,_) in zip(block,hall_pair(block)):
             leaf(fiber,(-p) % d,shift)
