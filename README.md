@@ -45,3 +45,5 @@ Attaching a two-edge path at the root of any fixed tree makes the resulting tree
 Every star with any subset of its edges subdivided once is cordial for every positive modulus. The construction also covers certain paired branches of arbitrary sizes. For the entire radius-two family, it suffices at each modulus $k$ to check the trees of order exactly $k$. [Proof, high-degree lemma and label checks](research/hub/subdivided-stars.md)
 
 At every even modulus $k=2s$, a radius-two tree is $k$-cordial if a center has degree at least $s-1$, for every tree order. A subgroup construction reduces the order-$2s$ proof to a permutation sum. Two explicit labelings handle the remaining fork-shaped exceptions. [Even-modulus theorem and subgroup criterion](research/hub/even-radius.md)
+
+At every modulus, a radius-two tree is cordial if at most five neighbors of its center have children, or if their number is odd and at most 33. The child counts and number of ordinary hub leaves are arbitrary. [Integer construction, finite certificates and verification](research/hub/branch-levels.md)
