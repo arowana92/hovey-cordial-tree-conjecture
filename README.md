@@ -1,6 +1,6 @@
 # Hovey’s cordial tree conjecture
 
-**Work in progress.** This repository gives reproducible computer-assisted proofs that every finite tree is $k$-cordial for each modulus from 8 through 20. Hovey’s conjecture for every positive integer $k$ remains open. [Eight labels](research/eight/README.md) · [Nine through thirteen](research/rainbow/README.md) · [Fourteen through seventeen](research/rainbow/ordered-cut.md) · [Eighteen through twenty](research/rainbow/native-spine.md)
+**Work in progress.** This repository gives reproducible computer-assisted proofs that every finite tree is $k$-cordial for each modulus from 8 through 21. Hovey’s conjecture for every positive integer $k$ remains open. [Eight labels](research/eight/README.md) · [Nine through thirteen](research/rainbow/README.md) · [Fourteen through seventeen](research/rainbow/ordered-cut.md) · [Eighteen through twenty-one](research/rainbow/native-spine.md)
 
 At eight labels, Lean proves the theorem for finite trees built by joining rooted subtrees. It checks the finite certificate, the induction and the counts on each tree’s actual edges. [Formal proof and replay](research/eight/README.md#the-complete-eight-label-theorem-in-lean)
 
@@ -14,6 +14,7 @@ A vertex labeling takes values in the residues modulo $k$. Each edge receives th
 
 ## Primary literature
 
+- At one label every tree is immediate. Cahit proved that every tree is cordial at two labels in 1987. [Cahit, *Cordial graphs*, Ars Combinatoria 23, pp. 201–207](https://combinatorialpress.com/ars/vol23/)
 - Hovey introduced the conjecture, proved the tree results for three through five labels, and gave a sufficient finite test using rooted forests. His caterpillar theorem includes the case of eight labels for that family. [Mark Hovey, *A-cordial graphs* (1991)](https://doi.org/10.1016/0012-365X(91)90254-Y)
 - Driscoll, Krop and Nguyen proved the six-label case by choosing smaller families of rooted pieces and fitting their label and weight counts to the core. Their paper states Hovey’s finite test in Theorem 2.2. [*All trees are six-cordial* (2017)](https://www.ejgta.org/index.php/ejgta/article/view/231)
 - Driscoll proved the seven-label case by splitting trees, listing local labelings and matching them to deficient weights or surplus vertex labels. [*All Trees are Seven-Cordial* (2019 preprint, version 2)](https://arxiv.org/abs/1909.12351)
@@ -24,7 +25,7 @@ At modulus $k=n-1$, a cordial labeling of an $n$-vertex tree uses every edge res
 
 A related polynomial argument by Gnang and Williams concerns the order-equals-modulus base case. A check of its symmetrized term on the roots of unity gives zero when $n$ does not divide 4. A degree-dependent normalization gives an exact count of valid labelings. [Calculation and corrected polynomial stabilizer](research/orbit-polynomial.md) · [Gnang and Williams, version 1](https://arxiv.org/abs/2201.02240v1)
 
-A primary-literature search on 26 November 2026 found these results and no earlier all-orders proof for eight labels. The eight-label argument here uses a finite attachment lemma and induction on tree order. The certificate verifies that lemma.
+Primary-literature searches on 26–27 November 2026 found these results and no earlier all-orders proof for eight labels. The eight-label argument here uses a finite attachment lemma and induction on tree order. The certificate verifies that lemma.
 
 ## General moduli
 

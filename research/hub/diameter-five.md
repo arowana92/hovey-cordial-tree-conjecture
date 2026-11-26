@@ -4,7 +4,7 @@
 
 Two unconditional conclusions hold for every modulus. Let $T$ have exact diameter five, order $n$, and $h$ nonleaf vertices. Then $T$ is $k$-cordial whenever $h\ge k$ or $n\ge 2k-h-1$. In particular, $n\ge2k-5$ always suffices.
 
-**Finite application.** Every finite tree of diameter at most five is $k$-cordial for every $1\le k\le36$. For the additional moduli $21$ through $36$, the independent verifier checks 3,290,454 order-equals-modulus witnesses. The theorem gives the result at all tree orders. [All-tree results through twenty](../../README.md) · [Witness counts and stream digests](diameter-five-counts.txt)
+**Finite application.** Every finite tree of diameter at most five is $k$-cordial for every $1\le k\le36$. For the moduli $21$ through $36$, the independent verifier checks 3,290,454 order-equals-modulus witnesses. The theorem gives the result at all tree orders. [All-tree results through twenty-one](../../README.md) · [Witness counts and stream digests](diameter-five-counts.txt)
 
 ## Restoring one layer of leaves
 

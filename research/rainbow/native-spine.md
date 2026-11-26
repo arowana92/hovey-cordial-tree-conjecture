@@ -1,12 +1,13 @@
-# Certificates for every finite tree at eighteen through twenty labels
+# Certificates for every finite tree at eighteen through twenty-one labels
 
-**Theorem.** Every finite tree is 18-cordial, 19-cordial and 20-cordial. The [ordered-cut theorem](ordered-cut.md) reduces the claim at all orders to two finite hypotheses. The witness stream verifies both, using the sharp condition on actual runs of boundary colors. For every required colored forest the verifier checks a bijection to the nonzero residues and computes all parent-edge sums, including the prescribed boundary edges.
+**Theorem.** Every finite tree is 18-cordial, 19-cordial, 20-cordial and 21-cordial. The [ordered-cut theorem](ordered-cut.md) reduces the claim at all orders to two finite hypotheses. The witness stream verifies both, using the sharp condition on actual runs of boundary colors. For every required colored forest the verifier checks a bijection to the nonzero residues and computes all parent-edge sums, including the prescribed boundary edges.
 
 | Modulus | Rooted base trees | Eligible forests | Base-only shapes | Witness rows | Eligible boundary colorings before unit symmetry |
 |---:|---:|---:|---:|---:|---:|
 | 18 | 1,721,159 | 1,587,279 | 133,880 | 239,253,064 | 1,276,116,192 |
 | 19 | 4,688,676 | 4,479,243 | 209,433 | 266,718,296 | 4,721,012,403 |
 | 20 | 12,826,228 | 12,508,236 | 317,992 | 638,068,501 | 17,333,648,400 |
+| 21 | 35,221,832 | 33,607,992 | 1,613,840 | 1,168,053,456 | 58,468,617,732 |
 
 ## One representation for the two hypotheses
 
@@ -16,7 +17,7 @@ The [generator](spine_generate.cpp) recursively lists multisets of rooted childr
 
 The [verifier](spine_verify.cpp) parses balanced parentheses and verifies that components and siblings are sorted by size and then code. These comparisons make the representation unique by induction on size. It rejects repeated forest codes across all shards. Independently, the product $\prod_{j\ge1}(1-x^j)^{-R_j}$ counts multisets of rooted trees, where $R_j$ is the number of rooted trees of order $j$. Its coefficient at $x^{s-1}$ is $R_s$. The verifier computes the coefficients by multiset binomial counts. Consequently the final number of distinct valid forests proves complete shape coverage.
 
-For each size profile the verifier enumerates boundary patterns, counts actual color runs on the components, tests the separation inequalities and partitions the valid patterns into unit orbits. At 18 and 19 the rows for each eligible shape must hit every orbit exactly once. At 20 the verifier checks the shared-witness coverage described below. On every row the verifier checks residue ranges, injectivity with zero forbidden, and weight distinctness from the original endpoint labels. The all-zero row must occur even at ineligible shapes.
+For each size profile the verifier enumerates boundary patterns, counts actual color runs on the components, tests the separation inequalities and partitions the valid patterns into unit orbits. At 18 and 19 the rows for each eligible shape must hit every orbit exactly once. At 20 and 21 the verifier checks the shared-witness coverage described below. On every row the verifier checks residue ranges, injectivity with zero forbidden, and weight distinctness from the original endpoint labels. The all-zero row must occur even at ineligible shapes.
 
 ## Reproduction
 
@@ -75,10 +76,31 @@ shasum -a 256 -c "$src/spine20.sha256"
 
 Alternatively pass `--files-stdin` to the verifier and write one completed shard path per line to its standard input. It checks shapes across all inputs and requires the full rooted-tree count at end of file in both modes.
 
-## Counting the required cases from integer partitions
+## Reproducing the twenty-one-label proof
 
-A third program reproduces the rooted-base, eligible-forest and boundary-assignment columns without reading witnesses or listing individual trees. For each partition of $k-1$, group components of the same order $s$. If there are $R$ available rooted shapes of order $s$ with a given leaf count, taking $a$ of them with repetitions gives $\binom{R+a-1}{a}$ choices. Convolve these counts by the number of leaves; summing over partitions at smaller orders supplies the initial rooted-shape counts. For a fixed sorted size list, count colorings by their current number $r$ of runs. The next color can stay the same, or change in $k-1$ ways when the next size is at least the preceding mass plus $r$. Multiplying by the terminal-limited count of forests of each profile recovers exactly 17,333,648,400 colorings at 20. The explicit witness verifier establishes the labelings for these cases. [Partition count](spine_counts.py)
+The 21-label stream uses 36 shards totaling 23,783,731,284 bytes (22.15 GiB). Its independently verified 1,168,053,456 rows cover every rooted base and every required boundary coloring in the table. The ordered-cut theorem then covers every tree order. The repository contains the deterministic generator, separate verifier and [SHA-256 manifest](spine21.sha256). Recreate the stream from the repository root in a shell with a C++17 compiler.
 
 ~~~sh
-python3 -B research/rainbow/spine_counts.py 18 19 20
+set -e
+src="$PWD/research/rainbow"
+out=$(mktemp -d)
+c++ -O3 -std=c++17 "$src/spine_generate.cpp" "$src/search.cpp" -o "$out/generate"
+c++ -O3 -std=c++17 "$src/spine_verify.cpp" -o "$out/verify"
+cd "$out"
+mkdir out21
+for i in $(seq 0 35); do
+  ./generate 21 "$i" 36 "out21/$i.spn" --cover
+done
+shasum -a 256 -c "$src/spine21.sha256"
+./verify 21 out21/*.spn
+~~~
+
+The shards can be generated in parallel. A second complete replay using a verifier rebuilt from a fresh public checkout, with a different shard order, returned the same six counts. All 36 generated file hashes matched the manifest. Each shard contains a five-byte header, twelve bytes per rooted shape and twenty bytes per witness. Its file length therefore provides a separate check of the serialized row count. Substituting a forbidden zero for the first vertex of the first witness causes the verifier to reject the row.
+
+## Counting the required cases from integer partitions
+
+A third program reproduces the rooted-base, eligible-forest and boundary-assignment columns without reading witnesses or listing individual trees. For each partition of $k-1$, group components of the same order $s$. If there are $R$ available rooted shapes of order $s$ with a given leaf count, taking $a$ of them with repetitions gives $\binom{R+a-1}{a}$ choices. Convolve these counts by the number of leaves; summing over partitions at smaller orders supplies the initial rooted-shape counts. For a fixed sorted size list, count colorings by their current number $r$ of runs. The next color can stay the same, or change in $k-1$ ways when the next size is at least the preceding mass plus $r$. Multiplying by the terminal-limited count of forests of each profile recovers exactly 17,333,648,400 colorings at 20 and 58,468,617,732 at 21. The explicit witness verifier establishes the labelings for these cases. [Partition count](spine_counts.py)
+
+~~~sh
+python3 -B research/rainbow/spine_counts.py 18 19 20 21
 ~~~
