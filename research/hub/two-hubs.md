@@ -71,3 +71,5 @@ The checker reconstructs the entire path and any added branches and leaves, and 
 ~~~sh
 python3 -B -m research.hub.two_hubs
 ~~~
+
+At order equal to the modulus, the two-hub problem also has an exact gap test when the hub labels differ by a unit. It gives a symbolic description of every failed split at every prime for each fixed core. [Modular gap criterion and reproducible projection](two-hub-spectrum.md)
