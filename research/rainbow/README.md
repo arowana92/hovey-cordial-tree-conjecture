@@ -1,6 +1,6 @@
 # A rainbow forest test for cordial trees
 
-**Theorem.** Every finite tree is $k$-cordial for $k=9,10,11,12$. These are computer-assisted results. The reduction below applies to all moduli $k\ge5$. Its finite hypotheses are verified here at nine, ten, eleven and twelve. The last case uses the leaf-centroid bound below.
+**Theorem.** Every finite tree is $k$-cordial for $k=9,10,11,12,13$. These are computer-assisted results. The reduction below applies to all moduli $k\ge5$. Its finite hypotheses are verified here at nine, ten, eleven, twelve and thirteen. The last two cases use the leaf-centroid bound below.
 
 ## The two finite hypotheses
 
@@ -45,6 +45,7 @@ In the minimum-counterexample argument $n=mk+1+t$ with $t<k\le mk$. Thus $(n+1)/
 | 10 | 719 | 5 | 550 | 67,724 | 263,500 |
 | 11 | 1,842 | 6 | 1,595 | 215,770 | 2,141,469 |
 | 12 | 4,766 | 6 | 3,688 | 1,828,036 | 6,688,476 |
+| 13 | 12,486 | 7 | 10,813 | 4,642,374 | 55,571,893 |
 
 Each archive row gives a parent vector and one explicit vertex labeling. The format follows the eight-label archive. The record kind `rainbow` requests distinct nonzero vertex labels and distinct weights on all edges, including edges from boundary parents. Multiplication of every label by a unit permutes both the allowed nonzero labels and the edge weights, which lets one row cover several boundary colorings.
 
@@ -57,6 +58,7 @@ python3 -B -m research.rainbow.verify 9 research/rainbow/k9.jsonl.gz
 python3 -B -m research.rainbow.verify 10 research/rainbow/k10.jsonl.gz
 python3 -B -m research.rainbow.verify 11 research/rainbow/k11.jsonl.gz
 python3 -B -m research.rainbow.verify 12 research/rainbow/k12.jsonl.gz --centroid
+python3 -B -m research.rainbow.verify 13 research/rainbow/k13.jsonl.gz --centroid --grouped
 ```
 
 To regenerate a certificate, substitute 9, 10 or 11 for the modulus below. Compare the decompressed data to allow for different gzip implementations.
@@ -67,7 +69,7 @@ python3 -B -m research.rainbow.generate "$k" > /tmp/hovey-rainbow-regenerated.js
 gzip -dc "research/rainbow/k$k.jsonl.gz" | cmp - /tmp/hovey-rainbow-regenerated.jsonl
 ```
 
-For twelve labels, run the generator with the additional option `--centroid`. The decompressed twelve-label archive has SHA-256 `bc4d25dbb6c76367946c3a0afff3fc1029ff0a87da6a806d766079219c544903`.
+For twelve or thirteen labels, run the generator with the additional option `--centroid`. The verifier’s optional `--grouped` flag discards a forest shape’s colorings after checking its consecutive records and rejects any shape that reappears. The decompressed thirteen-label archive has SHA-256 `5e02439f353e913aa1a354977f71362da9fdb009a8cc77f2209211ae3d67ff6a`. The decompressed twelve-label archive has SHA-256 `bc4d25dbb6c76367946c3a0afff3fc1029ff0a87da6a806d766079219c544903`.
 
 The finite hypotheses here differ from the eight-label hypotheses checked by the earlier scripts. The contour argument above is a mathematical proof. The certificate checks run in Python.
 

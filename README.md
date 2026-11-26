@@ -1,6 +1,6 @@
 # Hovey’s cordial tree conjecture
 
-**Work in progress.** This repository gives reproducible computer-assisted proofs that every finite tree is 8-, 9-, 10-, 11- and 12-cordial. Hovey’s conjecture for every positive integer $k$ remains open. [Eight-label proof](research/eight/README.md) · [Proofs and certificates for nine through twelve labels](research/rainbow/README.md)
+**Work in progress.** This repository gives reproducible computer-assisted proofs that every finite tree is 8-, 9-, 10-, 11-, 12- and 13-cordial. Hovey’s conjecture for every positive integer $k$ remains open. [Eight-label proof](research/eight/README.md) · [Proofs and certificates for nine through thirteen labels](research/rainbow/README.md)
 
 A vertex labeling takes values in the residues modulo $k$. Each edge receives the sum of its endpoint labels modulo $k$. Among vertices, every two residue counts must differ by at most one. The same condition holds independently among edges, including residues with count zero.
 
