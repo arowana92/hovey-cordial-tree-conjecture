@@ -25,7 +25,7 @@ For every positive modulus $k$, attaching $k$ identical copies of an arbitrary r
 
 For every prime $p$, a forest on at most $p-1$ free vertices admits a rainbow extension if at most four edges join free vertices, with arbitrary prescribed external parent labels and any forbidden vertex label. A signed count and its first moments reduce all primes to a finite computation on 30 shapes. [Proof and reproducible checks](research/prime/README.md)
 
-Starting with any tree of order at most twelve, add arbitrarily many leaves at any one specified vertex. Every resulting tree is $k$-cordial for every positive $k$. Integer witnesses on 4,766 rooted cores and a periodic sequence of leaf labels give the large-modulus construction. [Proof for one attachment vertex](research/hub/README.md)
+Starting with any tree of order at most thirteen, add arbitrarily many leaves at any one specified vertex. Every resulting tree is $k$-cordial for every positive $k$. Integer witnesses on 12,486 rooted cores and a periodic sequence of leaf labels give the large-modulus construction. [Proof for one attachment vertex](research/hub/README.md)
 
 An arbitrary cordial labeling modulo $k$ can fail to lift modulo $sk$ for every even factor $s$. A matching in a labeled caterpillar gives a short obstruction. [Why lifting a fixed labeling can fail](research/cyclic-lifts.md)
 
