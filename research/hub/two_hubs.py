@@ -14,9 +14,10 @@ def edge(x, y):
 
 
 class Completion:
-    def __init__(self, path, leaves=()):
+    def __init__(self, path, leaves=(), twig_edges=()):
         self.path = list(path)
         self.edges = {edge(x, y) for x, y in zip(path, path[1:])}
+        self.edges.update(edge(x, y) for x, y in twig_edges)
         self.added = []
         for hub, label in leaves:
             self.leaf(hub, label)
@@ -79,8 +80,47 @@ def path_seed(distance):
     return result
 
 
+# Each key gives path length, twig attachment index and twig length.
+SHORT = {
+    (2, 0, 2): [0, -1, 1, 3, -2],
+    (2, 1, 2): [0, 2, 1, -2, 3],
+    (4, 0, 2): [0, 2, -2, 3, 1, -1, 4],
+    (4, 1, 1): [0, 3, -2, -1, 1, -4],
+    (4, 2, 1): [0, 4, -2, 2, 1, 3],
+}
+
+
+def short_seed(graph, path):
+    d = len(path) - 1
+    for reverse in (False, True):
+        spine = path[::-1] if reverse else path
+        for (distance, j, length), original in SHORT.items():
+            if distance != d:
+                continue
+            for v in graph[spine[j]]:
+                if v in spine:
+                    continue
+                twig = [v]
+                if length == 2:
+                    tip = next((w for w in graph[v] if w != spine[j]), None)
+                    if tip is None:
+                        continue
+                    twig.append(tip)
+                labels = [1-x for x in original] if reverse else original
+                extra = list(zip([labels[j]] + labels[d+1:-1], labels[d+1:]))
+                result = Completion(labels[:d+1], twig_edges=extra)
+                xs = sorted(labels)
+                ys = sorted(x+y for x, y in result.edges)
+                for x, z, y in zip(xs, xs[1:], ys):
+                    assert x < y <= z
+                    for k in range(x+1, z):
+                        result.leaf(int(k >= y), k)
+                return result, dict(zip(spine+twig, labels))
+    return None
+
+
 def complete(parents, a, b):
-    """Return original-vertex labels and the augmented tree, indexed by label."""
+    """Return a labeled completion, or None for the residual caterpillar case."""
     graph = [[] for _ in parents]
     for i, p in enumerate(parents[1:], 1):
         graph[i].append(p)
@@ -99,9 +139,15 @@ def complete(parents, a, b):
         path.append(v)
         v = prev[v]
     path.reverse()
-    result = path_seed(len(path)-1)
-    labels = dict(zip(path, result.path))
-    todo = deque(path)
+    if len(path)-1 in (2, 4):
+        seed = short_seed(graph, path)
+        if seed is None:
+            return None
+        result, labels = seed
+    else:
+        result = path_seed(len(path)-1)
+        labels = dict(zip(path, result.path))
+    todo = deque(labels)
     while todo:
         v = todo.popleft()
         for w in graph[v]:
@@ -182,6 +228,22 @@ if __name__ == "__main__":
             result.extend(rng.randrange(6), rng.randrange(6))
             check(parents, 0, d, labels, result)
             cases += 1
-    print(f"{cases} completed trees, before and after further leaves at both hubs.")
+    residual = 0
+    for n in range(3, 9):
+        for parents in rooted_shapes(n).values():
+            for b in range(1, n):
+                seed = complete(parents, 0, b)
+                if seed is not None:
+                    labels, result = seed
+                    check(parents, 0, b, labels, result)
+                    cases += 1
+                else:
+                    # Keep both hubs internal by adjoining one leaf at each.
+                    edges = [(i, p) for i, p in enumerate(parents) if i] + [(n, 0), (n+1, b)]
+                    deg = [sum(v in e for e in edges) for v in range(n+2)]
+                    live = [e for e in edges if all(deg[v] > 1 for v in e)]
+                    assert all(sum(v in e for e in live) <= 2 for v in range(n+2))
+                    residual += 1
+    print(f"{cases} interval completions and {residual} residual caterpillars checked.")
     for d in (2, 4):
         print(f"Distance {d}: all {excluded(d)} ordered inequality systems infeasible.")

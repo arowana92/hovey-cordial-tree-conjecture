@@ -1,8 +1,8 @@
 # Completing an arbitrary tree by leaves at two specified vertices
 
-**Theorem.** Fix distinct vertices $a,b$ of a finite tree $H$. If their distance is 1, 3, or at least 5, there are computable nonnegative integers $A,B$ such that adjoining **any** $m\ge A$ leaves to $a$ and **any** $n\ge B$ leaves to $b$ produces a tree cordial at every positive modulus. The same integer labeling works at all moduli. In particular, every specified edge of every tree can serve as the two attachment vertices.
+**Theorem.** Fix distinct vertices $a,b$ of a finite tree $H$. There are computable nonnegative integers $A,B$ such that adjoining **any** $m\ge A$ leaves to $a$ and **any** $n\ge B$ leaves to $b$ produces a tree cordial at every positive modulus. The two hubs can be adjacent or arbitrarily far apart. Every remaining case in the construction is a caterpillar.
 
-The stronger conclusion is that the vertices receive precisely an integer interval $[L,U]$, with $a$ labeled 0 and $b$ labeled 1, and the edge sums receive precisely $[L+1,U]$. Translating the vertex interval to start at 1 gives the usual consecutive-sums characterization of a super edge-magic labeling. Consecutive integer intervals have balanced frequencies modulo every $k$. [Youssef, Theorem 4, *On k-cordial labelling*](https://ajc.maths.uq.edu.au/pdf/43/ajc_v43_p031.pdf)
+Except in the residual caterpillar cases described below, the stronger conclusion is that the vertices receive precisely an integer interval $[L,U]$, with $a$ labeled 0 and $b$ labeled 1, and the edge sums receive precisely $[L+1,U]$. Translating the vertex interval to start at 1 gives the usual consecutive-sums characterization of a super edge-magic labeling. Consecutive integer intervals have balanced frequencies modulo every $k$. [Youssef, Theorem 4, *On k-cordial labelling*](https://ajc.maths.uq.edu.au/pdf/43/ajc_v43_p031.pdf)
 
 ## Growing a labeled subtree
 
@@ -32,11 +32,27 @@ Add two leaves of labels $-3,-2$ at $a$. The vertices fill $[-4,4]$. The path we
 
 To go from an even distance $d\ge6$ to $d+2$, take a path edge with endpoint labels $p>0$ and $q<0$. The displayed path has such an edge. Add a required child with very negative label $x$ at $p$, then a required child with label $y=p+q-x$ at $q$. Choose $x$ sufficiently small that $y$ is above the threshold for the negative-parent rule. Growing the lower end in the first step leaves the upper end fixed. Replace the edge of weight $p+q$ by the edge between the two new children, which has the same weight. This subdivides the old connection into a path of three edges and leaves both interval identities intact. The new middle edge again has endpoints of opposite signs. Induction supplies every even distance at least six.
 
+## Completing the two short even paths inside larger trees
+
+At distances two and four the branches **off** the path matter. The following five assignments suffice. Number the path from $0$ to $d$, and list its vertex labels first. A twig of the stated length begins at the stated path index. The last column lists its labels from the inside out.
+
+| Distance | Twig starts at index | Path labels | Twig labels |
+|---:|---:|---|---|
+| 2 | 0 | $0,-1,1$ | $3,-2$ |
+| 2 | 1 | $0,2,1$ | $-2,3$ |
+| 4 | 0 | $0,2,-2,3,1$ | $-1,4$ |
+| 4 | 1 | $0,3,-2,-1,1$ | $-4$ |
+| 4 | 2 | $0,4,-2,2,1$ | $3$ |
+
+For each row there is exactly one edge sum in each interval between consecutive sorted vertex labels, including the upper endpoint and excluding the lower one. The gap-filling rule below produces an interval completion using only leaves at the two hubs. Reversing the path is allowed: replacing all labels by $1-x$ after completing the intervals exchanges the hub roles and takes $[L,U]$, $[L+1,U]$ to $[1-U,1-L]$, $[2-U,1-L]$ respectively. Grow all remaining original vertices by the insertion table.
+
+At distance two, if any component off the path contains two or more vertices, it supplies one of the first two twigs, in one of the path orientations. Otherwise all off-path vertices are leaves at the three path vertices. The whole tree, even after adding any numbers of hub leaves, is a caterpillar. At distance four, one off-path neighbor at an internal path vertex or a two-vertex twig at an endpoint suffices by the last three rows. Otherwise the tree consists of the path and leaves at its endpoints and is again a caterpillar. Thus at *every* distance one obtains the interval construction or the caterpillar theorem. The unrestricted cordial conclusion follows. [Hovey's theorem](https://doi.org/10.1016/0012-365X(91)90254-Y)
+
 ## Deciding the entire two-parameter family
 
-For a fixed $H$ and eligible hubs, it is decidable whether *all* nonnegative pairs of leaf counts work at *all* moduli. The construction above covers $m\ge A,n\ge B$. For each $m<A$ absorb those $m$ leaves into the fixed core and apply the [finite one-hub decision theorem](rational.md) at $b$. For each $n<B$ do the same at $a$. This takes at most $A+B$ one-hub decisions. Each either supplies a finite bound on all remaining searches or yields ordinary counterexamples for all sufficiently large primes on the corresponding fixed-core slice.
+For a fixed $H$ and any two distinct hubs, it is decidable whether *all* nonnegative pairs of leaf counts work at *all* moduli. For a residual caterpillar every pair already works. Otherwise the construction above covers $m\ge A,n\ge B$. For each $m<A$ absorb those $m$ leaves into the fixed core and apply the [finite one-hub decision theorem](rational.md) at $b$. For each $n<B$ do the same at $a$. This takes at most $A+B$ one-hub decisions. Each either supplies a finite bound on all remaining searches or yields ordinary counterexamples for all sufficiently large primes on the corresponding fixed-core slice.
 
-## An exact criterion and the two excluded distances
+## An exact criterion and the bare paths at distances two and four
 
 A fixed injective integer assignment on $H$ with $a=0,b=1$ can be completed by such leaves to the required intervals exactly when its core labels $x_1<\cdots<x_h$ and its core edge sums $y_1<\cdots<y_{h-1}$ satisfy
 $$
