@@ -26,6 +26,8 @@ A primary-literature search on 26 November 2026 found these results and no earli
 
 ## General moduli
 
+At any modulus $k$, testing all trees below order $2^{26}k$ suffices to decide the conjecture at that modulus. A smallest counterexample has fewer than $k$ leaves, and three collections of degree-two vertices give a labeling of every larger tree with that few leaves. Every counterexample has fewer than $2^{28}k$ nonleaf vertices. [Linear order test, permutation construction and checks](research/large-order/hall-pools.md)
+
 Every possible counterexample at modulus $k$ has order $O(k\log(2k))$ and maximum degree $O(k\log(2k))$. On any tree, attaching $O(k\log(2k))$ leaves at any prescribed vertex suffices. The construction first makes the vertex and edge histograms differ by exactly one unit, with logarithmic error in every bin, then fills the bins with leaves. [Order bound by interval rounding](research/large-order/primitive.md) · [Squared differences](research/large-order/diagonal.md) · [Twelve-vertex path, rounding and degree bound](research/large-order/flexible-path.md)
 
 For every fixed $k$, **every sufficiently large tree is $k$-cordial**, with unrestricted degrees. In fact order $(2^{34}+4)k^2$ suffices, and independently a single vertex of degree at least $4k^2$ suffices at any order. For every fixed $\gamma>0$ and sufficiently large $k$, a vertex of degree at least $k^{3/2+\gamma}$ also suffices. [Asymptotic degree bound](research/large-order/pruning-depth.md) [Quadratic bound for every counterexample](research/large-order/quadratic.md) · [High-degree construction](research/large-order/high-degree.md) · [Basic correction and Lean verification](research/large-order/README.md)
