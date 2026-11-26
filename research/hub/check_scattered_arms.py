@@ -5,18 +5,28 @@ from math import gcd
 from functools import reduce
 
 
-def equations(parents,s,t,matching):
-    n = 2*len(parents)
+def branch_edges(parents,arities):
+    edges = []
+    for p,m in zip(parents,arities):
+        root = len(edges)
+        edges.append((None,p))
+        edges.extend((root,0) for _ in range(m))
+    return edges
+
+
+def equations(edges,s,t,matching):
+    n = len(edges)
     rows = []
     for j,v in enumerate(matching):
         row = [0]*(n+1)
         rhs = s if v == n else 0
         if j < n:
-            row[2*(j//2)] = 1
-            if j % 2:
-                row[j] = 1
+            parent,fixed = edges[j]
+            row[j] = 1
+            if parent is None:
+                rhs -= fixed
             else:
-                rhs -= parents[j//2]
+                row[parent] += 1
         elif j == n:
             rhs -= t
         else:
@@ -49,11 +59,12 @@ def annihilators(rows):
             yield row[columns:]
 
 
-def uniform_check(parents,s,t):
-    n = 2*len(parents)
+def uniform_check(parents,s,t,arities=None):
+    edges = branch_edges(parents,arities or [1]*len(parents))
+    n = len(edges)
     bound = matchings = 0
     for sigma in permutations(range(n+2)):
-        rows = equations(parents,s,t,sigma)
+        rows = equations(edges,s,t,sigma)
         for lam in annihilators(rows):
             value = sum(a*c for a,(_,c) in zip(lam,rows))
             if value:
@@ -67,7 +78,7 @@ def uniform_check(parents,s,t):
     return matchings,bound
 
 
-def direct(k,parents,s,t):
+def direct(k,parents,s,t,arities=None):
     """Try every injection on the arms. At order k all remaining root leaves are forced as a set."""
     a = (t-s) % k
     core = {0,*parents,a,s}
@@ -75,12 +86,12 @@ def direct(k,parents,s,t):
     assert len(core) == len(parents)+3 and len(set(base_weights)) == len(base_weights)
     rest = set(range(k))-core
     tried = 0
-    for labels in permutations(rest,2*len(parents)):
+    edges = branch_edges(parents,arities or [1]*len(parents))
+    for labels in permutations(rest,len(edges)):
         tried += 1
         weights = list(base_weights)
-        for i,p in enumerate(parents):
-            x,y = labels[2*i:2*i+2]
-            weights.extend(((p+x) % k,(x+y) % k))
+        weights.extend((x+(labels[u] if u is not None else fixed)) % k
+                       for x,(u,fixed) in zip(labels,edges))
         weights.extend(rest-set(labels))
         assert len(weights) == k-1
         if len(set(weights)) == k-1:
@@ -97,15 +108,26 @@ def main():
         total += count
         noun = "arm" if len(parents) == 1 else "arms"
         print(f"{len(parents)} {noun}, {count:,} matchings, obstruction for all k > {bound:,}.")
+    for parents,arities,s,t,expected in (((1,),(4,),7,19,96),
+                                         ((1,11),(1,2),127,1601,9629),
+                                         ((1,11),(2,2),127,1601,14443)):
+        count,bound = uniform_check(parents,s,t,arities)
+        assert bound == expected and max(*parents,s,t) <= bound
+        total += count
+        print(f"Star arities {arities}, {count:,} matchings, obstruction for all k > {bound:,}.")
     tried = 0
+    for arities,s,t in (((1,2),4,7),((2,2),5,12)):
+        n,solution = direct(13,(1,2),s,t,arities)
+        assert solution is None and direct(13,(1,2),3,7,arities)[1] is not None
+        tried += n
     for k,parents,s,t in ((8,(1,),2,5),(13,(1,2),6,3),(13,(1,2,3),4,10)):
         n,solution = direct(k,parents,s,t)
         assert solution is None
         tried += n
     for k,parents,s,t in ((8,(1,),2,7),(13,(1,2),3,7),(13,(1,2,3),4,9)):
         assert direct(k,parents,s,t)[1] is not None
-    print(f"{total:,} integer certificates, {tried:,} injections rejected on three small "
-          "prefixes, and a cordial completion for the same three trees with other prefixes.")
+    print(f"{total:,} integer certificates, {tried:,} injections rejected on five small "
+          "prefixes, and a cordial completion for the same five trees with other prefixes.")
 
 
 if __name__ == '__main__':

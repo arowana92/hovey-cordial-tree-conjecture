@@ -2,6 +2,8 @@
 
 **Theorem.** For every $r\ge1$ there is one fixed tree prefix with distinct integer vertex labels and distinct integer edge sums with the following property at all sufficiently large moduli $k$. Attach one two-edge arm at each of $r$ distinct prescribed vertices and add leaves at the zero root until the order is $k$. No $k$-cordial labeling extends that prefix.
 
+The same assertion holds if the $i$th two-edge arm is replaced by a neighbor with any fixed positive number $m_i$ of leaf children. There is still just one such branch at each prescribed parent. The prefix can depend on the list of arities and works at every sufficiently large modulus.
+
 The resulting trees have only one vertex of unbounded degree. They are themselves $k$-cordial at all sufficiently large moduli by the [one-exceptional-degree theorem](one-exceptional-degree.md). The obstruction concerns keeping the specified prefix. In the [positive repair using pendant stars](pendant-stars.md), several arms share a parent and its label enters several boundary-edge equations.
 
 ## Construction and the matching equations
@@ -26,6 +28,14 @@ There is an explicit choice. Put $H=(2r+1)!$ and $B=2H+3$, and take $(p_1,\ldots
 
 On the chosen powers of $B$ this form is a nonzero integer. Reducing successively modulo $B$ proves nonvanishing, and the geometric sum bounds its magnitude strictly below $B^{r+2}$. At every $k>B^{r+2}$ it remains nonzero modulo $k$, which contradicts the required matching. The prefix labels and sums are distinct there as well. In addition, over a prime field of order $q$ the same row-count and disjoint-variable argument works directly over the field. The fraction of all data vectors admitting the histogram equality is at most $(2r+2)!/q$ by the union bound over proper hyperplanes.
 
+## Arbitrary numbers of children, one star at each prescribed parent
+
+Let $n=r+\sum_i m_i$ be the total number of newly assigned vertices on the stars. The multiset equation now has $n+2$ rows, using all $n$ actual edge sums on the left and the $n$ new vertex labels on the right, with the same additional entries $t,g$ and $s,0$. There are $n+1$ unknowns. With several leaves at the same root $x_i$, coefficients of $x_i$ from different leaf rows can cancel. The following deletion accounts for these cancellations.
+
+For a fixed matching draw an arrow from leaf $j$ to leaf $l$ if the row for edge $x_i+y_j$ is matched to vertex label $y_l$. This directed graph has indegree and outdegree at most one. Delete all rows on its directed cycles, including loops, and the corresponding leaf variables. A deleted leaf variable occurs only in its own edge row and as the target of its predecessor in that cycle. Thus all remaining equations are necessary equations on the remaining variables. The count of rows still exceeds the unknown count by one.
+
+Take a nonzero left relation for this reduced matrix. If it vanishes also on the data, only leaf-edge rows can be active, by the unique occurrences of $p_i,t,g$ as before. Each active row contains its own distinct leaf on the left. With $b$ active rows these $b$ leaves must all be targeted by the same $b$ rows for cancellation to be possible. Their arrows would form a permutation of the active leaves, hence a union of directed cycles. All such cycles were deleted. This gives the required nonzero data relation. Extending its multipliers by zero gives a certificate on the original matrix. With $H=(n+1)!$ the preceding power construction and bound on $k$ apply unchanged. The prime-field fraction bound is now $(n+2)!/q$.
+
 ## Explicit certificates and an eight-label example
 
 For the following smaller prefixes the checker generates an integer multiplier vector for every matching, multiplies it back against the original matrix, and obtains a nonzero integer from the data. Its largest absolute value is the threshold displayed.
@@ -41,3 +51,5 @@ Already at $k=8$, take $r=1,p_1=1,s=2,t=5$. The prefix uses vertex labels $0,1,3
 ~~~sh
 python3 -B -m research.hub.check_scattered_arms
 ~~~
+
+For arities $(4)$ at parent 1 with $(s,t)=(7,19)$ the integer certificates give the obstruction at every $k>96$. For arities $(1,2)$ and $(2,2)$ at parents $(1,11)$ with $(s,t)=(127,1601)$ their bounds are $k>9629$ and $k>14443$ respectively. Across all six integer examples the checker multiplies back 91,464 matching certificates. At modulus 13 it additionally verifies both a failed and a successful prefix on each of the last two star shapes by direct enumeration.
