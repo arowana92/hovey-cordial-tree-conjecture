@@ -1,0 +1,42 @@
+# A necessary concentration of leaves in large-modulus counterexamples
+
+**Theorem.** Fix $D\ge3$, $\delta>0$ and $0<\epsilon<1$. For sufficiently large $k$, take an ordinary tree $H$ of order at least $\delta k$ with at most $k^{1-\epsilon}$ vertices of degree greater than $D$ and at most $k^{1-\epsilon}$ ordinary leaves directly adjacent to those vertices. Choose at most $k^{1-\epsilon}$ sites anywhere in $H$ and add any number of leaves at each. The resulting tree is $k$-cordial.
+
+**Consequence.** Consider any sequence of counterexamples with $k\to\infty$ having at most $k^{1-\epsilon}$ vertices of degree above a fixed $D$. After deleting the leaves adjacent to those vertices, the number of surviving vertices must be $o(k)$. In particular the number of nonleaf vertices is $o(k)$. This conclusion applies to every counterexample in the sequence, regardless of minimality. At most one high vertex has already been ruled out for sufficiently large $k$. [One exceptional degree](one-exceptional-degree.md)
+
+Indeed take precisely the vertices above $D$ in the original tree as sites and delete all their adjacent leaves to form $H$. Only sites can become new ordinary leaves and ordinary degrees never increase. Thus an ordinary leaf adjacent to an ordinary high vertex must be a newly created leaf, since any original leaf there was deleted. If the ordinary order were at least $\delta k$ on a subsequence, the theorem would apply. The single-vertex and two-vertex cases are immediate.
+
+## Counting the internal edges after cutting
+
+We use the [terminal-shift forest lemma](terminal-shifts.md). It needs a positive proportion of internal edges after cutting below free high vertices. Also cut below all free decoration sites, including those of low ordinary degree. These cuts make the added leaves into singletons with prescribed shifts, once the free sites are pinned by the lemma.
+
+Consider an ordinary suffix of $s>0$ vertices, descendant-closed in a preorder of $H$, with at most $O(\log k)$ distinct ordinary boundary parents. Let $B$ bound the number of ordinary leaves adjacent to an ordinary high vertex. In the suffix cut at all ordinary high vertices and decoration sites. Count ordinary singleton components without using the number of decorations.
+
+- Singletons themselves at a high vertex or a decoration site number at most the size of that union.
+- At a low ordinary cut site or a low ordinary exterior parent there are at most $D$ ordinary children. These parents account for at most $O_D(k^{1-\epsilon}+\log k)$ further singletons.
+- Every remaining singleton is an ordinary leaf of $H$ adjacent to an ordinary high parent. The suffix includes all its descendants, and its outgoing edges would have survived if it had children. There are at most $B$ such leaves.
+
+The resulting number of internal edges is at least $s/2-O_D(k^{1-\epsilon}+\log k+B)$, since a nonsingleton component contributes at least half its order. Appending a temporary path of length $a$ at an ordinary suffix terminal adds at least $a-1$ internal edges, even if its first edge is cut at a site. Take the temporary path to be ordinary, and keep the original cut set, whose complement still has degree at most $\max(D,3)$. The same count applies after deleting one ordinary root from the whole ordinary tree, with that root as sole boundary parent. Before cutting, actual prescribed exterior residues occur at the ordinary boundary parents or the decoration sites in the prefix. Their number and that of free cut sites are $O_D(k^{1-\epsilon}+\log k)$.
+
+## Reducing an arbitrary decorated order
+
+Write $h=|H|$, $m$ for the number of decorations, and $n=h+m$. Decrease $\delta$ to at most $1/2$. When $n=k$, fix one ordinary root label, delete that root and apply the count to all $h-1$ other ordinary vertices. There are at least $\delta k/3$ internal edges for large $k$, including when the fixed vertex is high. The forest lemma supplies all remaining labels avoiding the root and distinct weights. At smaller orders pad to $k$ by temporary leaves at a single site and restrict. Increasing the number of sites by one is harmless to the exponent. With no decorations one may use the [direct-adjacency theorem](terminal-shifts.md#from-forests-to-trees) at any order.
+
+It remains to give the reductions at $n>k$. They preserve the ordinary/decoration distinction. At order $1\bmod k$ remove one decoration when present, and restore it with the unique deficient edge weight. At other orders put $t=(n-1)\bmod k>0$. If $m\ge t$, remove $t$ decorations, then restore them with distinct weights and distinct labels avoiding the sole surplus vertex residue of the prefix. This permits arbitrary parent shifts by Hall's theorem. [Distinct-leaf extension](../counterexample-bound.md#removing-leaves)
+
+If $m<t$ then $h>k$. Put $a=\lfloor k/8\rfloor$. Use the following two cuts.
+
+1. If $t<2a$ or $t-m\ge a$, remove every decoration and the last $s=t-m$ vertices in increasing-child-size preorder of $H$. The remaining ordinary tree admits a labeling by the direct-adjacency theorem. Pad the ordinary suffix by a path of length $k-1-t$. Its padded ordinary order $k-1-m$ is at least $a$.
+2. Otherwise $t\ge2a$ and $t-m<a$. At an ordinary centroid choose two disjoint suffix candidates of size $a$ by partitioning the centroid branches into two groups each of order at least $a$ and traversing the chosen group last. Within each branch use increasing-child-size preorder. Each candidate has connected complement and at most $O(\log k)$ distinct boundary parents, including the centroid and those within at most one partially visited branch. One of these candidates carries at most $m/2\le t-a$ decorations. Remove it and exactly $t-a$ decorations, including all of its own. The inequality $m>t-a$ guarantees enough decorations. The remaining ordinary order is at least $h-a>k/2$. Apply the reduction recursively to this smaller decorated tree. Pad the removed ordinary suffix by a path of length $k-1-t$. Its padded ordinary order is again at least $a$. [Disjoint candidates and boundary proof](branching-pools.md#from-prescribed-forests-to-all-tree-orders)
+
+For the first cut the ordered traversal has the same logarithmic boundary bound. In either case the preceding count gives at least $a/2-O_D(k^{1-\epsilon}+\log k+B)$ internal edges in the padded forest, so $k/20$ suffice for large $k$. The prefix has order $1\bmod k$, hence uniform edge frequencies and one surplus vertex label. Use this forbidden label in the forest lemma, then delete the temporary path. The real suffix extends both balanced counts.
+
+For precision, here is a uniform bound on $B$ throughout the recursion. Initially $B\le k^{1-\epsilon}$. Removing an ordinary preorder suffix creates at most two new unrooted ordinary leaves in the prefix. Apart from the traversal root, only the last visited vertex can lose all its children, since every other visited vertex with children is followed immediately by its first child. The root itself may retain just one neighbor. Each prefix's high vertices were already high, so its number of ordinary leaves adjacent to high vertices increases by at most two. For initial $n\ge2^{80}k$ the [general linear order theorem](../large-order/linear.md) already gives cordiality. Otherwise the number of reductions on any branch is at most $2\lceil n/k\rceil+2$. At positive $t$ the next order is $1\bmod k$, and after its single deletion the next positive remainder is $k-1$. Thus throughout the proof $B\le k^{1-\epsilon}+2^{83}$, absorbed by using $\epsilon/2$ in the cited results. Ordinary high and site counts never increase under a prefix cut. This uniformity also applies to the terminal all-ordinary prefixes in the first cut. The reductions terminate at one of the proved base cases.
+
+## Verification
+
+The checker constructs suffixes in weighted trees, rebuilds the components after cutting at actual high vertices and sites, and verifies the internal-edge and new-leaf bounds on both branches of the reduction.
+
+~~~sh
+python3 -B -m research.hub.check_concentrated_leaves
+~~~
