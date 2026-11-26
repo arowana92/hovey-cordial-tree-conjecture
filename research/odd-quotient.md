@@ -48,6 +48,8 @@ One may negate each complete high labeling independently, including its chosen l
 
 The obstruction can occur for this lift. Take three $m$-vertex stars, joining their centers along a three-vertex path, with $3\mid m$. In a bijective internal labeling of a star whose center is $z$, its missing weight is $2z$. Both center attachments in the middle coincide, and $z+2z=0\pmod3$ on either end. Thus no lift making each star monochromatic in a different low coset can be cordial. Any such lift at order $3m$ would induce bijective internal vertex labels and distinct internal weights on the three fibers. The resulting ordinary tree is a caterpillar. This identifies a limit of the partition construction, alongside the [obstructions for prescribed base labelings](cyclic-lifts.md).
 
+A second construction removes leaves of the quotient and restores their two possible equations together. In particular, at a prime high modulus $p$ it works for every quotient of the stated kind whenever $p$ does not divide the common piece order. [Leaf elimination and verification](quotient-peeling.md)
+
 ## Checks
 
 The checker compares the integer determinant to an independent enumeration of arrow choices, constructs the high translations, and tests the two full histograms, including zero counts. For one labeling of each of the 59 rooted quotient shapes on 3, 5 and 7 vertices, it verifies the arborescence count directly. It checks 2,944 equal-order and 2,901 variable-order lifts. At factors 3, 6 and 9 it independently tries translations, signs and end exchanges on 144 triples, finding 137 feasible and seven obstructed, in exact agreement with the three-piece criterion.
