@@ -133,14 +133,24 @@ def residual_labels(tree, k, rng):
     return values,gap,(rounds,largest,cycles,final_size)
 
 
-def construct(tree, k, seed=1952):
+def construct(tree, k, seed=1952, *, nonzero_gap=False):
     if not tree or tree[0]!=-1 or any(not 0<=p<v for v,p in enumerate(tree[1:],1)):
         raise ValueError("need a parent-before-child tree")
     if k<len(tree):
         raise ValueError("modulus smaller than tree")
     rng = Random(seed)
     keep,residual,pairs = paired_branches(tree)
+    if nonzero_gap and not any(p > 0 for p in residual):
+        if not any(p > 0 for p in tree):
+            raise ValueError("a star at zero must omit zero")
+        # Retain one nontrivial pair so the bounded residual uses weight zero.
+        j = next(j for j,(local,_,_) in enumerate(pairs) if len(local) > 1)
+        _,left,right = pairs.pop(j)
+        keep = sorted(keep+left+right)
+        index = {v:i for i,v in enumerate(keep)}
+        residual = [-1]+[index[tree[v]] for v in keep[1:]]
     values,gap,stats = residual_labels(residual,k,rng)
+    assert not nonzero_gap or gap != 0
     labels = dict(zip(keep,values))
     occupied = set(values)
     templates = {}
