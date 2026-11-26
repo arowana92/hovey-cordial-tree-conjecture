@@ -1,6 +1,6 @@
 # A rainbow forest test for cordial trees
 
-**Theorem.** Every finite tree is 9-cordial and 10-cordial. These are computer-assisted results. The reduction below applies to all moduli $k\ge5$. Its finite hypotheses are verified here at nine and ten.
+**Theorem.** Every finite tree is 9-cordial, 10-cordial and 11-cordial. These are computer-assisted results. The reduction below applies to all moduli $k\ge5$. Its finite hypotheses are verified here at nine, ten and eleven.
 
 ## The two finite hypotheses
 
@@ -33,6 +33,7 @@ The complement is a forest on $t$ vertices with one boundary edge per component.
 |---:|---:|---:|---:|---:|---:|
 | 9 | 286 | 5 | 248 | 15,270 | 85,140 |
 | 10 | 719 | 5 | 550 | 67,724 | 263,500 |
+| 11 | 1,842 | 6 | 1,595 | 215,770 | 2,141,469 |
 
 Each archive row gives a parent vector and one explicit vertex labeling. The format follows the eight-label archive. The record kind `rainbow` requests distinct nonzero vertex labels and distinct weights on all edges, including edges from boundary parents. Multiplication of every label by a unit permutes both the allowed nonzero labels and the edge weights, which lets one row cover several boundary colorings.
 
@@ -43,9 +44,10 @@ Run these commands from the repository root with Python 3.8 or later.
 ```sh
 python3 -B -m research.rainbow.verify 9 research/rainbow/k9.jsonl.gz
 python3 -B -m research.rainbow.verify 10 research/rainbow/k10.jsonl.gz
+python3 -B -m research.rainbow.verify 11 research/rainbow/k11.jsonl.gz
 ```
 
-To regenerate a certificate, substitute 9 or 10 for the modulus below. Compare the decompressed data to allow for different gzip implementations.
+To regenerate a certificate, substitute 9, 10 or 11 for the modulus below. Compare the decompressed data to allow for different gzip implementations.
 
 ```sh
 k=9
