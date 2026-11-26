@@ -23,8 +23,11 @@ def rooted_shapes(order):
     return trees
 
 
-def verify(path, k):
-    limit = max(leaves - 1 - leaves // 4 for leaves in range(2, k - 1))
+def verify(path, k, centroid=False):
+    if centroid:
+        limit = max(leaves - (leaves + 2) // 3 for leaves in range(2, k - 1))
+    else:
+        limit = max(leaves - 1 - leaves // 4 for leaves in range(2, k - 1))
     trees = rooted_shapes(k)
     base = set()
     coverage = defaultdict(set)
@@ -84,7 +87,8 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("modulus", type=int)
     parser.add_argument("certificate", type=Path)
+    parser.add_argument("--centroid", action="store_true", help="use the leaf-centroid bound")
     args = parser.parse_args()
     if args.modulus < 5:
         parser.error("this reduction uses k >= 5")
-    verify(args.certificate, args.modulus)
+    verify(args.certificate, args.modulus, args.centroid)

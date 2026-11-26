@@ -27,6 +27,16 @@ The complement is a forest on $t$ vertices with one boundary edge per component.
 
 **Finishing the labeling.** Give the core a cordial labeling by minimality. Exactly one vertex residue $u$ occurs $m+1$ times, all others occur $m$ times, and every edge residue occurs $m$ times. Pad the nonempty outside forest to order $k-1$ by extending one of its terminal vertices by a path. The number of terminal vertices stays the same. Apply hypothesis 2 with forbidden label $u$ and restrict the labeling to the original outside vertices. The added labels are distinct and avoid $u$. The added weights, including the boundary weights, are distinct. All vertex and edge counts in the whole tree are now $m$ or $m+1$, a contradiction.
 
+## Choosing the core with a leaf centroid
+
+There is also a sufficient test with at most $\lfloor 2(k-2)/3\rfloor$ terminal vertices. The same base hypothesis and the same proof after the core is chosen apply.
+
+Let $L\ge2$ be the number of original leaves in an $n$-vertex tree with $n>k$. Choose an internal vertex $v$ such that no component of $T-v$ contains more than $L/2$ original leaves. To find one, start at an internal vertex and step into any component with more than half the leaves. This walk stays at internal vertices and cannot traverse an edge back, since the reverse side contains fewer than half the leaves. It must terminate.
+
+The components of $T-v$ can be divided into two groups so that each group contains between $L/3$ and $2L/3$ leaves. If a single component contains at least $L/3$ leaves, take it as one group, since it has at most $L/2$. Otherwise accumulate components until the sum first reaches $L/3$, at which point it is less than $2L/3$. Each group together with $v$ induces a connected tree. Their orders add to $n+1$, so the smaller has order at most $(n+1)/2$ and contains at least $\lceil L/3\rceil$ original leaves.
+
+In the minimum-counterexample argument $n=mk+1+t$ with $t<k\le mk$. Thus $(n+1)/2\le mk+1$. Grow the smaller subtree to a connected core of order $mk+1$. At most $L-\lceil L/3\rceil=\lfloor2L/3\rfloor$ original leaves remain outside. Since $L\le k-2$, the terminal bound follows.
+
 ## Verification
 
 | Modulus | Rooted base tree shapes | Maximum terminal vertices | Forest shapes | Forest witness rows | Colored forests covered |

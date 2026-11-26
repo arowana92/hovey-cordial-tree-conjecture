@@ -4,7 +4,7 @@ import argparse
 from itertools import combinations_with_replacement, groupby, product
 from math import gcd
 
-from research.eight.generate import base_witness, emit, forests, parent_vector
+from research.eight.generate import emit, forests, parent_vector
 
 
 def leaf_count(tree):
@@ -56,14 +56,18 @@ def rainbow(parents, k):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("modulus", type=int)
-    k = parser.parse_args().modulus
+    parser.add_argument("--centroid", action="store_true", help="use the leaf-centroid bound")
+    args = parser.parse_args()
+    k = args.modulus
     if k < 5:
         parser.error("this reduction uses k >= 5")
     for root in forests(k - 1):
         parents = parent_vector((root,), (0,))
-        emit("base", parents, [base_witness(parents, k)])
+        remaining = [p - 1 for p in parents[1:]]
+        emit("base", parents, [[0] + rainbow(remaining, k)])
+    limit = 2 * (k - 2) // 3 if args.centroid else k - 3 - (k - 2) // 4
     for forest in forests(k - 1):
-        if sum(leaf_count(tree) for tree in forest) > k - 3 - (k - 2) // 4:
+        if sum(leaf_count(tree) for tree in forest) > limit:
             continue
         for colors in boundary_orbits(forest, k):
             parents = parent_vector(forest, colors)
