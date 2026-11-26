@@ -65,7 +65,7 @@ The bound applies to every counterexample. The separate [linear test](hall-pools
 
 ## Reproduction
 
-The construction implements the two-phase rounding on integer walks, placement of holders, both compressed-tree repairs and reverse-order filling. The checker reconstructs every integer jump, recomputes the original tree's edge sums, and charges the actual selected parents. It independently checks 160 multiscale population budgets with integer arithmetic. The replay checks 30 lists of integer demands with 7,261 jumps and ten complete trees through order 22,263. The tree constructions use 140 fourteen-vertex paths and 490 short-jump leaves. The general estimates follow from the proof above. [Constructor](../large_order_interval_paths.py) · [Checks](../check_large_order_interval_paths.py)
+The construction implements the two-phase rounding on integer walks, placement of holders, both compressed-tree repairs and reverse-order filling. The checker reconstructs every integer jump, recomputes the original tree's edge sums, and charges the actual selected parents. Two additional core repairs at $k=256$ and $729$ use the prescribed auxiliary orders $32$ and $111$, including their integer lifts and holder budgets. It independently checks 160 multiscale population budgets with integer arithmetic. The replay checks 30 lists of integer demands with 7,261 jumps and ten complete trees through order 22,263. The tree constructions use 140 fourteen-vertex paths and 490 short-jump leaves. The general estimates follow from the proof above. [Constructor](../large_order_interval_paths.py) · [Checks](../check_large_order_interval_paths.py)
 
 ~~~sh
 python3 -B -m research.check_large_order_interval_paths

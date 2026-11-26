@@ -76,6 +76,35 @@ def full(k, tree, sites, bands, aux, depth, rng):
     return len(tr),blocks,nroute
 
 
+def check_auxiliary_moduli():
+    """Use the modulus, rank and auxiliary-size relations in the theorem itself."""
+    results = []
+    for k, rank, denominator in [(256, 16, 2), (729, 64, 3)]:
+        # B = k^(1/(4*denominator)). Determine ceil(rank*B) in integer arithmetic.
+        power = 4*denominator
+        auxiliary = rank
+        while auxiliary**power < k * rank**power:
+            auxiliary += 1
+        assert auxiliary <= k and rank**denominator <= k**(denominator-1)
+        tree = [-1] + list(range(2*rank-2))
+        sites = list(range(0,len(tree),2))
+        ranks = []
+        r = 16
+        while r <= rank:
+            ranks.append((r,r//8,(8192*k+r-1)//r))
+            r *= 2
+        tr,x,holders,(blocks,routed) = seed(tree,k,ranks,sites,auxiliary)
+        assert not blocks and routed > 0
+        vertices,weights = counts(tr,x,k)
+        assert len(set(weights)) == 1
+        assert vertices.count(weights[0]+1) == 1 and vertices.count(weights[0]) == k-1
+        uses = Counter(tr[len(tree):])
+        assert all(uses[holder] <= next(pop for _,radius,pop in ranks if abs(d)<radius)
+                   for d,holder in holders.items())
+        results.append((k,auxiliary,routed))
+    return results
+
+
 def check_capacity_estimates(rng):
     """Check the thinning and integer interval budgets without constructing huge trees."""
     cases = 0
@@ -131,6 +160,7 @@ def main():
     for r in (4,6):
         hops += check_walks([(0,r+1),(r+2,-1),(r,r)],r,rng,exact=True)
         cases += 1
+    auxiliary = check_auxiliary_moduli()
     budgets = check_capacity_estimates(Random(20261127))
     results = []
     for k in (5,7,8,11):
@@ -161,6 +191,7 @@ def main():
         rng.shuffle(sites)
         results.append(full(k,tree,sites,[(16,2,500),(32,4,227),(64,8,100)],43,840,rng))
     assert any(b for _,b,_ in results) and any(l for _,_,l in results)
+    print(f"Auxiliary-modulus seeds (k, M, repair leaves): {auxiliary}.")
     print(f"{budgets} multiscale population budgets checked with integer arithmetic.")
     print(f"{cases} integer route lists and {hops:,} site charges verified.")
     print(f"{len(results)} complete trees through order {max(n for n,_,_ in results):,}, "

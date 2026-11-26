@@ -1,5 +1,6 @@
 """Construct a common vertex/edge histogram using seven-edge paths and leaf layers."""
 
+from bisect import bisect_left
 from collections import Counter, deque
 from random import Random
 
@@ -122,7 +123,11 @@ def pack_cycles(values, order, base, k):
     assert walk == [0] and not edges
     used = set()
     result = [None] * k
+    loops = []
     for cycle in sorted(cycles, key=len, reverse=True):
+        if len(cycle) == 1:
+            loops.append(cycle[0])
+            continue
         for offset in range(k):
             if all((x+offset) % k not in used for _,x in cycle):
                 for i,x in cycle:
@@ -131,6 +136,11 @@ def pack_cycles(values, order, base, k):
                 break
         else:
             return None
+    # The first available offset for a loop gives the first unused tail at or after start.
+    available = [x for x in range(k) if x not in used]
+    for i,start in loops:
+        index = bisect_left(available, start)
+        result[i] = available.pop(index if index < len(available) else 0)
     return result
 
 
