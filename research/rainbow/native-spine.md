@@ -40,6 +40,8 @@ shasum -a 256 -c "$src/spine$k.sha256"
 
 Each file starts with ASCII `SPN1` and one byte for $k$. Each shape has eight little-endian bytes encoding its fixed-length balanced-parentheses forest, with 1 for open, followed by a four-byte little-endian row count. Each row gives one byte per potential color group followed by $k-1$ vertex labels in preorder. A new potential color group starts when the next component is larger than all preceding components combined.
 
+Across successive colorings of a forest, the generator reuses the parent-before-child traversal. Once only leaves remain, their parent residues are fixed. It precomputes the number still required at each parent residue and tries exchangeable leaf labels in increasing order. These search shortcuts preserve the deterministic witness order. The independent verifier recomputes the parent sums from the serialized labels.
+
 ## Sharing a witness across boundary colorings
 
 The optional generator argument `--cover` writes the version `SPN2`. Each record has the same shape and row-count fields as above. A row now stores just the $k-1$ vertex labels. With these labels fixed, one can evaluate the boundary assignments for which all weights are distinct. Multiplying all labels by a unit then covers the whole orbit of each such assignment.
