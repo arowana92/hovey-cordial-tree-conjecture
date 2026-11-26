@@ -48,6 +48,8 @@ A path on at least $k^{1+\gamma}$ vertices, for any fixed $\gamma>0$ and suffici
 
 For every fixed maximum degree $\Delta$, there is a threshold $k_0(\Delta)$ above which every tree of that maximum degree is $k$-cordial, with no restriction on its order. A bounded-degree auxiliary tree realizes the prescribed forest boundary weights, so the embedding lemma of Müyesser and Pokrovskiy applies directly. [Proof and checks](research/bounded-degree/README.md)
 
+For every fixed $D$ and all sufficiently large $k$, every finite tree with **at most one vertex of degree greater than $D$** is $k$-cordial. That vertex can have arbitrarily many nonleaf neighbors. Consequently, if counterexamples exist along a sequence with $k\to\infty$, their second-largest vertex degrees must tend to infinity. [Common-boundary forest theorem, all-orders induction and independent checks](research/hub/one-exceptional-degree.md)
+
 For fixed $k\ge 5$, a smallest counterexample, if one exists, has at most $k-2$ leaves and $3k^2-13k+3$ vertices. The proof combines Hall’s permutation theorem with explicit labelings of pendant paths and subdivided edges. [Counterexample size bound](research/counterexample-bound.md)
 
 A second sufficient test uses rainbow labelings of forests on $k-1$ free vertices. Choosing a connected core that contains several original leaves reduces the number of forest shapes needed. For composite moduli, a prescribed star can fail the unrestricted version of this test by an explicit divisibility condition. [Rainbow forest reduction](research/rainbow/README.md) · [Pinned star obstruction](research/rainbow/pinned-star.md)
