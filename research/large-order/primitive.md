@@ -2,6 +2,8 @@
 
 **Theorem.** There is an absolute constant $C$ such that every tree with at least $Ck\log(2k)$ vertices is $k$-cordial. This holds for every positive modulus and arbitrary degrees. The order range still includes the order-$k$ and order-$(k+1)$ instances of the conjecture.
 
+A [later bound](interval-paths.md) replaces the logarithmic factor by its square root.
+
 We use the [squared-switch construction](diagonal.md). Two refinements reduce its total supply requirement. Fine-scale rounding controls the number of labels in every interval. A single integer antiderivative, rounded independently at different scales, turns these estimates into smaller corrections at long strides. We also show how to pool leaves at several high-degree vertices.
 
 ## The same label at several prescribed vertices

@@ -100,6 +100,53 @@ def repair_paths(tree, labels, ids, small, chains, k, seed=1):
     return len(small)-1
 
 
+def pack_cycles(values, order, base, k):
+    """Split a closed walk into simple cycles and try to translate them disjointly."""
+    walk = [0]
+    edges = []
+    position = {0: 0}
+    cycles = []
+    for i in order:
+        head = (walk[-1] + values[i] - base) % k
+        edges.append(i)
+        if head in position:
+            start = position[head]
+            cycles.append(list(zip(edges[start:], walk[start:])))
+            for x in walk[start+1:]:
+                del position[x]
+            del edges[start:]
+            del walk[start+1:]
+        else:
+            position[head] = len(walk)
+            walk.append(head)
+    assert walk == [0] and not edges
+    used = set()
+    result = [None] * k
+    for cycle in sorted(cycles, key=len, reverse=True):
+        for offset in range(k):
+            if all((x+offset) % k not in used for _,x in cycle):
+                for i,x in cycle:
+                    result[i] = (x+offset) % k
+                    used.add(result[i])
+                break
+        else:
+            return None
+    return result
+
+
+def permutation_tails(values, k):
+    """Translating all heads by a common base preserves their distinctness."""
+    order = list(range(k))
+    bases = list(dict.fromkeys([0] + [v for v,_ in Counter(values).most_common()]))
+    rng = Random(1)
+    for attempt in range(1 if k < 7 else 64):
+        result = pack_cycles(values, order, bases[attempt % len(bases)], k)
+        if result is not None:
+            return result
+        rng.shuffle(order)
+    return [(-p) % k for p,_ in hall_pair(values)]
+
+
 def leaf_batch(displacements, gap, k):
     """Extend a single gap. A complete batch changes V by 1 + new_gap - old_gap."""
     if not displacements:
@@ -109,10 +156,9 @@ def leaf_batch(displacements, gap, k):
     initial = list(displacements[:k-1])
     special = (-sum(initial)) % k
     values = initial + [special] + [0] * (k-1-len(initial))
-    # Hall gives (-tail, head) with sum equal to the requested displacement.
-    pairs = hall_pair(values)
-    offset = (gap + pairs[len(initial)][0]) % k
-    labels = [(offset - p) % k for p, _ in pairs[:len(initial)]]
+    tails = permutation_tails(values, k)
+    offset = (gap - tails[len(initial)]) % k
+    labels = [(offset + x) % k for x in tails[:len(initial)]]
     missing = (gap + special) % k
     if len(displacements) == k:
         missing = (missing-displacements[-1]) % k
