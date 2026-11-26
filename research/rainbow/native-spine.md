@@ -1,10 +1,11 @@
-# A certificate for every finite tree at eighteen labels
+# A certificate for every finite tree at eighteen and nineteen labels
 
-**Theorem.** Every finite tree is 18-cordial. The [ordered-cut theorem](ordered-cut.md) reduces the claim at all orders to two finite hypotheses. The witness stream verifies both, using the sharp condition on actual runs of boundary colors. For every required colored forest the verifier checks a bijection to the nonzero residues and computes all parent-edge sums, including the prescribed boundary edges.
+**Theorem.** Every finite tree is 18-cordial and 19-cordial. The [ordered-cut theorem](ordered-cut.md) reduces the claim at all orders to two finite hypotheses. The witness stream verifies both, using the sharp condition on actual runs of boundary colors. For every required colored forest the verifier checks a bijection to the nonzero residues and computes all parent-edge sums, including the prescribed boundary edges.
 
 | Modulus | Rooted base trees | Eligible forests | Base-only shapes | Witness rows | Eligible boundary colorings before unit symmetry |
 |---:|---:|---:|---:|---:|---:|
 | 18 | 1,721,159 | 1,587,279 | 133,880 | 239,253,064 | 1,276,116,192 |
+| 19 | 4,688,676 | 4,479,243 | 209,433 | 266,718,296 | 4,721,012,403 |
 
 ## One representation for the two hypotheses
 
@@ -18,7 +19,7 @@ For each size profile the verifier enumerates boundary patterns, counts actual c
 
 ## Reproduction
 
-From the repository root, use a C++17 compiler. The script below writes the complete witness stream in 24 shards and checks it. Run independent generator shards concurrently if desired. The files need about 4.5 GiB at 18. Shard numbers refer to the zero-based index of the shape modulo 24. [SHA-256 hashes at 18](spine18.sha256)
+From the repository root, use a C++17 compiler. The script below writes the complete witness stream in 24 shards and checks it. Run independent generator shards concurrently if desired. The files need about 4.5 GiB at 18 and 5.3 GiB at 19. Set the shell variable to either modulus. Shard numbers refer to the zero-based index of the shape modulo 24. [SHA-256 hashes at 18](spine18.sha256) · [Hashes at 19](spine19.sha256)
 
 ~~~sh
 set -e
