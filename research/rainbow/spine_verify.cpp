@@ -147,9 +147,62 @@ struct Audit {
     Count rows = 0, eligible = 0, colorings = 0, base_only = 0;
     explicit Audit(int k): k(k) {}
 
+    void cover_witness(Reader& in, const Shape& s, const Profile& p,
+                       std::vector<bool>& covered, bool active) const {
+        std::array<int,32> lab{}, first_root{};
+        Mask used_v = 1, internal = 0;
+        for (int v = 0; v < k-1; ++v) {
+            int a = in.byte();
+            check(a < k && !(used_v & (Mask(1)<<a)), "invalid packed vertex permutation");
+            used_v |= Mask(1)<<a;
+            lab[v] = a;
+            if (s.parents[v] >= 0) {
+                int w = (a+lab[s.parents[v]]) % k;
+                check(!(internal & (Mask(1)<<w)), "repeated internal weight");
+                internal |= Mask(1)<<w;
+            }
+        }
+        std::array<std::vector<int>,8> roots;
+        for (std::size_t i = 0; i < s.roots.size(); ++i) {
+            int g = s.groups[i];
+            roots[g].push_back(lab[s.roots[i]]);
+            first_root[g] = roots[g].front();
+        }
+        const Mask all = (Mask(1)<<k)-1;
+        // Give a specific root in each group an unused edge weight. This
+        // determines its parent's color. Check the other roots by addition.
+        auto visit = [&](auto& self, int g, Mask weights, int raw, int place) -> void {
+            if (g == p.groups) {
+                int id = p.canonical[raw];
+                if (id >= 0) covered[id] = true;
+                return;
+            }
+            Mask choices = active ? all ^ weights : (Mask(1)<<first_root[g]) & ~weights;
+            while (choices) {
+                int w = __builtin_ctz(choices);
+                choices &= choices-1;
+                int c = w-first_root[g];
+                if (c < 0) c += k;
+                Mask next = weights | (Mask(1)<<w);
+                bool valid = true;
+                for (std::size_t j = 1; j < roots[g].size(); ++j) {
+                    int y = c+roots[g][j];
+                    if (y >= k) y -= k;
+                    Mask b = Mask(1)<<y;
+                    if (next & b) { valid = false; break; }
+                    next |= b;
+                }
+                if (valid) self(self, g+1, next, raw+place*c, place*k);
+            }
+        };
+        visit(visit, 0, internal, 0, 1);
+    }
+
     void verify(const char* path) {
         Reader in(path);
-        for (char c : std::string("SPN1")) check(in.byte() == c, "bad header");
+        for (char c : std::string("SPN")) check(in.byte() == c, "bad header");
+        int version = in.byte();
+        check(version == '1' || version == '2', "unsupported version");
         check(in.byte() == k, "wrong modulus");
         for (int first; (first = in.next()) >= 0;) {
             Count word = in.rest(first,8);
@@ -158,10 +211,16 @@ struct Audit {
             const Profile& p = profiles.try_emplace(s.sizes, k, s).first->second;
             const bool active = s.leaves <= 2*(k-2)/3;
             int count = active ? p.representatives : 1;
-            check(in.rest(in.byte(),4) == static_cast<Count>(count), "wrong record count");
+            Count stored = in.rest(in.byte(),4);
+            if (version == '1') check(stored == static_cast<Count>(count), "wrong record count");
+            else check(stored > 0 && stored <= static_cast<Count>(count), "invalid packed count");
             std::vector<bool> covered(p.representatives);
             bool zero = false;
-            for (int j = 0; j < count; ++j) {
+            for (Count j = 0; j < stored; ++j) {
+                if (version == '2') {
+                    cover_witness(in, s, p, covered, active);
+                    continue;
+                }
                 int raw = 0, power = 1;
                 std::array<int,32> colors{}, lab{}, parent_label{};
                 for (int t = 0; t < p.groups; ++t) {
@@ -190,8 +249,13 @@ struct Audit {
                     weights |= wbit;
                 }
             }
+            if (version == '2') {
+                zero = covered[p.canonical[0]];
+                check(!active || std::find(covered.begin(), covered.end(), false) == covered.end(),
+                      "incomplete packed coverage");
+            }
             check(zero, "missing base case");
-            rows += count;
+            rows += stored;
             if (active) { ++eligible; colorings += p.assignments; }
             else ++base_only;
         }

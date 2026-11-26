@@ -20,7 +20,10 @@ struct Tree { int size; Code code; };
 
 class Generator {
     int k, shard, shards;
+    bool cover;
     std::ofstream out;
+    std::map<int,std::vector<int>> orbit_codes;
+    std::vector<std::uint64_t> stamp;
     std::vector<Tree> catalog;
     std::map<std::vector<int>, std::vector<Colors>> cache;
     std::uint64_t shapes = 0, cases = 0, selected = 0;
@@ -67,6 +70,69 @@ class Generator {
         return result;
     }
 
+    int encode(const Colors& colors) const {
+        int value = 0;
+        for (int c : colors) value = k*value+c;
+        return value;
+    }
+
+    const std::vector<int>& orbits(int groups) {
+        auto& table = orbit_codes[groups];
+        if (!table.empty()) return table;
+        int total = 1;
+        for (int i = 0; i < groups; ++i) total *= k;
+        table.resize(total);
+        for (int x = 0; x < total; ++x) {
+            int smallest = x;
+            for (int unit = 2; unit < k; ++unit) {
+                if (std::gcd(unit,k) != 1) continue;
+                int y = x, image = 0, power = 1;
+                while (y) {
+                    image += power*((y%k)*unit%k);
+                    y /= k;
+                    power *= k;
+                }
+                smallest = std::min(smallest,image);
+            }
+            table[x] = smallest;
+        }
+        if (stamp.size() < table.size()) stamp.resize(table.size());
+        return table;
+    }
+
+    void mark_coverage(const std::array<int,32>& parents, const std::array<int,32>& labels,
+                       const std::vector<int>& roots, const std::array<int,32>& group,
+                       const std::vector<int>& orbit) {
+        using Bits = std::uint32_t;
+        const Bits all = (Bits(1)<<k)-1;
+        Bits internal = 0;
+        for (int i = 0; i < k-1; ++i)
+            if (parents[i] >= 0) internal |= Bits(1)<<((labels[i]+labels[parents[i]])%k);
+        int groups = group[roots.back()]+1;
+        std::array<Bits,8> root_labels{};
+        for (int v : roots) root_labels[group[v]] |= Bits(1)<<labels[v];
+        std::array<std::array<Bits,32>,8> options{};
+        std::array<int,8> sizes{};
+        std::array<std::array<int,32>,8> colors{};
+        for (int j = 0; j < groups; ++j) {
+            Bits shifted = root_labels[j];
+            for (int c = 0; c < k; ++c) {
+                if (!(shifted & internal)) {
+                    colors[j][sizes[j]] = c;
+                    options[j][sizes[j]++] = shifted;
+                }
+                shifted = ((shifted<<1)&all) | (shifted>>(k-1));
+            }
+        }
+        auto mark = [&](auto& self, int j, Bits occupied, int code) -> void {
+            if (j == groups) { stamp[orbit[code]] = selected; return; }
+            for (int i = 0; i < sizes[j]; ++i)
+                if (!(options[j][i] & occupied))
+                    self(self, j+1, occupied | options[j][i], code*k+colors[j][i]);
+        };
+        mark(mark, 0, internal, 0);
+    }
+
     void number(Code value, int bytes) {
         for (int i = 0; i < bytes; ++i) {
             out.put(static_cast<char>(value & 255));
@@ -103,31 +169,43 @@ class Generator {
         const auto& colors = assignments(gaps);
         int count = leaves <= 2*(k-2)/3 ? static_cast<int>(colors.size()) : 1;
         number(code, 8);
-        number(count, 4);
+        if (!cover) number(count, 4);
+        const auto* orbit = cover ? &orbits(static_cast<int>(gaps.size())) : nullptr;
+        std::vector<unsigned char> batch;
         for (int j = 0; j < count; ++j) {
             const Colors& pattern = colors[j];
+            if (cover && stamp[encode(pattern)] == selected) continue;
             for (int root : roots) p[root] = -1-pattern[group[root]];
             if (rainbow_witness(k, p.data(), labels.data()) != 1) {
                 std::cerr << "Failed forest " << code << " parents";
                 for (int i = 0; i < n; ++i) std::cerr << ' ' << p[i];
                 throw std::runtime_error("no witness");
             }
-            for (auto c : pattern) out.put(static_cast<char>(c));
-            for (int i = 0; i < n; ++i) out.put(static_cast<char>(labels[i]));
+            if (cover) {
+                for (int i = 0; i < n; ++i) batch.push_back(static_cast<unsigned char>(labels[i]));
+                if (count > 1) mark_coverage(p, labels, roots, group, *orbit);
+            } else {
+                for (auto c : pattern) out.put(static_cast<char>(c));
+                for (int i = 0; i < n; ++i) out.put(static_cast<char>(labels[i]));
+            }
             ++cases;
+        }
+        if (cover) {
+            number(batch.size()/n, 4);
+            out.write(reinterpret_cast<const char*>(batch.data()), batch.size());
         }
         if (selected % 100000 == 0) std::cerr << "shard " << shard << ": " << selected
                                                << " shapes, " << cases << " witnesses\n";
     }
 
 public:
-    Generator(int mod, int part, int total, const char* path):
-        k(mod), shard(part), shards(total), out(path, std::ios::binary) {
+    Generator(int mod, int part, int total, const char* path, bool packed):
+        k(mod), shard(part), shards(total), cover(packed), out(path, std::ios::binary) {
         if (!out) throw std::runtime_error("cannot open output");
     }
 
     void run() {
-        out.write("SPN1", 4);
+        out.write(cover ? "SPN2" : "SPN1", 4);
         out.put(static_cast<char>(k));
         for (int size = 1; size < k; ++size) {
             std::vector<Tree> layer;
@@ -147,8 +225,8 @@ public:
 }
 
 int main(int argc, char** argv) {
-    if (argc != 5) return 2;
+    if (argc != 5 && !(argc == 6 && std::string(argv[5]) == "--cover")) return 2;
     int k = std::stoi(argv[1]), shard = std::stoi(argv[2]), total = std::stoi(argv[3]);
     if (k < 5 || k > 26 || shard < 0 || shard >= total) return 2;
-    Generator(k, shard, total, argv[4]).run();
+    Generator(k, shard, total, argv[4], argc == 6).run();
 }

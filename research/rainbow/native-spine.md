@@ -38,3 +38,20 @@ shasum -a 256 -c "$src/spine$k.sha256"
 ~~~
 
 Each file starts with ASCII `SPN1` and one byte for $k$. Each shape has eight little-endian bytes encoding its fixed-length balanced-parentheses forest, with 1 for open, followed by a four-byte little-endian row count. Each row gives one byte per potential color group followed by $k-1$ vertex labels in preorder. A new potential color group starts when the next component is larger than all preceding components combined.
+
+## Sharing a witness across boundary colorings
+
+The optional generator argument `--cover` writes the version `SPN2`. Each record has the same shape and row-count fields as above. A row now stores just the $k-1$ vertex labels. With these labels fixed, one can evaluate the boundary assignments for which all weights are distinct. Multiplying all labels by a unit then covers the whole orbit of each such assignment.
+
+The generator finds the possible sets of weights at each group of roots by cyclically shifting the set of their labels. The verifier takes a different route. It gives the first root of a group an unused weight, subtracts its label to determine the parent color, and checks every other root in that group by direct addition. A completed recursion marks only the orbit of that concrete assignment. Before advancing to another shape it checks every required orbit, including the zero boundary for the rooted base. Ineligible shapes require only the zero boundary.
+
+A small comparison can be reproduced after building the two executables above.
+
+~~~sh
+./generate 10 0 1 plain.spn
+./generate 10 0 1 shared.spn --cover
+./verify 10 plain.spn
+./verify 10 shared.spn
+~~~
+
+Both streams certify 719 rooted bases and 46,630 boundary colorings on 550 eligible forests. The first uses 13,157 witness rows and the second uses 4,901.
