@@ -65,3 +65,25 @@ python3 -B -m research.biased.check_two_star_lists --native "$out/grid"
 ~~~
 
 The Python checker also compares 39 small coefficients with a direct double-permutation expansion on the actual forests. Four further field-grid checks exercise nested parents on forests with up to three centers. The checker asserts that no terminal pair survives in the nine-prime table. [Proof replay](check_two_star_lists.py) · [Direct exponent-transfer calculation](forest_grid.py)
+
+## Excluding one more residue at every odd prime
+
+**Theorem.** At every odd prime $p\ge5$, a smallest noncordial tree of order $mp+s$, $1\le s\le p$, must satisfy $s\ge(p+9)/2$.
+
+The [four-leaf theorem](../census/four-leaves.md) gives $L\ge5$. The leaf bound $L\le2s-p-2$ therefore gives $s\ge(p+7)/2$. It suffices to exclude equality. The already settled small moduli allow us to assume $p\ge29$. At equality $L=5$. Delete the five leaves. The remainder $K$ has at least three vertices since $s\ge18$. Each terminal of $K$ was adjacent to an original leaf and at least two terminals exist. Some terminal has one or two original leaf children, since a pair of distinct terminals together accounts for at most five.
+
+Delete one terminal of $K$ too. There are $r=6$ free vertices and $e=(p-7)/2$ forbidden edge weights in the [one-star test](star-lists.md#a-test-at-the-extremal-leaf-count). For child counts $j=1,2,3,4,5$, the reduced coefficients $A_{6,j,e}$ at $e=-7/2$ are respectively
+
+$$
+7767/256,\quad 8181/128,\quad 9459/128,\quad 5661/128,\quad 2895/256.
+$$
+
+Indeed each binomial $\binom{e+i}{i-l}$ in a truncated Pascal entry has degree at most five in $e$ with denominator dividing $5!$. The six integer evaluations $e=0,\ldots,5$ determine each polynomial and reduction modulo $p$ gives its value at $(p-7)/2$. Since $7767=9\cdot863$ and $8181=81\cdot101$, one of the available one-child or two-child terminals certifies the extension unless $p=101$ or $863$.
+
+At 101 only $j=2$ has a zero coefficient. At 863 only $j=1$ does. Choose two terminals of $K$ and remove both, so the new forest on seven vertices has two stars with those populations and the remaining vertices are singletons. The surviving core has $s-7$ high vertex bins and $e=(p-9)/2$ high edge bins. Each input list has $p-(s-7)\ge7+e$ entries. At 101 the full coefficient is $9\pmod{101}$ and at 863 it is $858\pmod{863}$. These are nonzero, so the smaller cordial core extends in both cases. This excludes equality and proves the stated bound.
+
+Run the following check from the repository root. It interpolates the six-row coefficients from integer Pascal sums and computes each seven-row coefficient twice, by the two-star formula and a signed sum over all $(7!)^2$ exponent-permutation pairs. [Verification code](check_five_leaf_residue.py)
+
+~~~sh
+python3 -B -m research.biased.check_five_leaf_residue
+~~~

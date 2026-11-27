@@ -24,7 +24,7 @@ $$
 
 At any modulus, writing $n=mk+s$ with $1\le s\le k$, the total leaf count at the two busiest parents must be less than $2s-k$. At primes $p$ the entire leaf count must be less than $2s-p-1$. [Leaf-list extension on a prescribed core](biased/spare-lists.md#restoring-leaves-on-a-cordial-core-of-arbitrary-order)
 
-For any odd prime $p\ge5$ the order residue must satisfy $s\ge(p+7)/2$. A four-vertex forest excludes the first residue left by the leaf bound, with a five-vertex certificate at the exceptional prime 211. [List-coefficient proof and restrictions at 29](biased/star-lists.md)
+For any odd prime $p\ge5$ the order residue must satisfy $s\ge(p+9)/2$. Five leaves are necessary, and the six- and seven-vertex forest coefficients exclude the first residue compatible with five leaves. [Proof and independent checks at the exceptional primes 101 and 863](biased/two-star-lists.md#excluding-one-more-residue-at-every-odd-prime)
 
 ### Shortening paths
 
