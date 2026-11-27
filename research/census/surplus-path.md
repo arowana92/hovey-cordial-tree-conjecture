@@ -1,12 +1,12 @@
-# Attaching a path to a prescribed core of order one modulo the modulus
+# Attaching a path at any vertex of a prescribed cordial core
 
-**Theorem.** Fix a cordial labeling on a tree of order $1\pmod k$. Join a new path by an edge from any old vertex to any vertex of the path. For **every odd $k$**, the labeling extends with every old label preserved. At **every modulus**, the same conclusion holds when the joining edge enters an endpoint. The path length and the core order are arbitrary. An offset on the joining edge can be included in the old parent's label.
+**Theorem.** Fix a cordial labeling on a tree of order $0$ or $1\pmod k$. Join a new path by an edge from any old vertex to **any vertex of the path**. At every positive modulus the labeling extends with every old label preserved. The path length and the core order are arbitrary. An offset on the joining edge can be included in the old parent's label.
 
-For example, at modulus 45 an already labeled tree of order 91 can acquire a path on 76 vertices by a single edge entering its 23rd vertex. Both the old attachment vertex and its label are unrestricted. Repeated extensions are possible whenever a stage returns the order to one modulo the modulus. In particular a path on $k-1$ vertices attached at any position, followed by a new leaf at any old or new site, is such a stage at odd $k$.
+For example, at modulus 45 an already labeled tree of order 91 can acquire a path on 76 vertices by a single edge entering its 23rd vertex. Both the old attachment vertex and its label are unrestricted. Repeated extensions are possible whenever the next core has order zero or one modulo the modulus. In particular, from order one a path on $k-1$ vertices followed by a new leaf at any old or new site returns to order one.
 
 ## A path with one vertex label forbidden
 
-The core has uniform edge counts and exactly one surplus vertex residue. Translate its labels so that this surplus is zero. Let $c$ be the boundary label in these coordinates. First take a path on $n=k-1$ free vertices. It must use every nonzero residue exactly once and all $k-1$ added weights must be distinct. Later we undo the translation on the whole tree.
+Start with the order-one residue. The core has uniform edge counts and exactly one surplus vertex residue. Translate its labels so that this surplus is zero. Let $c$ be the boundary label in these coordinates. First take a path on $n=k-1$ free vertices. It must use every nonzero residue exactly once and all $k-1$ added weights must be distinct. Later we undo the translation on the whole tree.
 
 Use [path ranks and the endpoint lemma](four-leaves.md#paths-with-a-specified-rank). Each path class uses the consecutive ranks from zero to its size minus one, and the edge rank sums run from zero to $n-2$. Choose one class as the lower class, of size $A$. Make the labels $1+x$ in that class and $1+A+x$ in the other, for local rank $x$. The internal weights start at $A+2$ and omit precisely $A,A+1$ modulo $k$. The joining edge only has to hit one of these two holes.
 
@@ -22,7 +22,7 @@ Put the marked class below. When $h=0$, rank zero works. Otherwise $q\ge3$, so $
 
 ## Two consecutive target ranks
 
-**Lemma.** At any marked vertex of an even path on at least $6h+2$ vertices, one of the class ranks $h-1,h$ is attainable, for each $h\ge1$.
+**Lemma.** At any marked vertex of an even path on at least $6h+2$ vertices, one of the class ranks $h-1,h$ is attainable, for each $h\ge1$. On an odd path the sufficient order is $6h-1$.
 
 Let $a\le b$ be the distances to the endpoints. For a path of order $m$, call $y$ usable if $0\le2y<m$ and either $y=0$ or $m\ne4y+1$. The endpoint lemma gives a path starting at rank $y$ and ending at deficiency $y$. When two disjoint path blocks are joined by an edge, the first block's terminal deficiency must equal the second block's starting rank. Each class rank in the second block increases by the size of its class in the first. Use any of the following joins at target $x$.
 
@@ -30,7 +30,24 @@ Let $a\le b$ be the distances to the endpoints. For a path of order $m$, call $y
 2. Start with a block of order $a$ and use $z=x-\lfloor a/2\rfloor$ as its starting rank. Its terminal deficiency is $z$. Append the block of order $b+1$ starting at the mark with rank $z$. The earlier class offset gives the mark rank $x$.
 3. Start with the reverse staircase path on $m>a$ vertices, with ranks $\lfloor(m-1-i)/2\rfloor$ in path order. Choose $m$ to give $x$ at $i=a$. Append a block of order $a+b+1-m$ starting at $\lfloor(m-1)/2\rfloor$, the first block's terminal deficiency.
 
-Here are the covering inequalities. If $a\le h+1$, rule 3 works at $h-1$ with $m=2\lfloor a/2\rfloor+2h$. Otherwise, if $h\le\lfloor a/2\rfloor$ and rule 1 fails on the short side at both targets, its two endpoint exceptions force $a=4h$ and $b=4h+5$. Rule 1 from the other side then works at $h$ for $h\ge3$. For $h=1,2$ use rule 3 at $h-1$ with $m=6,11$, respectively. In the remaining range $a>h+1$, $h>\lfloor a/2\rfloor$, rule 2 works at one of the targets. These disjunctions, including all parity and endpoint exceptions, are proved in Lean using integer arithmetic. [Lean 4.36 proof](PathRankWindow.lean) · [Rank constructor](surplus_path.py)
+For even path order, if $a\le h+1$, rule 3 works at $h-1$ with $m=2\lfloor a/2\rfloor+2h$. Otherwise, if $h\le\lfloor a/2\rfloor$ and rule 1 fails on the short side at both targets, its two endpoint exceptions force $a=4h$ and $b=4h+5$. Rule 1 from the other side then works at $h$ for $h\ge3$. For $h=1,2$ use rule 3 at $h-1$ with $m=6,11$, respectively. In the remaining range $a>h+1$, $h>\lfloor a/2\rfloor$, rule 2 works at one of the targets. These disjunctions, including all parity and endpoint exceptions, are proved in Lean using integer arithmetic. [Lean 4.36 proof](PathRankWindow.lean) · [Rank constructor](surplus_path.py)
+
+For odd path order use rule 3 when $a<h$, with $m=2\lfloor(a+1)/2\rfloor+2h-1$ and $x=h-1$. When $a\ge h$ use rule 1 for $h\le\lfloor a/2\rfloor$ and rule 2 otherwise. The two blocks now have opposite parities. The only surviving exception to these choices is $a=b=4,h=1$, where the [rank-zero path lemma](four-leaves.md#paths-with-a-specified-rank) gives rank zero. The theorem `oddWindow` checks the disjunction for all lengths.
+
+## Even moduli
+
+Let $k$ be even and $n=k-1$. The class containing the mark has size $B=k/2-(a\bmod2)$, where $a$ is its distance from an endpoint. At $c=0$ rank zero in the upper class works. The only rank-zero exception is the midpoint at $k=6$, treated below. For $c\ne0$ set $q=k/d$, $d=\gcd(c,k)$ as before.
+
+- If $q$ is odd, take $c_0=(k-d)/2$ and $h=B-c_0\ge0$. Since $k\ge3d$, $n\ge6h-1$. In the lower class rank $h$ or $h-1$ gives a missing weight. At $h=0$ use rank zero.
+- If $q$ is even and $q\ge6$, take $c_0=-d$ and $h=d$. Again $n\ge6h-1$. Put the mark in the upper class. Its label is $1+A+x$, so $c_0$ plus that label is $A$ or $A+1$. In both cases multiplication by a unit takes $c_0$ to the required $c$.
+
+For orders two and four split the free path into disjoint blocks on $m$ and $s=n-m$ vertices. Each block may choose its two classes independently. Give labels $1$ through $A$ to the combined lower class and $A+1$ through $k-1$ to the combined upper class, where $A$ is the total lower size. Within each class the second block's ranks follow the first block's ranks. Before the bridge is added the three free weights are $A,A+1,A+1+m$ modulo $k$, by counting the two internal intervals.
+
+**Order two.** Here $c=k/2$. At an even distance from a tip the mark belongs to a class of size $k/2$, and rank zero in that lower class works. At odd distances $a,b$ from the tips, use the first $a+1$ vertices as the first block, ending with the mark at rank zero in the lower class. Make the beginning of the second block lower as well. Then $A=k/2$ and the mark has label 1. The joining edge from the core hits $A+1$. Give the second block's first vertex rank $(b-3)/2$, hence label $A-1$. The bridge hits $A$. This rank is usable whenever $b\ge3$ and $b\ne5$. Either arm can play this role. If both lengths lie in $\{1,5\}$ there are three explicit rows below.
+
+**Order four.** Normalize to $c=d=k/4$ by negating labels if necessary. Let $a\le b$ be the distances from the tips. For $a=2d-1$ the mark is the midpoint. Put it in the upper class of the staircase so that its rank is $d-1$. This handles $c=-d$, and negation handles $d$. Otherwise take $m=d+\lfloor a/2\rfloor$. Then $a<m<s$. Use the staircase on the first block with the mark in the upper class. Its edge from the core hits $A+1+m$. Start the second block in the same class as the *final* vertex of the first block. These two vertices' classes have local sizes $u=\lceil m/2\rceil$ and $v=\lceil s/2\rceil$ respectively. The final vertex already has the maximum local rank $u-1$. If both bridge endpoints are lower, starting ranks $v-u$ and $v-u-1$ on the second block yield bridge weights $A+1$ and $A$. If both are upper, ranks $v-u$ and $v-u+1$ yield $A$ and $A+1$ modulo $k$. At least one of the two indicated ranks is usable in each case, including $v=u$. These inequalities are the Lean theorem `quarterCut`.
+
+For the three exceptional half-turns, path rows in order from the first tip are $(1,2,3)$ at $(a,b)=(1,1)$, $(1,2,6,7,3,4,5)$ at $(1,5)$ and $(1,2,3,4,8,10,11,9,5,6,7)$ at $(5,5)$. At $k=6$ with the midpoint marked, the rows for $c=0,1,2,3,4,5$ are respectively $12435,12435,13542,25314,13254,13245$, one label per digit. Each uses exactly the nonzero residues and gives distinct sums including the boundary edge. This exhausts the even-modulus cases.
 
 ## Arbitrary path length
 
@@ -38,7 +55,9 @@ For a shorter path, pad one end to $k-1$, apply the construction and restrict. I
 
 The core with this block has order zero modulo $k$ and one deficient edge weight. Fill that weight using the omitted leftmost vertex if present, or the next vertex at the right otherwise. Vertex counts were uniform, so this single addition returns to order one modulo $k$. Everything still missing in the reduced path is a single endpoint-attached path of length at most $k-1$, handled above. Finally restore the set-aside multiples of $k$ as [uniform pendant path blocks](../counterexample-bound.md#shortening-paths), each of which adds one to every vertex and edge count.
 
-In a minimum counterexample of order $mk+s$ with $1\le s\le k$, every terminal arm consequently has length at most $s-2$. A longer terminal arm would allow deleting exactly $s-1$ vertices down to order one modulo $k$. The leaf-deletion lemma already excludes $s=1$. At odd moduli the same deletion also rules out any path on $s-1$ free vertices attached to the rest by one edge at an interior position. [Minimum-counterexample argument](../counterexample-bound.md#removing-leaves)
+For a core of order zero modulo $k$, again set aside the multiples of $k$ at both tips. On the remaining path take up to $k$ consecutive vertices starting at the left tip, including the mark, which is at distance less than $k$ from it. Restrict the ordinary staircase labeling of an order-$k$ path to this block. Translate all its labels together so that the boundary edge hits the deficient old weight. The new vertex labels are distinct and the internal weights are distinct, as required after filling the deficit. If the block had order $k$, the enlarged core again has order zero modulo $k$. The remaining endpoint-attached block has fewer than $k$ vertices, so the same step finishes it. Restore the set-aside periods.
+
+In a minimum counterexample of order $mk+s$ with $1\le s\le k$, every terminal arm consequently has length at most $s-2$. A longer terminal arm would allow deleting exactly $s-1$ vertices down to order one modulo $k$. The leaf-deletion lemma already excludes $s=1$. At every modulus the same deletion also rules out any path on $s-1$ free vertices attached to the rest by one edge at an interior position. [Minimum-counterexample argument](../counterexample-bound.md#removing-leaves)
 
 The suppressed tree with $L$ leaves has at most $L-3$ internal segments. Each has length at most $2k$, or $k$ at an odd modulus. Thus the order is at most $1+L(s-2)+2k(L-3)$, with $2k$ replaced by $k$ in the odd case. Using $L\le k-2$ gives $3k^2-14k+5$ at all $k\ge5$ and $2k^2-9k+5$ at odd $k\ge5$.
 
@@ -49,4 +68,4 @@ python3 -B -m research.census.check_surplus_path
 lean research/census/PathRankWindow.lean
 ~~~
 
-The checker recomputes both class permutations and all edge rank sums. It checks all marked vertices and boundary labels through odd modulus 73 and every endpoint case in that range, then constructs whole trees, keeping the original labels fixed and recomputing the two histograms. [Independent checks](check_surplus_path.py)
+The checker recomputes both class permutations and all edge rank sums. It checks every marked vertex and boundary label at every modulus from 2 through 73, then constructs whole trees at both core residues, keeping the original labels fixed and recomputing the two histograms. [Independent checks](check_surplus_path.py)

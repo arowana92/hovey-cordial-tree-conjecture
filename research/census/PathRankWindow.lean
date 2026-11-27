@@ -50,4 +50,43 @@ theorem window (a b h : Int) (ha : 0 ≤ a) (hab : a ≤ b) (hh : 1 ≤ h)
     refine Or.inr (Or.inr (Or.inl ?_))
     dsimp [afterCut,usable] at first ⊢
     omega
+/-- Odd orders have complementary parities on the two blocks, so at most one
+    endpoint rank is exceptional. The nine-vertex midpoint admits rank zero
+    by the independent marked-path construction. -/
+theorem oddWindow (a b h : Int) (ha : 0 ≤ a) (hab : a ≤ b) (hh : 1 ≤ h)
+    (hn : 6*h-1 ≤ a+b+1) (odd : (a+b+1)%2=1) :
+    built a b h ∨ built a b (h-1) ∨ (a=4 ∧ b=4 ∧ h=1) := by
+  by_cases short : a < h
+  · right; left
+    refine Or.inr (Or.inr (Or.inr ⟨2*((a+1)/2)+2*h-1,?_⟩))
+    dsimp [reversedBlock,usable]
+    omega
+  by_cases low : h ≤ a/2
+  · by_cases first : before a b h
+    · exact Or.inl (Or.inl first)
+    by_cases second : before a b (h-1)
+    · exact Or.inr (Or.inl (Or.inl second))
+    right; right
+    dsimp [before,usable] at first second
+    omega
+  · by_cases first : afterCut a b h
+    · exact Or.inl (Or.inr (Or.inr (Or.inl first)))
+    right; left
+    refine Or.inr (Or.inr (Or.inl ?_))
+    dsimp [afterCut,usable] at first ⊢
+    omega
+theorem halfTip (b : Int) (hb : 3 ≤ b) (odd : b%2=1) (exc : b≠5) :
+    usable b ((b-3)/2) := by
+  dsimp [usable]
+  omega
+
+theorem quarterCut (d a : Int) (hd : 0 < d) (ha : 0 ≤ a) (hs : a < 2*d-1) :
+    let m := d+a/2
+    let s := 4*d-1-m
+    let diff := (s+1)/2-(m+1)/2
+    a < m ∧ m < s ∧
+      (usable s diff ∨ usable s (diff-1)) ∧ (usable s diff ∨ usable s (diff+1)) := by
+  dsimp [usable]
+  omega
+
 end Cordial.PathWindow
