@@ -37,4 +37,11 @@ theorem sixTips (h groups pairs q : Nat) (hh : h ≤ 10)
 theorem fiveTips (pairs q : Nat) (bound : pairs < 62)
     (order : 2*pairs+6 = 26*q) : q ≤ 4 := by omega
 
+/-- Pair the terminal arms, leaving one singleton if the order is odd. -/
+theorem pairedOrder (d e r h u lists positions n : Nat) (hd : d = 2*e+u)
+    (sites : r+2 ≤ d) (side : h+u ≤ 12)
+    (count : lists+1 = e+u+r) (windows : positions ≤ 12*lists+13)
+    (order : n = 2*(positions+r+h)+u) :
+    n+26 ≤ 38*d+11*u := by omega
+
 end Cordial.ExposureHull

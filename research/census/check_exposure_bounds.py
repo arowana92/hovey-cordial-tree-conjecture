@@ -75,15 +75,16 @@ def check_windows():
     return cases
 
 
-def neutral_joins(directory):
+def neutral_joins(directory,sides):
     from .check_paired_joins import UNITS, decode, possible_fake, ring
 
     rng=Random(26505)
     tested=0
-    for side in (1,2):
+    for side in range(1,sides+1):
+        stride=2027 if side<=2 else 131071
         with (directory/f'allneutral{side}').open() as source:
             for index,line in enumerate(source):
-                if index>7 and index%2027:
+                if index>7 and index%stride:
                     continue
                 key,*words=line.split()
                 if not words:
@@ -130,6 +131,7 @@ def neutral_joins(directory):
 if __name__=='__main__':
     parser=ArgumentParser()
     parser.add_argument('--directory',type=Path)
+    parser.add_argument('--sides',type=int,choices=range(1,7),default=2)
     args=parser.parse_args()
     arms=[five_arms(h) for h in range(12)]
     maxima=connectors()
@@ -144,4 +146,4 @@ if __name__=='__main__':
     print('connector maxima',maxima)
     print('matching-size upper bounds at deficiency five',bounds)
     if args.directory:
-        print('literal uniform joins',neutral_joins(args.directory))
+        print('literal uniform joins',neutral_joins(args.directory,args.sides))

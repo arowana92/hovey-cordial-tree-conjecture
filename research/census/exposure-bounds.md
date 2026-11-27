@@ -1,6 +1,6 @@
 # Bounding 26-label counterexamples by their matching deficiency
 
-**Theorem.** Take a smallest 26-label counterexample among trees of matching deficiency at most a fixed bound, assuming one exists. Write $n$ for its order and $d$ for its actual deficiency. Then $n\le51d-26$. In particular the bound applies to a smallest unrestricted counterexample. A sharper restriction holds one step beyond the [known positive range](three-exposures.md). At $n=26q-H$, the following are the only possible orders when $d=H+4$.
+**Theorem.** Take a smallest 26-label counterexample among trees of matching deficiency at most a fixed bound, assuming one exists. Write $n$ for its order and $d$ for its actual deficiency. Then $n\le51d-26$. The [paired-arm theorem](paired-hull.md) strengthens this to $38d-26$ at even orders and $38d-15$ at odd orders. Both bounds apply to a smallest unrestricted counterexample. A sharper restriction holds one step beyond the [known positive range](three-exposures.md). At $n=26q-H$, the following are the only possible orders when $d=H+4$.
 
 | $H$ | Uncovered vertices $d$ | Candidate orders |
 | ---: | ---: | --- |
