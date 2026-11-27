@@ -3,10 +3,22 @@
 #include <algorithm>
 #include <cstdint>
 #include <numeric>
+#ifdef RAINBOW_WIDE_MASK
+#include "swap_search.hpp"
+#endif
 
 namespace {
+#ifdef RAINBOW_WIDE_MASK
+using Mask = std::uint64_t;
+constexpr int capacity = 63;
+int first_bit(Mask x) { return __builtin_ctzll(x); }
+int population(Mask x) { return __builtin_popcountll(x); }
+#else
 using Mask = std::uint32_t;
 constexpr int capacity = 30;
+int first_bit(Mask x) { return __builtin_ctz(x); }
+int population(Mask x) { return __builtin_popcount(x); }
+#endif
 
 struct Shape {
     int n = 0, internal = 0;
@@ -69,9 +81,9 @@ template<bool shifted> struct Solver {
         bool weight_first = false;
         for (int pass = 0; pass < 2; ++pass) {
             for (Mask open = pass ? weights : vertices; open; open &= open-1) {
-                int i = __builtin_ctz(open);
+                int i = first_bit(open);
                 Mask choices = (pass ? left(negatives,i) : right(weights,i)) & parent_digits;
-                int count = __builtin_popcount(choices);
+                int count = population(choices);
                 if (!count) return false;
                 if (count < min_count) {
                     min_count = count;
@@ -82,12 +94,12 @@ template<bool shifted> struct Solver {
             }
         }
         for (; options; options &= options-1) {
-            int a = __builtin_ctz(options);
+            int a = first_bit(options);
             int x = weight_first ? add(slot,neg(a)) : slot;
             int y = add(x,a);
             int leaf = leaf_at[a][--leaf_count[a]];
-            Mask active = leaf_count[a] ? parent_digits : parent_digits^(1U<<a);
-            if (fill(vertices^(1U<<x),negatives^(1U<<neg(x)),weights^(1U<<y),active)) {
+            Mask active = leaf_count[a] ? parent_digits : parent_digits^(Mask(1)<<a);
+            if (fill(vertices^(Mask(1)<<x),negatives^(Mask(1)<<neg(x)),weights^(Mask(1)<<y),active)) {
                 labels[leaf] = x;
                 return true;
             }
@@ -101,25 +113,25 @@ template<bool shifted> struct Solver {
         if (--budget < 0) return false;
         if (step == shape.internal) {
             int absent = neg(parent_sum%k);
-            if (!(weights & (1U<<absent))) return false;
+            if (!(weights & (Mask(1)<<absent))) return false;
             Mask digits = 0;
             std::fill_n(leaf_count,k,0);
             for (int j = shape.internal; j < shape.n; ++j) {
                 int i = shape.order[j], a = parent_label(i);
-                digits |= 1U<<a;
+                digits |= Mask(1)<<a;
                 leaf_at[a][leaf_count[a]++] = i;
             }
-            return fill(vertices,negatives,weights^(1U<<absent),digits);
+            return fill(vertices,negatives,weights^(Mask(1)<<absent),digits);
         }
         int i = shape.order[step], a = parent_label(i);
         Mask options = vertices & right(weights,a);
         if (!options) return false;
-        Mask below = (1U<<(random()%k))-1;
+        Mask below = (Mask(1)<<(random()%k))-1;
         for (Mask choices : {options & ~below, options & below}) {
             for (; choices; choices &= choices-1) {
-                int x = __builtin_ctz(choices);
+                int x = first_bit(choices);
                 labels[i] = x;
-                if (visit(step+1,vertices^(1U<<x),negatives^(1U<<neg(x)),weights^(1U<<add(x,a)),
+                if (visit(step+1,vertices^(Mask(1)<<x),negatives^(Mask(1)<<neg(x)),weights^(Mask(1)<<add(x,a)),
                           parent_sum+shape.children[i]*x)) return true;
                 if (budget < 0) return false;
             }
@@ -137,7 +149,7 @@ template<bool shifted> static int search_forest(int k, const int* parents, int* 
     for (int i = 0; i < k-1; ++i) if (parents[i] >= i || parents[i] < -k) return -1;
     thread_local Shape shape;
     shape.prepare(k,parents);
-    Mask all = (1U<<k)-1;
+    Mask all = (Mask(1)<<k)-1;
     std::uint32_t seed = 1991;
     int boundary = 0;
     for (int i = 0; i < k-1; ++i) {
@@ -155,6 +167,11 @@ template<bool shifted> static int search_forest(int k, const int* parents, int* 
         if (search.visit(0,all^1,all^1,all,boundary)) return 1;
         if (search.budget >= 0) break;
     }
+#ifdef RAINBOW_WIDE_MASK
+    if constexpr (!shifted) {
+        if (k>=31 && swap_search(k,parents,output,seed|1U)) return 1;
+    }
+#endif
     if constexpr (shifted) return rainbow_offset_witness(k,parents,offsets,output);
     else return reference_witness(k,parents,output);
 }
