@@ -39,4 +39,30 @@ theorem twin_case {left right direct k n t : Nat}
     (hl : left+direct < t) (hr : right+direct < t) :
     n = 2*k-1 ∧ left=k-2 ∧ right=k-2 ∧ direct=0 := by omega
 
+/-- A prefix moves down, a suffix moves up, and their middle stays fixed. -/
+def outward (left endStart i : Int) : Int :=
+  if i < left then i-1 else if endStart ≤ i then i+1 else i
+
+theorem outward_strict {left endStart i j : Int} (h : i < j) :
+    outward left endStart i < outward left endStart j := by
+  unfold outward
+  (repeat' split) <;> omega
+
+/-- The moved positions for a k-1-edge staircase lie in a length-k+1
+    interval. Only its two endpoints can be congruent at distinct positions. -/
+theorem outward_collision {left endStart k i j : Int} (hi : 0 ≤ i)
+    (hij : i < j) (hj : j < k-1)
+    (hmod : k ∣ outward left endStart j - outward left endStart i) :
+    outward left endStart i = -1 ∧ outward left endStart j = k-1 := by
+  have hinc := outward_strict (left := left) (endStart := endStart) hij
+  have lower : -1 ≤ outward left endStart i := by
+    unfold outward
+    (repeat' split) <;> omega
+  have upper : outward left endStart j ≤ k-1 := by
+    unfold outward
+    (repeat' split) <;> omega
+  have pos : 0 < outward left endStart j - outward left endStart i := by omega
+  have le := Int.le_of_dvd pos hmod
+  omega
+
 end Cordial.StaircaseLeaf
