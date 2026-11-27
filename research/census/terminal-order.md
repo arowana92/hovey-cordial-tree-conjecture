@@ -1,5 +1,7 @@
 # Four terminal paths and the order bound at 26 labels
 
+The [two-side reduction](pendant-order.md) improves the ceiling to **286**.
+
 **Theorem (computer-assisted).** If a smallest 26-label counterexample has order $n=26m+s$, $1\le s\le26$, it satisfies the following bounds. In particular, testing orders through **364** would suffice to settle the unrestricted 26-label case. The repository's proofs for eight through twenty-five labels cover every tree order.
 
 | $s$ | Minimum possible order | Maximum possible order |

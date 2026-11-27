@@ -2,7 +2,7 @@
 from functools import lru_cache
 
 
-def orders(s, threshold, count=4):
+def branch_tables(s, threshold, max_leaves, small_cap=None, count=4):
     k, limit, run = 26, 546, 19
     bound = s-2
     budget = bound-count*threshold
@@ -39,12 +39,12 @@ def orders(s, threshold, count=4):
     rows = [[{} for _ in range(run+1)] for _ in range(bound+1)]
     any_connector = [{} for _ in rows]
     forest = [{} for _ in rows]
-    final = {}
     safe = [sum(1 << n for n in range(1, limit+1)
                 if all((n+i)%k not in (0,s%k) for i in range(length+1)))
             for length in range(run+1)]
 
-    for leaves in range(2, bound+1):
+    arm_cap = run+1 if small_cap is None else min(run+1, small_cap)
+    for leaves in range(2, max_leaves+1):
         for split in range(2, leaves-1):
             rest = any_connector[leaves-split].copy()
             merge(rest, forest[leaves-split])
@@ -53,7 +53,7 @@ def orders(s, threshold, count=4):
         # All cases independent of the parent connector's length.
         common = {}
         for arms in range(leaves+1):
-            for mass in range(arms, min(bound, arms*(run+1))+1):
+            for mass in range(arms, min(bound, arms*arm_cap)+1):
                 attach(common, forest[leaves-arms], arms, mass)
                 if arms >= 2 and arms < leaves:
                     attach(common, any_connector[leaves-arms], arms, mass)
@@ -63,18 +63,30 @@ def orders(s, threshold, count=4):
         for length in range(run+1):
             branch = common.copy()
             if leaves == 2:
-                for mass in range(2, min(bound,25-length)+1):
+                for mass in range(2, min(bound,2*arm_cap,25-length)+1):
                     attach(branch, {0:1}, 2, mass)
-            for mass in range(1, min(bound,run+1)+1):
+            for mass in range(1, min(bound,arm_cap)+1):
                 for child in rows[leaves-1][:max(0,25-mass-length)]:
                     attach(branch, child, 1, mass)
 
             for cost,bits in branch.items():
                 surviving = ((bits & safe[length]) << length) & full
+                if small_cap is not None and leaves <= 6:
+                    cap = small_cap if leaves <= 3 else bound
+                    surviving &= (1 << (cap+1))-1
                 if surviving:
                     rows[leaves][length][cost] = surviving
             merge(any_connector[leaves], rows[leaves][length])
 
+    return rows, attach, sums
+
+
+def orders(s, threshold, count=4):
+    k, limit, run = 26, 546, 19
+    bound = s-2
+    rows, attach, _ = branch_tables(s, threshold, bound, count=count)
+    final = {}
+    for leaves in range(2, bound+1):
         # Root at an endpoint of the branching skeleton, with one child
         # and at least two terminal arms.
         for arms in range(2, leaves-1):
