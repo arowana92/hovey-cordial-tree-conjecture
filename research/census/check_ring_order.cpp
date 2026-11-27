@@ -70,7 +70,7 @@ struct Bound {
                 int q=tips-largest;
                 const auto& bush=bushes[largest][q];
                 for (int m=0; m<int(bush.size()); ++m) if (bush[m]<=budget()) {
-                    bool ring=q<=4 && (q>=2 || k%2==0) && k-m>=3;
+                    bool ring=q<=4 && k-m>=3;
                     if (largest==1) {
                         for (int d=1; d<=limb && m+d<=mass(); ++d) if (m<=q*d) {
                             int cost=std::max(0,m+d-tips*z);

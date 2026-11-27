@@ -1,15 +1,15 @@
 # Five independently attached paths and order bounds at 26 and 27 labels
 
-**Theorem (computer-assisted).** If a counterexample exists at 26 labels, one of least order has **49 through 208 vertices**. At 27 labels the corresponding interval is **50 through 351 vertices**. At both 26 and 27 labels, any five paths attached by their endpoints at arbitrary vertices of a prescribed cordial core of order zero or one modulo $k$ can grow in any prescribed interleaving. One labeling works on every prefix.
+**Theorem (computer-assisted).** If a counterexample exists at 26 labels, one of least order has **49 through 208 vertices**. At 27 labels the corresponding interval is **50 through 243 vertices**. At both 26 and 27 labels, any five paths attached by their endpoints at arbitrary vertices of a prescribed cordial core of order zero or one modulo $k$ can grow in any prescribed interleaving. One labeling works on every prefix.
 
 Write the minimum order as $km+s$, $1\le s\le k$. The possible order lies in the interval in the corresponding cell and is congruent to its column heading modulo $k$.
 
 | $k$ | $s=23$ | $s=24$ | $s=25$ | $s=26$ | $s=27$ |
 |---:|---:|---:|---:|---:|---:|
 | 26 | 49–153 | 50–180 | 51–181 | 52–208 | |
-| 27 | 50–185 | 51–213 | 52–241 | 53–269 | 54–351 |
+| 27 | 50–158 | 51–159 | 52–187 | 53–215 | 54–243 |
 
-The lower endpoints and residue exclusions follow from the [21-vertex extension](../rainbow/twenty-one-free.md). The maxima are upper bounds from necessary conditions. For 26 the previous ceiling was [286 vertices](pendant-order.md).
+The lower endpoints and residue exclusions follow from the [21-vertex extension](../rainbow/twenty-one-free.md). The maxima are upper bounds from necessary conditions. For 26 the previous ceiling was [286 vertices](pendant-order.md). At 27 the one-side-leaf replacement reduces the previous ceiling of 351. [Edge replacements for all old frequency profiles](one-leaf-period.md)
 
 ## Five terminal paths with independently prescribed parents
 
@@ -38,7 +38,7 @@ Otherwise join two rooted halves across a corridor with at least seven leaves on
 
 The total length of terminal arms at one joint is at most $M$ by the [single-joint path theorem](../rainbow/terminal-paths.md#bounding-a-smallest-counterexample-by-its-branching-vertices). Each corridor has at most $k-7$ interior degree-two vertices by the [six-vertex reduction](dense-cycles.md#consequences-for-tree-order). At a joint with a parent direction, select a downward direction containing the most original leaves. Break ties arbitrarily, except that when all directions are terminal arms, select a longest arm. The other downward directions form a forest at the joint. Denote its vertex count by $w$ and its original leaf count by $q$. When $q\le6$ the preceding pruning argument gives $w\le M$, even when this forest contains other branching vertices.
 
-Let $e$ and $g$ be the numbers of degree-two vertices on the incoming corridor and the chosen downward corridor. The joint, its entire side forest, and any initial portions of those two corridors make a piece of every order from $1+w$ through $1+w+e+g$. If the interval contains $k$ and $k-w\ge3$, closing the piece gives a unicyclic graph of girth $k-w$ with precisely $q$ leaves. The [ring census](few-leaf-rings.md) excludes this configuration for $q=2,3,4$, and for $q=1$ at even modulus. Since $w\le M\le k-2$ in all these cases, it suffices to test the upper endpoint of the interval. At an end joint with selected arm length $d$, retain its leaf and put $g=d-1$.
+Let $e$ and $g$ be the numbers of degree-two vertices on the incoming corridor and the chosen downward corridor. The joint, its entire side forest, and any initial portions of those two corridors make a piece of every order from $1+w$ through $1+w+e+g$. If the interval contains $k$ and $k-w\ge3$, closing the piece gives a unicyclic graph of girth $k-w$ with precisely $q$ leaves. The [ring census](few-leaf-rings.md) excludes this configuration for $q=2,3,4$. The [one-leaf period theorem](one-leaf-period.md) also excludes $q=1$ at both moduli. Since $w\le M\le k-2$ in all these cases, it suffices to test the upper endpoint of the interval. At an end joint with selected arm length $d$, retain its leaf and put $g=d-1$.
 
 The same reduction applies across two consecutive joints in the selected direction. Suppose their side forests have $q,r$ leaves and orders $w,f$. Let $g$ be the interior of the joining corridor and $e,h$ the exterior corridor interiors. Taking both side forests and the entire joining corridor gives minimum piece size $b=2+w+g+f$. The largest size is $b+e+h$. Whenever $q+r\le4$, the piece is forbidden if $b\le k\le b+e+h$ and $k-w-f\ge3$. There are always at least two side leaves in this test. The two forests may themselves branch.
 

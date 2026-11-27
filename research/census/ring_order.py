@@ -62,7 +62,7 @@ def largest(k, s, threshold, paths=5):
                 return pending[tag]
             for largest in range(1, tips):
                 side_tips = tips-largest
-                can_open = side_tips <= 4 and (side_tips >= 2 or k%2 == 0)
+                can_open = side_tips <= 4
                 if largest == 1:
                     # The continuation goes to an original leaf. Enumerate the
                     # longest arm and every possible total of the other arms.
