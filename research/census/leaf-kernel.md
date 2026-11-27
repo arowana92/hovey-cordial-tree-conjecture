@@ -52,3 +52,28 @@ The independent checker enumerates injections and reconstructs every original ed
 ~~~sh
 python3 -B -m research.census.check_leaf_kernel
 ~~~
+
+## Arbitrary additions at one site on a kernel with at most six edges
+
+**Theorem.** Start with any tree of order at most seven and add any number of leaves at any one vertex. At every positive modulus, a prescribed cordial labeling on a core of divisible order extends across this entire tree, with **any specified shared vertex**. The number of added leaves, the modulus and the core order are unbounded.
+
+First take the joint in the original tree. For each rooted kernel and site the checker tries an integer solution of the uniform equations in an interval of length $s$. Such a solution reduces injectively at every $k\ge s$. For the other kernels it computes the exact uniform count and tries positivity for all $k\ge s$. When needed, it adds the marked count and performs the positivity test for all deficit orders as above.
+
+| Kernel edges | Consecutive integer witness | Uniform count suffices | Marked count used | Largest polynomial cutoff | Small-modulus inputs |
+| ---: | ---: | ---: | ---: | ---: | ---: |
+| 1 | 2 | 0 | 0 | — | 0 |
+| 2 | 4 | 1 | 0 | 2 | 5 |
+| 3 | 10 | 2 | 1 | 3 | 65 |
+| 4 | 25 | 4 | 6 | 8 | 490 |
+| 5 | 74 | 10 | 11 | 20 | 2,850 |
+| 6 | 224 | 19 | 19 | 24 | 14,410 |
+
+Each row counts isomorphism types with an ordered root and site, allowing coincidence. Independently, the path from root to site decomposes such a tree into a nonempty ordered sequence of rooted trees, one per path vertex with its off-path branches. If $R$ counts ordinary rooted trees, $R/(1-R)$ gives the type counts. The checker compares against that series using a separate integer-partition enumeration. Whenever a marked count is used it also evaluates both polynomials at $s$ and $s+1$ and independently enumerates the original edge weights for every deficit at both moduli.
+
+At $k\ge s$ the calculation handles a full $k$-edge attachment. A larger one first uses this prefix, then adds the remaining leaves at the site. A smaller one with an added leaf can be padded at the same site. Exchange that real leaf with a dummy twin if necessary to retain the deficient weight, then restrict. With no added leaves, pad at the parent of any nonroot leaf of the kernel instead. The calculation included every site. At $k<s$ it is enough to keep the number of added leaves modulo $k$, as a batch of $k$ sibling leaves always permits uniform increments. The final column gives the number of actual small rooted extensions checked by an independent finite search and recount. A singleton kernel is a star.
+
+Finally, a joint among the added leaves meets the free tree by a single edge. The free tree has a cordial labeling at every modulus by the one-site integer theorem. Translate that labeling until the joining edge fills the old deficient weight. The old vertices then contribute uniform counts, as do the old edges together with the joining edge. [One-site theorem](../hub/one-hub-interval.md) · [Bridge rule](two-branch-joint.md#other-joints-and-arbitrary-size) · [Whole verification](check_kernel_families.py)
+
+~~~sh
+python3 -B -m research.census.check_kernel_families
+~~~
