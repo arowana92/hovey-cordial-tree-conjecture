@@ -1,6 +1,6 @@
 # Near-perfect matchings at 26 labels and cordial labelings on every prefix
 
-**Theorem.** Every finite tree with a matching leaving at most one vertex uncovered is 26-cordial, at every tree order. More generally, let $m\in\{3,5,7,11,13\}$, let $\nu$ be the maximum matching size of a tree on $n$ vertices, and put $d=n-2\nu$ and $S=n-\nu$. Let $r$ be the representative of $S\bmod m$ in $\{1,\ldots,m\}$. Whenever $d\le r$, the tree is $2m$-cordial. The case $d=1$ includes every residue of the tree order.
+**Theorem.** Every finite tree with a matching leaving at most one vertex uncovered is 26-cordial, at every tree order. More generally, let $m\in\{3,5,7,11,13\}$, let $\nu$ be the maximum matching size of a tree on $n$ vertices, and put $d=n-2\nu$ and $S=n-\nu$. Let $r$ be the representative of $S\bmod m$ in $\{1,\ldots,m\}$. Whenever $d\le r$, the tree is $2m$-cordial. The case $d=1$ includes every residue of the tree order. A [marked-leaf construction](marked-leaves.md) gives the perfect and near-perfect conclusions for every odd $m\le25$.
 
 For example, at 26 labels every even-order tree with a matching missing two vertices is covered unless its order is a multiple of 26. More generally write the order of a smallest 26-label counterexample as $26q-H$ with $0\le H\le5$, using the [order restrictions](rainbow/short-forests.md). It would need $d\ge H+2$. Indeed $d$ and $H$ have the same parity, and $d\le H$ would give $r=13-(H-d)/2\ge d$. In particular a 47-vertex counterexample would need every matching to miss at least seven vertices.
 

@@ -1,5 +1,6 @@
 """Cordial prefix labelings at the certified primes and matching lifts to twice a prime."""
 
+from .marked_leaf import label as marked_leaf_labels
 from .matching_expansion import matching_labels
 from .rainbow.generate import rainbow
 
@@ -96,6 +97,9 @@ def label(parent, m):
         u,l,r = previous[v]
         qp.append(pos[u])
         joins.append((l,r))
-    qlabels = prefix_labels(qp,m)
+    if len(exposed) <= 1 and m not in (3,5,7,11,13):
+        qlabels = marked_leaf_labels(qp,m,s-1 if exposed else None)
+    else:
+        qlabels = prefix_labels(qp,m)
     full = matching_labels(qp,qlabels,joins,m)
     return [full[2*pos[index[v][0]]+index[v][1]] for v in range(n)]
