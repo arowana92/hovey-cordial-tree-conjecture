@@ -3,40 +3,7 @@
 from collections import Counter
 from random import Random
 
-from .regular_joint import single_tips
-from .two_site_arms import block, nonzero_arms, signed_jumps
-
-
-def short(b, leaves, k):
-    """At 2b<k, use an interval excluding zero or complete one full period."""
-    half = b//2
-    pairs = [(2*j % (2*half+1)-j, half+j+(b%2))
-             for j in range(1,2*half+1)]
-    if leaves < k-2*b:
-        if b%2:
-            pairs.append((-half-1,half+1))
-        occupied = {0}
-        for a,z in pairs:
-            occupied.update((a%k,z%k,(a+z)%k))
-        return pairs,[x for x in range(k) if x not in occupied][:leaves]
-    if b % 2:
-        pairs = [(2*j%b-j, half+1+j) for j in range(b)]
-    used = {v%k for pair in pairs for v in pair}
-    singles = [x for x in range(k) if x not in used]
-    singles.extend(i%k for i in range(1,leaves-len(singles)+1))
-    return pairs,singles
-
-
-def even_period(b):
-    if b % 2:
-        return [(2*j%b-j, b//2+1+j) for j in range(b)]
-    if b <= 20:
-        return list(single_tips(b).items())
-    s = (b-8)//2
-    def move(x):
-        return x+s*((x>=4)-(x<=-4))
-    frame = [(move(a),move(z)) for a,z in single_tips(8).items()]
-    return frame+[(d,10+s+j) for j,d in enumerate(signed_jumps(4,s))]
+from .two_site_arms import block, even_period, nonzero_arms, short_at_hub
 
 
 FOUR = {
@@ -71,12 +38,12 @@ def construct(k,b,leaves):
         pair_prefix.extend(four_parts(4,0)[0]*(b//4))
         plain_prefix.extend(list(range(4))*(leaves//4))
         b,leaves = b%4,leaves%4
-        pairs,singles = four_parts(b,leaves) if b >= 2 else short(b,leaves,k)
+        pairs,singles = four_parts(b,leaves) if b >= 2 else short_at_hub(b,leaves,k)
     elif k % 2 == 0:
         periods,b = divmod(b,k//2)
         if periods:
             pair_prefix = even_period(k//2)*periods
-        pairs,singles = short(b,leaves,k)
+        pairs,singles = short_at_hub(b,leaves,k)
     else:
         periods,b = divmod(b,k)
         pair_prefix = [(x,x) for x in range(k)]*periods
@@ -88,7 +55,7 @@ def construct(k,b,leaves):
             b -= half
             leaves -= 1
         if b <= half:
-            pairs,singles = short(b,leaves,k)
+            pairs,singles = short_at_hub(b,leaves,k)
         elif k == 3:
             pairs,singles = [(1,2),(0,2)],[]
         else:

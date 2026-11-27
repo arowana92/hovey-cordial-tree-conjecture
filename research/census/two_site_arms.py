@@ -5,6 +5,8 @@ import json
 from math import gcd
 from pathlib import Path
 
+from .regular_joint import single_tips
+
 
 
 @lru_cache(None)
@@ -184,3 +186,36 @@ def from_surplus(k, joint, surplus, count):
             target, = set(range(k))-used
             pairs.extend(hit_weight(k,target,rest-b))
     return [((a+joint)%k,(z+joint)%k) for a,z in pairs]
+
+
+def short_at_hub(b, leaves, k):
+    """At 2b<k, use an interval excluding zero or complete one full period."""
+    half = b//2
+    pairs = [(2*j % (2*half+1)-j, half+j+(b%2))
+             for j in range(1,2*half+1)]
+    if leaves < k-2*b:
+        if b%2:
+            pairs.append((-half-1,half+1))
+        occupied = {0}
+        for a,z in pairs:
+            occupied.update((a%k,z%k,(a+z)%k))
+        return pairs,[x for x in range(k) if x not in occupied][:leaves]
+    if b % 2:
+        pairs = [(2*j%b-j, half+1+j) for j in range(b)]
+    used = {v%k for pair in pairs for v in pair}
+    singles = [x for x in range(k) if x not in used]
+    singles.extend(i%k for i in range(1,leaves-len(singles)+1))
+    return pairs,singles
+
+
+def even_period(b):
+    """A neutral full block of b arms at modulus 2b, for b different from two."""
+    if b % 2:
+        return [(2*j%b-j, b//2+1+j) for j in range(b)]
+    if b <= 20:
+        return list(single_tips(b).items())
+    s = (b-8)//2
+    def move(x):
+        return x+s*((x>=4)-(x<=-4))
+    frame = [(move(a),move(z)) for a,z in single_tips(8).items()]
+    return frame+[(d,10+s+j) for j,d in enumerate(signed_jumps(4,s))]
