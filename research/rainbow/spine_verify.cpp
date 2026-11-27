@@ -19,7 +19,7 @@
 
 namespace {
 using Count = std::uint64_t;
-using Mask = std::uint32_t;
+using Mask = std::uint64_t;
 
 void check(bool ok, const char* message) {
     if (!ok) throw std::runtime_error(message);
@@ -198,7 +198,7 @@ struct Audit {
                        std::vector<bool>& covered, bool active) const {
         std::array<int,32> lab{}, first_root{};
         Mask used_v = 1, internal = 0;
-        for (int v = 0; v < k-1; ++v) {
+        for (std::size_t v = 0; v < s.parents.size(); ++v) {
             int a = in.byte();
             check(a < k && !(used_v & (Mask(1)<<a)), "invalid packed vertex permutation");
             used_v |= Mask(1)<<a;
@@ -226,7 +226,7 @@ struct Audit {
             }
             Mask choices = active ? all ^ weights : (Mask(1)<<first_root[g]) & ~weights;
             while (choices) {
-                int w = __builtin_ctz(choices);
+                int w = __builtin_ctzll(choices);
                 choices &= choices-1;
                 int c = w-first_root[g];
                 if (c < 0) c += k;
@@ -245,15 +245,16 @@ struct Audit {
         visit(visit, 0, internal, 0, 1);
     }
 
-    void verify(const char* path, int tip_limit=0) {
+    void verify(const char* path, int tip_limit=0, int short_mass=0) {
         Reader in(path);
         for (char c : std::string("SPN")) check(in.byte() == c, "bad header");
         int version = in.byte();
-        check(version == '1' || version == '2', "unsupported version");
+        check(short_mass ? version == '3' : version == '1' || version == '2', "unexpected stream version");
         check(in.byte() == k, "wrong modulus");
+        if (short_mass) check(in.byte() == short_mass, "wrong short forest order");
         for (int first; (first = in.next()) >= 0;) {
             Count word = in.rest(first,8);
-            Shape s(k,word);
+            Shape s(short_mass ? short_mass+1 : k,word);
             check(!tip_limit || s.leaves <= tip_limit, "too many tips in restricted catalog");
             if (bits) bits->insert(s);
             else check(seen.insert(word).second, "repeated forest");
@@ -266,7 +267,7 @@ struct Audit {
             std::vector<bool> covered(p.representatives);
             bool zero = false;
             for (Count j = 0; j < stored; ++j) {
-                if (version == '2') {
+                if (version != '1') {
                     cover_witness(in, s, p, covered, active);
                     continue;
                 }
@@ -298,7 +299,7 @@ struct Audit {
                     weights |= wbit;
                 }
             }
-            if (version == '2') {
+            if (version != '1') {
                 zero = covered[p.canonical[0]];
                 check(!active || std::find(covered.begin(), covered.end(), false) == covered.end(),
                       "incomplete packed coverage");
@@ -367,18 +368,24 @@ void parallel_audit(int k, int workers, const std::vector<std::string>& paths, b
 int main(int argc, char** argv) {
     if (argc < 3) return 2;
     int k = std::stoi(argv[1]);
-    bool limited = std::string(argv[2])=="--tips";
-    if (k < 5 || k > (limited ? 30 : 26)) return 2;
+    bool partial = std::string(argv[2])=="--short";
+    bool limited = partial || std::string(argv[2])=="--tips";
+    int max_modulus = partial ? 40 : limited ? 30 : 26;
+    if (k < 5 || k > max_modulus) return 2;
     try {
         if (limited) {
-            if (argc < 5) return 2;
-            int tips=std::stoi(argv[3]);
-            if (tips < 1 || tips > 2*(k-2)/3) return 2;
+            if (argc < (partial ? 6 : 5)) return 2;
+            int mass = partial ? std::stoi(argv[3]) : k-1;
+            int tips = std::stoi(argv[partial ? 4 : 3]);
+            if (partial && (mass < 1 || mass > 30 || mass >= k-1)) return 2;
+            if (tips < 1 || tips > mass || tips > 2*(k-2)/3) return 2;
             Audit audit(k);
-            for (int i=4; i<argc; ++i) audit.verify(argv[i],tips);
-            check(audit.seen.size()==tip_count(k,tips),"incomplete tip-limited catalog");
+            for (int i=partial ? 5 : 4; i<argc; ++i) audit.verify(argv[i],tips,partial ? mass : 0);
+            check(audit.seen.size()==tip_count(mass+1,tips),"incomplete tip-limited catalog");
             check(audit.eligible==audit.seen.size(),"unverified boundary colors");
-            std::cout << "k=" << k << " tip limit=" << tips << " forests=" << audit.eligible
+            std::cout << "k=" << k;
+            if (partial) std::cout << " free vertices=" << mass;
+            std::cout << " tip limit=" << tips << " forests=" << audit.eligible
                       << " witness rows=" << audit.rows << " boundary assignments=" << audit.colorings << '\n';
             return 0;
         }

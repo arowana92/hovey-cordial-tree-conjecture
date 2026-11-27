@@ -21,7 +21,7 @@ using Colors = std::vector<unsigned char>;
 struct Tree { int size; Code code; };
 
 class Generator {
-    int k, shard, shards;
+    int k, mass, shard, shards;
     bool cover;
     std::ofstream file;
     std::ostream& out;
@@ -106,17 +106,17 @@ class Generator {
     void mark_coverage(const std::array<int,32>& parents, const std::array<int,32>& labels,
                        const std::vector<int>& roots, const std::array<int,32>& group,
                        const std::vector<int>& orbit) {
-        using Bits = std::uint32_t;
+        using Bits = std::uint64_t;
         const Bits all = (Bits(1)<<k)-1;
         Bits internal = 0;
-        for (int i = 0; i < k-1; ++i)
+        for (int i = 0; i < mass; ++i)
             if (parents[i] >= 0) internal |= Bits(1)<<((labels[i]+labels[parents[i]])%k);
         int groups = group[roots.back()]+1;
         std::array<Bits,8> root_labels{};
         for (int v : roots) root_labels[group[v]] |= Bits(1)<<labels[v];
-        std::array<std::array<Bits,32>,8> options{};
+        std::array<std::array<Bits,40>,8> options{};
         std::array<int,8> sizes{};
-        std::array<std::array<int,32>,8> colors{};
+        std::array<std::array<int,40>,8> colors{};
         for (int j = 0; j < groups; ++j) {
             Bits shifted = root_labels[j];
             for (int c = 0; c < k; ++c) {
@@ -136,6 +136,25 @@ class Generator {
         mark(mark, 0, internal, 0);
     }
 
+    bool short_witness(const std::array<int,32>& parents, std::array<int,32>& labels) const {
+        using Mask = std::uint64_t;
+        const Mask all = (Mask(1)<<k)-1;
+        auto visit = [&](auto& self, int i, Mask vertices, Mask weights) -> bool {
+            if (i == mass) return true;
+            int a = parents[i] < 0 ? -1-parents[i] : labels[parents[i]];
+            Mask choices = vertices & ((weights >> a) | (weights << (k-a)));
+            while (choices) {
+                int x = __builtin_ctzll(choices);
+                choices &= choices-1;
+                labels[i] = x;
+                if (self(self,i+1,vertices^(Mask(1)<<x),weights^(Mask(1)<<((x+a)%k))))
+                    return true;
+            }
+            return false;
+        };
+        return visit(visit,0,all^1,all);
+    }
+
     void number(Code value, int bytes) {
         for (int i = 0; i < bytes; ++i) {
             out.put(static_cast<char>(value & 255));
@@ -149,7 +168,7 @@ class Generator {
         std::vector<int> roots, gaps;
         int n = 0, depth = 0, leaves = 0;
         bool opening = false;
-        for (int bit = 2*(k-1)-1; bit >= 0; --bit) {
+        for (int bit = 2*mass-1; bit >= 0; --bit) {
             if ((code >> bit) & 1) {
                 p[n] = depth ? stack[depth-1] : -1;
                 if (depth == 0) roots.push_back(n);
@@ -178,7 +197,9 @@ class Generator {
             const Colors& pattern = colors[j];
             if (cover && stamp[encode(pattern)] == selected) continue;
             for (int root : roots) p[root] = -1-pattern[group[root]];
-            if (rainbow_witness(k, p.data(), labels.data()) != 1) {
+            bool found = mass == k-1 ? rainbow_witness(k, p.data(), labels.data()) == 1
+                                     : short_witness(p, labels);
+            if (!found) {
                 std::cerr << "Failed forest " << code << " parents";
                 for (int i = 0; i < n; ++i) std::cerr << ' ' << p[i];
                 throw std::runtime_error("no witness");
@@ -201,19 +222,20 @@ class Generator {
     }
 
 public:
-    Generator(int mod, int part, int total, const char* path, bool packed):
-        k(mod), shard(part), shards(total), cover(packed),
+    Generator(int mod, int free_vertices, int part, int total, const char* path, bool packed):
+        k(mod), mass(free_vertices), shard(part), shards(total), cover(packed),
         out(std::string(path)=="-" ? std::cout : static_cast<std::ostream&>(file)) {
         if (&out==&file) file.open(path,std::ios::binary);
         if (!out) throw std::runtime_error("cannot open output");
     }
 
     void run(bool ranked, int tip_limit) {
-        out.write(cover ? "SPN2" : "SPN1", 4);
+        out.write(mass < k-1 ? "SPN3" : cover ? "SPN2" : "SPN1", 4);
         out.put(static_cast<char>(k));
+        if (mass < k-1) out.put(static_cast<char>(mass));
         if (tip_limit) {
-            TipForests limited(k-1, tip_limit);
-            limited.each(k-1, [&](Code word) {
+            TipForests limited(mass, tip_limit);
+            limited.each(mass, [&](Code word) {
                 if (shapes++ % shards == static_cast<unsigned>(shard)) forest(word);
             });
         } else if (ranked) {
@@ -245,13 +267,17 @@ public:
 
 int main(int argc, char** argv) {
     std::ios::sync_with_stdio(false);
-    if (argc < 5 || argc > 7) return 2;
+    if (argc < 5 || argc > 8) return 2;
     std::string mode = argc >= 6 ? argv[5] : "";
-    if ((mode == "--tips") != (argc == 7)) return 2;
-    if (!mode.empty() && mode != "--cover" && mode != "--ranked-cover" && mode != "--tips") return 2;
+    bool partial = mode == "--short", limited = partial || mode == "--tips";
+    if (partial ? argc != 8 : limited ? argc != 7 : argc > 6) return 2;
+    if (!limited && !mode.empty() && mode != "--cover" && mode != "--ranked-cover") return 2;
     int k = std::stoi(argv[1]), shard = std::stoi(argv[2]), total = std::stoi(argv[3]);
-    if (k < 5 || k > (mode == "--tips" ? 30 : 26) || shard < 0 || shard >= total) return 2;
-    int tips = mode == "--tips" ? std::stoi(argv[6]) : 0;
-    if (mode == "--tips" && (tips < 1 || tips > 2*(k-2)/3)) return 2;
-    Generator(k, shard, total, argv[4], argc >= 6).run(mode == "--ranked-cover", tips);
+    int max_modulus = partial ? 40 : limited ? 30 : 26;
+    if (k < 5 || k > max_modulus || shard < 0 || shard >= total) return 2;
+    int mass = partial ? std::stoi(argv[6]) : k-1;
+    int tips = limited ? std::stoi(argv[argc-1]) : 0;
+    if (partial && (mass < 1 || mass > 30 || mass >= k-1)) return 2;
+    if (limited && (tips < 1 || tips > mass || tips > 2*(k-2)/3)) return 2;
+    Generator(k, mass, shard, total, argv[4], argc >= 6).run(mode == "--ranked-cover", tips);
 }

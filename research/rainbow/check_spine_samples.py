@@ -9,8 +9,9 @@ from pathlib import Path
 import struct
 
 
-def parse(k,word):
-    n=k-1
+def parse(k,word,n=None):
+    if n is None:
+        n=k-1
     assert word.bit_length()==2*n
     stack,parents,roots=[],[],[]
     for bit in f"{word:b}":
@@ -76,8 +77,8 @@ def direct(k,parents,roots,sizes,active,payload):
             diff[j,h,d]=mask
     hit=0
     options=set(range(1,k))
-    for row in struct.iter_unpack(f"{k-1}B",payload):
-        assert set(row)==options
+    for row in struct.iter_unpack(f"{len(parents)}B",payload):
+        assert len(set(row))==len(parents) and set(row)<=options
         inside=[(row[u]+row[v])%k for u,v in enumerate(parents) if v>=0]
         internal=set(inside)
         assert len(internal)==len(inside)
@@ -105,23 +106,27 @@ def direct(k,parents,roots,sizes,active,payload):
 
 def scan(path,stride):
     with path.open("rb") as f, mmap.mmap(f.fileno(),0,access=mmap.ACCESS_READ) as data:
-        assert data[:4]==b"SPN2"
-        k=data[4];offset=5;index=checked=rows=N=0
+        assert data[:4] in (b"SPN2",b"SPN3")
+        k=data[4]
+        partial=data[:4]==b"SPN3"
+        mass=data[5] if partial else k-1
+        offset=6 if partial else 5
+        index=checked=rows=N=0
         types=set()
         # A first run needs one vertex. A new run needs at least
         # the previous mass plus the previous number of runs.
         min_mass=max_runs=1
-        while 2*min_mass+max_runs<=k-1:
+        while 2*min_mass+max_runs<=mass:
             min_mass=2*min_mass+max_runs
             max_runs+=1
         while offset<len(data):
             word,length=struct.unpack_from("<QI",data,offset)
-            start=offset+12;offset=start+(k-1)*length
+            start=offset+12;offset=start+mass*length
             assert offset<=len(data)
             # Sample the file throughout and deliberately include each possible
             # run count, so the deepest boundary test is represented.
-            if index%stride==0 or len(types)<=max_runs:
-                parents,roots,sizes,active=parse(k,word)
+            if index%stride==0 or any(r not in types for r in range(1,max_runs+1)) or (not partial and 0 not in types):
+                parents,roots,sizes,active=parse(k,word,mass)
                 runs=int(active)
                 for i,s in enumerate(sizes[1:],1):
                     if active and s>=sum(sizes[:i])+runs:

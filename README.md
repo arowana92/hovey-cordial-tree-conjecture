@@ -4,7 +4,7 @@
 
 Every finite tree with **at most four leaves** is cordial at **every positive modulus**. The construction gives one integer labeling with consecutive vertex labels and consecutive edge sums, for arbitrary lengths of all the arms and the path between branching vertices. The spider construction also allows arbitrarily many additional one-edge legs. [Four-leaf proof](research/census/four-leaves.md) · [Spiders with up to four long legs](research/census/spider-leaves.md)
 
-Every tree with **at most five leaves** is cordial at every modulus through 30. At 26 and 27 labels this holds for up to seven leaves. A smallest counterexample at 26 would consequently require order residue at least 18 and exactly eight leaves at residue 18. [Restricted forest proof and reproducible certificates](research/rainbow/few-leaves.md)
+Every tree with **at most five leaves** is cordial at every modulus through 30. At 26 and 27 labels this holds for up to seven leaves. At both 26 and 27 labels, a smallest counterexample of order $mk+s$, $1\le s\le k$, must have $s\ge21$. [Restricted forest proof](research/rainbow/few-leaves.md) · [Short-forest certificates for order residues](research/rainbow/short-forests.md)
 
 Every tree on **at most 27 vertices** is cordial at **every positive modulus**. A census verifies one integer labeling with consecutive endpoint sums for each of the 1,198,738,055 unrooted trees of orders 2 through 27. This also proves cordiality at modulus $k\le27$ for arbitrary-order trees with at most $k$ nonleaf vertices. For trees with at most six leaves, the integer census reaches order 30. [Super edge-magic census](research/census/README.md) · [Leaf-bounded census and independent verification](research/census/leaf-bases.md)
 

@@ -10,9 +10,11 @@ from .check_spine_samples import parse
 from .spine_counts import boundaries, forest_leaves, partitions
 
 
-def totals(k, limit):
+def totals(k, limit, mass=None):
+    if mass is None:
+        mass = k-1
     shapes = colorings = 0
-    for sizes in partitions(k-1):
+    for sizes in partitions(mass):
         if len(sizes) <= limit:
             n = sum(count for tips, count in forest_leaves(sizes).items() if tips <= limit)
             shapes += n
