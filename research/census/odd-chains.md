@@ -2,7 +2,7 @@
 
 **Theorem.** Let $B$ be any super edge-magic tree of order $n\ge2$. Label it bijectively by $f$ onto $[0,n-1]$ with ordinary edge sums $[h,H]$, $H=h+n-2$. Choose any two vertices $a,b$, possibly equal, such that $f(a)+f(b)$ is either $h-1$ or $H+1$. Join an odd number of copies of $B$ in a path. Use the copy of $a$ for every join at an even position and the copy of $b$ for every join at an odd position. The resulting tree is super edge-magic.
 
-At least one usable pair always exists. Indeed $1\le h\le n-1$ and one may choose the vertices labeled $\lfloor(h-1)/2\rfloor$ and $\lceil(h-1)/2\rceil$. At odd $n$ the two eligible targets differ by the odd number $n$, so one is even and gives a **single common attachment vertex**. Its half is in $[0,n-1]$, since $H\le2n-3$. Thus every super edge-magic tree, including every tree through order 26, gives an infinite family at every modulus. Each output can be used as a new piece. [Integer census](README.md)
+At least one usable pair always exists. Indeed $1\le h\le n-1$ and one may choose the vertices labeled $\lfloor(h-1)/2\rfloor$ and $\lceil(h-1)/2\rceil$. At odd $n$ the two eligible targets differ by the odd number $n$, so one is even and gives a **single common attachment vertex**. Its half is in $[0,n-1]$, since $H\le2n-3$. Thus every super edge-magic tree, including every tree through order 27, gives an infinite family at every modulus. Each output can be used as a new piece. [Integer census](README.md)
 
 The same conclusion holds with any odd quotient tree $Q$ admitting a balanced $\alpha$-labeling. The path positions above are replaced by its two bipartition classes. This gives an integer construction even if the piece and quotient orders share factors.
 

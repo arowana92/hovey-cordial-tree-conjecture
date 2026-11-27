@@ -1,6 +1,6 @@
-# Every tree through 26 vertices has consecutive integer edge sums
+# Every tree through 27 vertices has consecutive integer edge sums
 
-**Theorem.** Every tree on $2\le n\le26$ vertices admits a bijection $f$ onto $0,\ldots,n-1$ such that the $n-1$ ordinary sums $f(v)+f(w)$ on its edges are consecutive. Consequently every tree on at most 26 vertices is $k$-cordial for **every positive integer** $k$. Reduction of an integer interval modulo $k$ gives counts differing by at most one, even when some counts are zero. The one-vertex tree is immediate. Shifting the vertex labels by one and assigning the unused edge labels in reverse sum order gives the standard super edge-magic labeling. [Youssef, Theorem 4](https://ajc.maths.uq.edu.au/pdf/43/ajc_v43_p031.pdf)
+**Theorem.** Every tree on $2\le n\le27$ vertices admits a bijection $f$ onto $0,\ldots,n-1$ such that the $n-1$ ordinary sums $f(v)+f(w)$ on its edges are consecutive. Consequently every tree on at most 27 vertices is $k$-cordial for **every positive integer** $k$. Reduction of an integer interval modulo $k$ gives counts differing by at most one, even when some counts are zero. The one-vertex tree is immediate. Shifting the vertex labels by one and assigning the unused edge labels in reverse sum order gives the standard super edge-magic labeling. [Youssef, Theorem 4](https://ajc.maths.uq.edu.au/pdf/43/ajc_v43_p031.pdf)
 
 An independent research project reports checking the super edge-magic property through order 23 and describes its result as awaiting expert review. The calculations here generate their own trees and witnesses. [Jared Vogler’s research report](https://www.jaredvogler.com/side-quests/agentic-solvers)
 
@@ -11,12 +11,15 @@ An independent research project reports checking the super edge-magic property t
 | 24 | 39,299,897 | 27,940,136 | 11,359,761 |
 | 25 | 104,636,890 | 104,636,890 | 0 |
 | 26 | 279,793,450 | 201,837,109 | 77,956,341 |
+| 27 | 751,065,460 | 751,065,460 | 0 |
 
-The full census covers 447,672,595 unrooted shapes of orders 2 through 26. The uncompressed witness streams occupy 14,950,989,300 bytes. [Counts at every order](counts.txt) · [SHA-256 manifest](streams.sha256)
+The full census covers 1,198,738,055 unrooted shapes of orders 2 through 27. The uncompressed witness streams occupy 41,238,280,400 bytes. [Counts at every order](counts.txt) · [SHA-256 manifest](streams.sha256)
 
 ## Construction and completeness
 
 Root a tree at a centroid. Each child branch has at most half the total order. For a unique centroid all child branches have strictly less than half. Two centroids determine an unordered pair of rooted trees of the same size, joined at their roots. A rooted tree in turn is determined by the multiset of branches below its root. The generator encodes each tree with opening and closing bits in preorder, sorting child branches by order and then by encoding. It outputs one record per shape in this order, followed by the two-centroid cases ordered by the pair of halves.
+
+At order 27 the generator unranked the multiset at the unique centroid. Branches have order at most 13. The suffix multiset recurrence counts completions with each possible first branch, so each shard can skip all ranks belonging to other shards. At even orders the analogous option enumerates the two-centroid pairs after the strict-half multisets. On 39 shards at orders 2 through 14 the ranked and sequential generators produced identical bytes. At order 27 a finer rank stride independently regenerated 11,462 records spread over the full range, byte for byte. The complete streams were also replayed with a separate build of the public verifier. [Ranked enumeration](../rainbow/ranked_forest.hpp)
 
 If the least desired edge sum is $h$, then
 $$
@@ -33,7 +36,7 @@ Here the correction term is zero for odd $n$. Equivalently, vertex-rooted plus u
 
 ## An unbounded-order consequence
 
-For $2\le k\le26$, every tree with at most $k$ nonleaf vertices is $k$-cordial, at any order. If its order exceeds $k$, its nonleaf vertices form a connected subtree. Retain all of them and enough leaves to obtain order $k$. The census gives a cordial labeling there. When the current order is a multiple of $k$, add one leaf to obtain the unique deficient edge weight. Starting from order $1\bmod k$, add up to $k-1$ further leaves with distinct labels avoiding the unique surplus and with distinct new weights. Hall’s prescribed-differences theorem gives exactly this extension for any list of parent labels. Iterating restores every original leaf. [Leaf extension proof](../counterexample-bound.md#removing-leaves)
+For $2\le k\le27$, every tree with at most $k$ nonleaf vertices is $k$-cordial, at any order. If its order exceeds $k$, its nonleaf vertices form a connected subtree. Retain all of them and enough leaves to obtain order $k$. The census gives a cordial labeling there. When the current order is a multiple of $k$, add one leaf to obtain the unique deficient edge weight. Starting from order $1\bmod k$, add up to $k-1$ further leaves with distinct labels avoiding the unique surplus and with distinct new weights. Hall’s prescribed-differences theorem gives exactly this extension for any list of parent labels. Iterating restores every original leaf. [Leaf extension proof](../counterexample-bound.md#removing-leaves)
 
 In particular this holds whenever the matching number $\nu$ is at most $\lfloor(k+1)/2\rfloor$. To see that the nonleaf count is at most $2\nu-1$ for a tree of order at least two with $L$ leaves, root at a leaf and let every vertex with children keep exactly one outgoing edge. The resulting disjoint paths end at the $L-1$ other leaves and cover every vertex. A matching on these paths leaves at most $L-1$ vertices unmatched. Therefore $2\nu\ge n-L+1$.
 
@@ -53,9 +56,9 @@ for n in {2..21}; do
     ./generate "$n" 0 1 "small/$n.bin"
     ./verify "$n" "small/$n.bin" >> counts.txt
 done
-for n in {22..26}; do
+for n in {22..27}; do
     mkdir "o$n"
-    for i in {0..11}; do ./generate "$n" "$i" 12 "o$n/$i.bin"; done
+    for i in {0..11}; do ./generate "$n" "$i" 12 "o$n/$i.bin" --ranked; done
     ./verify "$n" "o$n"/{0..11}.bin >> counts.txt
 done
 diff "$src/counts.txt" counts.txt

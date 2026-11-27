@@ -40,7 +40,7 @@ class RankedForests {
         return (t.word<<(2*(s-t.size)))|decode(s-t.size,j,rank-(total-row[j]));
     }
 public:
-    explicit RankedForests(int order): half(order/2), ways(order+1) {
+    explicit RankedForests(int order, bool small_only = false): half(order/2), ways(order+1) {
         if (order < 1 || order > 30) throw std::invalid_argument("forest order");
         for (int size = 1; size <= half; ++size) {
             std::vector<Word> layer;
@@ -53,7 +53,7 @@ public:
         for (int s = 1; s <= order; ++s) {
             auto& row = ways[s];
             row.resize(small.size()+1);
-            row.back() = s > half ? ways[s-1][0] : 0;
+            row.back() = !small_only && s > half ? ways[s-1][0] : 0;
             for (std::size_t i = small.size(); i-- > 0;) {
                 row[i] = row[i+1];
                 if (s >= small[i].size) row[i] += ways[s-small[i].size][i];

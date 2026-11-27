@@ -6,6 +6,7 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include "../rainbow/ranked_forest.hpp"
 
 bool interval_witness(int, const int*, int*, std::uint32_t);
 namespace {
@@ -29,7 +30,6 @@ class Census {
     }
 
     void certify(Code word) {
-        if (index++%shards != static_cast<unsigned>(shard)) return;
         int stack[32], parents[32], labels[32], depth = 0, count = 0;
         for (int j = 2*n-1; j >= 0; --j) {
             if ((word>>j)&1) {
@@ -50,20 +50,35 @@ class Census {
     }
 public:
     Census(int order, int part, int total, FILE* file): n(order),shard(part),shards(total),out(file) {}
-    void run() {
-        for (int s = 1; s <= n/2; ++s) {
+    void run(bool ranked) {
+        if (ranked) {
+            // Removing a unique centroid leaves no component above (n-1)/2.
+            RankedForests centered(n-1,true);
+            index = centered.count();
+            for (Code r = shard; r < index; r += shards)
+                certify((Code(1)<<(2*n-1))|(centered[r]<<1));
+        }
+        for (int s = 1; (!ranked || n%2 == 0) && s <= n/2; ++s) {
             std::vector<Rooted> layer;
             auto add = [&](Code f){ layer.push_back({s,(Code(1)<<(2*s-1))|(f<<1)}); };
             forests(s-1,0,s-1,0,add);
             std::sort(layer.begin(),layer.end(),[](auto a,auto b){ return a.code < b.code; });
             catalog.insert(catalog.end(),layer.begin(),layer.end());
         }
-        auto centered = [&](Code f){ certify((Code(1)<<(2*n-1))|(f<<1)); };
-        forests(n-1,0,(n-1)/2,0,centered);
+        if (!ranked) {
+            auto centered = [&](Code f){
+                if (index++%shards == static_cast<unsigned>(shard))
+                    certify((Code(1)<<(2*n-1))|(f<<1));
+            };
+            forests(n-1,0,(n-1)/2,0,centered);
+        }
         if (n%2 == 0) {
-            for (std::size_t i = 0; i < catalog.size(); ++i) if (catalog[i].size == n/2)
-                for (std::size_t j = i; j < catalog.size(); ++j)
+            for (std::size_t i = 0; i < catalog.size(); ++i) if (catalog[i].size == n/2) {
+                const Code skip = (shard+shards-index%shards)%shards;
+                for (std::size_t j = i+skip; j < catalog.size(); j += shards)
                     certify(((catalog[i].code>>1)<<(n+1))|(catalog[j].code<<1));
+                index += catalog.size()-i;
+            }
         }
         std::cerr << written << " certified in shard " << shard << ", " << index << " shapes total\n";
     }
@@ -71,11 +86,13 @@ public:
 }
 
 int main(int argc,char** argv) {
-    if (argc != 5) return 2;
+    if (argc < 5 || argc > 6) return 2;
+    bool ranked = argc == 6;
+    if (ranked && std::string(argv[5]) != "--ranked") return 2;
     int n = std::stoi(argv[1]), shard = std::stoi(argv[2]), shards = std::stoi(argv[3]);
     if (n < 2 || n > 30 || shards < 1 || shard < 0 || shard >= shards) return 2;
     FILE* output = std::fopen(argv[4],"wb");
     if (!output) return 1;
-    Census(n,shard,shards,output).run();
+    Census(n,shard,shards,output).run(ranked);
     return std::fclose(output) != 0;
 }
