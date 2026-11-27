@@ -24,7 +24,7 @@ $$
 
 At any modulus, writing $n=mk+s$ with $1\le s\le k$, the total leaf count at the two busiest parents must be less than $2s-k$. At primes $p$ the entire leaf count must be less than $2s-p-1$. [Leaf-list extension on a prescribed core](biased/spare-lists.md#restoring-leaves-on-a-cordial-core-of-arbitrary-order)
 
-For any odd prime $p\ge5$ the order residue must satisfy $s\ge(p+11)/2$. This stronger bound also holds when every edge has a prescribed additive offset. [Nine-row list proof](biased/nine-row-lists.md) · [Five-leaf boundary argument](biased/two-star-lists.md#excluding-one-more-residue-at-every-odd-prime)
+For any odd prime $p\ge5$ the order residue must satisfy $s\ge(p+13)/2$. Choosing the core allows the ten-row argument to avoid exceptional prime divisors. [Ten-row pruning theorem](biased/pruned-forests.md) · [Nine-row list proof](biased/nine-row-lists.md) · [Five-leaf boundary argument](biased/two-star-lists.md#excluding-one-more-residue-at-every-odd-prime)
 
 ### Shortening paths
 
