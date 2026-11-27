@@ -50,4 +50,9 @@ theorem doubleRemainder (c d : Int) (hc : 3 ≤ c) (hd : c ≤ d) :
   unfold Available
   omega
 
+theorem centeredFork (t : Int) (ht : 12 ≤ t) :
+    Available (t-5) 3 ∨ (t = 18 ∧ Available (t-7) 3) := by
+  unfold Available
+  omega
+
 end Cordial.FourLeaves
