@@ -4,7 +4,7 @@ from itertools import combinations
 from math import gcd
 from random import Random
 
-from .prescribed_path_surplus import least_prime,prescribe
+from .prescribed_path_surplus import least_prime,long_attachment,prescribe
 
 
 def bins(vals,k):
@@ -31,12 +31,19 @@ def paths():
             for d in range(k):
                 validate(k,a,k-a,0,d)
                 count += 1
+    for k in range(2,61,2):
+        needed = 1 if k%4==2 else 2
+        for a in range(2*needed*k+1):
+            for d in range(k):
+                validate(k,a,2*needed*k-a,0,d)
+                count += 1
+        for d in range(k):
+            validate(k,0,needed*k,0,d)
+            count += 1
     for _ in range(6000):
         k = rng.randint(2,90)
-        p = least_prime(k)
-        q = (12*(k//p)+12+k-1)//k+rng.randrange(5)
-        if k%2:
-            q = rng.randrange(1,7)
+        base = 1 if k%2 else 2 if k%4==2 else 4
+        q = base+rng.randrange(6)
         total = q*k
         a = rng.randrange(total+1)
         validate(k,a,total-a,rng.randrange(k),rng.randrange(k))
@@ -115,8 +122,30 @@ def quotient_trees():
     return 400
 
 
+def arbitrary_residue():
+    rng = Random(251991)
+    for _ in range(800):
+        k = rng.randrange(2,35)
+        old = rng.randrange(1,4*k+1)
+        labels = [i%k for i in range(old)]
+        weights = [i%k for i in range(old-1)]
+        rng.shuffle(labels)
+        rng.shuffle(weights)
+        c = rng.choice(labels)
+        threshold = k*(k-1) if k%2 else k*k*(2 if k%4==0 else 1)
+        n = threshold+rng.randrange(3*k)
+        mark = rng.randrange(n)
+        row = long_attachment(k,n,mark,c,bins(labels,k),bins(weights,k))
+        assert len(row)==n
+        weights += [(c+row[mark])%k]+[(x+y)%k for x,y in zip(row,row[1:])]
+        for v in (bins(labels+row,k),bins(weights,k)):
+            assert max(v)-min(v)<=1
+    return 800
+
+
 if __name__=='__main__':
     print(f'{paths()} prescribed path pairs verified directly')
     print(f'{graph()} unit-graph neighbor sets verified directly')
     print(f'{join()} joins verified on complete trees')
     print(f'{quotient_trees()} trees of path pieces checked')
+    print(f'{arbitrary_residue()} arbitrary-residue long path attachments checked')
