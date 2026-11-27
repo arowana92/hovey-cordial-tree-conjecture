@@ -8,6 +8,8 @@ $$
 $$
 Take any cordially labeled tree of order $qk-1$. Join the trees at any pair of vertices. Some affine permutation of the labels on the second tree gives a cordial labeling of the union, preserving every core label. An offset on the bridge and fixed offsets on the old core edges are allowed.
 
+The affine symmetry used here is Theorem 8 of Graham and Sloane in the harmonious case. Their proof tracks the same change $w\mapsto uw+2x$ of an edge weight. [Graham and Sloane (1980), §4](https://neilsloane.com/doc/RLG/073.pdf#page=10)
+
 ## Balancing the two deficits
 
 Use coordinates in which the old bridge endpoint plus the bridge offset is zero. Subtract this constant from all old vertex labels and twice the constant from the old edge weights. We will add the constant back to every label at the end. Let $A$ and $B$ be the high vertex and edge residues on the core. Their complements have sizes $a$ and $a+1$, respectively.
