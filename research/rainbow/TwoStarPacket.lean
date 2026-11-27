@@ -31,20 +31,17 @@ private theorem shifted (x : Int) (l : List Int) :
   | nil => simp
   | cons a as ih => simp [ih,Int.add_mul]; omega
 
-/-- If neither center receives the opposite boundary label, the star orders and
-    the center difference must realize the discrepancy between the old deficit
-    and the sum of the two parent labels. All weights are actual endpoint sums. -/
-theorem forced {k a b d gap x y : Int} {l r : List Int}
-    (size : k = (l.length:Int)+(r.length:Int)+2)
-    (complete : (x+y)%k ∈ residues k (x::y::(l++r)))
+private theorem forcedAux {k a b d gap x y e : Int} {l r : List Int}
+    (size : k = (l.length:Int)+(r.length:Int)+2+e)
+    (complete : (x+y)%k ∈ residues k (d::x::y::(l++r)))
     (left : ∀ z ∈ l, z%k ≠ y%k) (right : ∀ z ∈ r, z%k ≠ x%k)
     (profile : (residues k (gap::weights a b x y l r)).Perm
       (residues k (d::x::y::(l++r))))
     (ha : a%k ≠ y%k) (hb : b%k ≠ x%k) :
-    gap%k = (x+y)%k ∧ ((l.length+1:Int)*(x-y))%k = (d-a-b)%k := by
+    gap%k = (x+y)%k ∧ ((l.length+1:Int)*(x-y)-e*y)%k = (d-a-b)%k := by
   have seen : (x+y)%k ∈ residues k (gap::weights a b x y l r) := by
     apply profile.mem_iff.mpr
-    exact List.mem_cons_of_mem _ complete
+    exact complete
   have gapEq : gap%k = (x+y)%k := by
     simp only [residues,weights,List.map_cons,List.map_append,List.mem_cons,
       List.mem_append,List.mem_map,List.map_map,Function.comp_apply] at seen
@@ -67,8 +64,35 @@ theorem forced {k a b d gap x y : Int} {l r : List Int}
   have algebra :
     x+y+(a+x+(b+y+(l.sum+(l.length:Int)*x+(r.sum+(r.length:Int)*y))))-
       (d+(x+(y+(l.sum+r.sum)))) =
-    ((l.length+1:Int)*(x-y)-(d-a-b))+k*y := by rw [size]; grind
+    ((l.length+1:Int)*(x-y)-e*y-(d-a-b))+k*y := by rw [size]; grind
   rw [algebra,Int.add_mul_emod_self_left] at moment
   exact moment
+
+/-- If neither center receives the opposite boundary label, the star orders and
+    the center difference must realize the discrepancy between the old deficit
+    and the sum of the two parent labels. All weights are actual endpoint sums. -/
+theorem forced {k a b d gap x y : Int} {l r : List Int}
+    (size : k = (l.length:Int)+(r.length:Int)+2)
+    (complete : (x+y)%k ∈ residues k (x::y::(l++r)))
+    (left : ∀ z ∈ l, z%k ≠ y%k) (right : ∀ z ∈ r, z%k ≠ x%k)
+    (profile : (residues k (gap::weights a b x y l r)).Perm
+      (residues k (d::x::y::(l++r))))
+    (ha : a%k ≠ y%k) (hb : b%k ≠ x%k) :
+    gap%k = (x+y)%k ∧ ((l.length+1:Int)*(x-y))%k = (d-a-b)%k := by
+  simpa using forcedAux (e:=0) (by simpa using size)
+    (List.mem_cons_of_mem _ complete) left right profile ha hb
+
+/-- In a one-surplus packet the missing vertex is zero and the missing weight
+    is x+y unless the opposite center produces it. The second congruence fixes
+    the second center once its difference from the first has been chosen. -/
+theorem forcedSurplus {k a b gap x y : Int} {l r : List Int}
+    (size : k = (l.length:Int)+(r.length:Int)+3)
+    (complete : (x+y)%k ∈ residues k (0::x::y::(l++r)))
+    (left : ∀ z ∈ l, z%k ≠ y%k) (right : ∀ z ∈ r, z%k ≠ x%k)
+    (profile : (residues k (gap::weights a b x y l r)).Perm
+      (residues k (0::x::y::(l++r))))
+    (ha : a%k ≠ y%k) (hb : b%k ≠ x%k) :
+    gap%k = (x+y)%k ∧ ((l.length+1:Int)*(x-y)-y)%k = (0-a-b)%k := by
+  simpa using forcedAux (e:=1) (by omega) complete left right profile ha hb
 
 end Cordial.TwoStarPacket

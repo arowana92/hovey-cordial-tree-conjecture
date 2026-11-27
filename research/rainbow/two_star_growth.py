@@ -55,6 +55,14 @@ def grow(k,s,t,a,b,deficit):
     return result+leaf_suffix(k,pending,centers,gap)
 
 
+def rainbow_leaves(k,shifts,surplus):
+    """Distinct new leaf labels avoiding the surplus, with distinct entering weights."""
+    padding = shifts+[(-sum(shifts))%k]+[0]*(k-1-len(shifts))
+    source = [(-u)%k for u,_ in hall_pair(padding)]
+    offset = surplus-source[len(shifts)]
+    return [(v+offset)%k for v in source[:len(shifts)]]
+
+
 def leaf_suffix(k,pending,centers,gap):
     """Restore leaves at fixed centers, starting with the given edge deficit."""
     result = []
@@ -64,10 +72,7 @@ def leaf_suffix(k,pending,centers,gap):
         surplus = (gap-centers[first_side])%k
         result.append((first_side,surplus))
         shifts = [centers[side] for side in group[1:]]
-        padding = shifts+[(-sum(shifts))%k]+[0]*(k-1-len(shifts))
-        source = [(-u)%k for u,_ in hall_pair(padding)]
-        offset = surplus-source[len(shifts)]
-        fresh = [(v+offset)%k for v in source[:len(shifts)]]
+        fresh = rainbow_leaves(k,shifts,surplus)
         result.extend(zip(group[1:],fresh))
         if len(group)==k:
             gap, = set(range(k))-{(v+w)%k for v,w in zip(fresh,shifts)}

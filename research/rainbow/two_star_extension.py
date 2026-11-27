@@ -62,6 +62,34 @@ def lifted_packet(k,s,q,delta,m,size):
     return block
 
 
+def indicator(k,h,rhs,excluded,needed):
+    """Solve (translate_h - identity)1_B = rhs with prescribed zeros and mass."""
+    orbit_count = gcd(k,h)
+    period = k//orbit_count
+    chosen, flexible = [], []
+    for r in range(orbit_count):
+        orbit = [(r+j*h)%k for j in range(period)]
+        values = []
+        current = 0
+        for i in orbit:
+            current -= rhs[i]
+            values.append(current)
+        low,high = -min(values),1-max(values)
+        for i,v in zip(orbit,values):
+            if i in excluded:
+                low,high = max(low,-v),min(high,-v)
+        if current or low>high:
+            return None
+        chosen.extend(i for i,v in zip(orbit,values) if v+low)
+        if low<high:
+            flexible.append(orbit)
+    extra = needed-len(chosen)
+    if 0<=extra<=period*len(flexible) and extra%period==0:
+        chosen.extend(i for orbit in flexible[:extra//period] for i in orbit)
+        return chosen
+    return None
+
+
 def integral_packet(k,s,q,delta):
     """Set the second center to zero and integrate the required indicator."""
     for h in range(1,k):
@@ -72,33 +100,9 @@ def integral_packet(k,s,q,delta):
             rhs[x] += 1
         for x in (q,gap):
             rhs[x] -= 1
-        orbit_count = gcd(k,h)
-        period = k//orbit_count
-        needed = s-1
-        chosen = []
-        flexible = []
-        for r in range(orbit_count):
-            orbit = [(r+j*h)%k for j in range(period)]
-            values = []
-            current = 0
-            for i in orbit:
-                current -= rhs[i]
-                values.append(current)
-            low,high = -min(values),1-max(values)
-            if r==0:
-                for i in (0,h):
-                    fixed = -values[orbit.index(i)]
-                    low,high = max(low,fixed),min(high,fixed)
-            if current or low>high:
-                break
-            chosen.extend(i for i,v in zip(orbit,values) if v+low)
-            if low<high:
-                flexible.append(orbit)
-        else:
-            extra = needed-len(chosen)
-            if 0<=extra<=period*len(flexible) and extra%period==0:
-                chosen.extend(i for orbit in flexible[:extra//period] for i in orbit)
-                return from_leaves(k,h,0,chosen)
+        chosen = indicator(k,h,rhs,{0,h},s-1)
+        if chosen is not None:
+            return from_leaves(k,h,0,chosen)
     return None
 
 
@@ -113,6 +117,11 @@ def packet(k,s,a,b,d):
 
     delta = (d-a-b)%k
     q = (b-a)%k
+    if q==0:
+        # The gcd case already covers delta=0 and delta=s=k/2.
+        h = 1 if delta>s else -1
+        leaves = [(delta-j*h)%k for j in range(1,s)]
+        return shift(from_leaves(k,h%k,0,leaves),a,k)
     index = gcd(k,delta)
     period = k//index
     if q%index:
