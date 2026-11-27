@@ -10,6 +10,8 @@ At four, eight, nine and sixteen labels, every edge can independently receive an
 
 At every prime and every tree order, arbitrary offsets also work with two arbitrary leaf populations attached at the ends of a path of length two or three. At length two the middle vertex may carry one further leaf. A determinant on any fixed two-site core makes the signed test eventually periodic along rational proportions of the two populations. [Exact counts, further families and independent checks](two-sites.md)
 
+A star mapped to a subgroup and its attached leaves admit an exact test for prescribed leaf offsets. The criterion depends only on their total and the leaf populations. [Subgroup theorem and direct checks](subgroup-offsets.md)
+
 ## Reduction to one order
 
 At every modulus $k\ge2$, the assertion with arbitrary edge offsets at **order exactly $k$** implies the same assertion at all orders. At order $k$ it asks for a vertex bijection and distinct edge weights. A smaller tree can be padded to order $k$ and the labeling restricted.
