@@ -6,6 +6,8 @@ f(v)+f(w)+b_{vw}
 $$
 both have residue counts differing pairwise by at most one. The offsets on adjacent edges may differ. Setting every offset to zero gives ordinary cordiality.
 
+At **every prime** $p$, paths of all orders and any tree with every edge replaced by a path of length at least $p-1$ admit independently prescribed offsets on every edge. For a cycle of length divisible by an odd prime, uniformity is equivalent to the offsets summing to zero. [Prime path, cycle and circulant theorems](prime-paths.md)
+
 At four, eight, nine and sixteen labels, every edge can independently receive any multiple of 2, 4, 3 and 8 respectively. These results characterize every allowable offset set through modulus 16 and at the mixed composite moduli 18, 20, 21, 22 and 24. [Prime powers and optimality](prime-powers.md)
 
 At every prime and every tree order, arbitrary offsets also work with two arbitrary leaf populations attached at the ends of a path of length two or three. At length two the middle vertex may carry one further leaf. A determinant on any fixed two-site core makes the signed test eventually periodic along rational proportions of the two populations. [Exact counts, further families and independent checks](two-sites.md)
