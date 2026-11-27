@@ -6,6 +6,8 @@ Two unconditional conclusions hold for every modulus. Let $T$ have exact diamete
 
 **Finite application.** Every finite tree of diameter at most five is $k$-cordial for every $1\le k\le36$. For the moduli $21$ through $36$, the independent verifier checks 3,290,454 order-equals-modulus witnesses. The theorem gives the result at all tree orders. [All-tree results through twenty-one](../../README.md) · [Witness counts and stream digests](diameter-five-counts.txt)
 
+An infinite subfamily has an integer construction at every modulus. Attach $a,b$ two-edge arms to the two centers. If $a+b=2h$ and each side has at least $\lfloor h/2\rfloor$ arms, the vertex labels and edge sums can each be consecutive integers. [Construction and verification](matched-arms.md)
+
 ## Restoring one layer of leaves
 
 At order $0\bmod k$, a cordial tree has uniform vertex counts and one deficient edge residue. Add one leaf with the vertex label that supplies that residue. The order is now $1\bmod k$, with a single surplus vertex residue and uniform edge counts. From this state, up to $k-1$ new leaves with parents already present can be assigned distinct vertex labels avoiding the surplus and distinct edge weights. For a batch of exactly $k$ leaves, do this for the first $k-1$, then fill the resulting edge deficiency with the last leaf. Full batches return to order $1\bmod k$. The partial-batch assertion follows by padding the list of parent shifts to a zero-sum list of length $k$, applying Hall's permutation theorem, then translating the retained leaf labels to avoid the surplus. [Hall, *A combinatorial problem on abelian groups*](https://doi.org/10.1090/S0002-9939-1952-0050579-7) · [Detailed leaf extension](../counterexample-bound.md#removing-leaves)
