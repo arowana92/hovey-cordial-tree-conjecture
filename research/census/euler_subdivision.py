@@ -158,23 +158,22 @@ def one_neighbor(k, parents):
     return labels
 
 
-def approximate_tree(k, parents):
-    """Color a tree with h skeleton vertices for the uniform bare-path bound."""
+def skeleton(parents,mark=None):
+    """Return neighbors, breadth-first pins, and maximal open degree-two runs."""
     neighbors = [[] for _ in parents]
     for i,p in enumerate(parents[1:],1):
         neighbors[i].append(p)
         neighbors[p].append(i)
     pins = {i for i,row in enumerate(neighbors) if len(row) != 2}
-    root = min(pins)
-    labels = [None]*len(parents)
+    if mark is not None:
+        pins.add(mark)
+    root = min(pins) if mark is None else mark
     queue = deque([root])
     assigned = {root}
-    first,second = [],[]
-    for_rank = 0
+    order,runs = [],[]
     while queue:
         pin = queue.popleft()
-        labels[pin] = for_rank%k
-        for_rank += 1
+        order.append(pin)
         for nxt in neighbors[pin]:
             previous,current = pin,nxt
             inside = []
@@ -186,8 +185,16 @@ def approximate_tree(k, parents):
                 continue
             assigned.add(current)
             queue.append(current)
-            first.extend(inside[1::2])
-            second.extend(inside[::2])
+            runs.append(inside)
+    return neighbors,order,runs
+
+
+def fill_gaps(k,neighbors,labels,gaps):
+    """Label all open paths between fixed endpoints with bounded discrepancy."""
+    first,second = [],[]
+    for inside in gaps:
+        first.extend(inside[1::2])
+        second.extend(inside[::2])
 
     def fixed(i):
         return [labels[j] for j in neighbors[i] if labels[j] is not None]
@@ -202,8 +209,19 @@ def approximate_tree(k, parents):
         x = min(range(k),key=uses.__getitem__)
         labels[i] = x
         uses[x] += 1
-    groups = []
+    # Full batches of identical neighbor pairs have an exact uniform choice.
+    by_pair = {}
     for i in second:
+        pair = tuple(sorted(fixed(i)))
+        by_pair.setdefault(pair,[]).append(i)
+    remainder = []
+    for batch in by_pair.values():
+        cut = len(batch)-len(batch)%k
+        for j,i in enumerate(batch[:cut]):
+            labels[i] = j%k
+        remainder.extend(batch[cut:])
+    groups = []
+    for i in remainder:
         a,b = fixed(i)
         choices = []
         for x in range(k):
@@ -213,6 +231,15 @@ def approximate_tree(k, parents):
             column[k+(x+b)%k] += 1
             choices.append(column)
         groups.append(choices)
-    for i,x in zip(second,round_groups(groups,2*k)):
+    for i,x in zip(remainder,round_groups(groups,2*k)):
         labels[i] = x
     return labels
+
+
+def approximate_tree(k,parents):
+    """Color a tree with h skeleton vertices for the uniform bare-path bound."""
+    neighbors,pins,runs = skeleton(parents)
+    labels = [None]*len(parents)
+    for j,pin in enumerate(pins):
+        labels[pin] = j%k
+    return fill_gaps(k,neighbors,labels,runs)

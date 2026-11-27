@@ -2,6 +2,8 @@
 
 **Theorem.** Fix any $k$. If every tree of order below $2^{26}k$ is $k$-cordial, then every finite tree is $k$-cordial. More precisely, every tree of order $n\ge 2^{26}k$ with fewer than $n/32$ leaves is $k$-cordial, and a smallest counterexample has fewer than $k$ leaves. The decision test uses a smallest counterexample. A [separate linear bound](linear.md) controls the order of every counterexample.
 
+The [short-block construction](short-pools.md) reduces the fixed-modulus decision threshold to $66k$ and works for any path on $66k+1$ vertices.
+
 The construction uses three collections of degree-two vertices. Instead of correcting one bin at a time, we realize an entire prescribed multiset of weights or labels on each collection.
 
 ## Permutations for a prescribed multiset

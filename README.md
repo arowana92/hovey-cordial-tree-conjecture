@@ -119,7 +119,7 @@ Primary-literature searches on 26–28 November 2026 found these results and no 
 
 ## General moduli
 
-At any modulus $k$, testing all trees below order $2^{26}k$ suffices to decide the conjecture at that modulus. A smallest counterexample has fewer than $k$ leaves, and three collections of degree-two vertices give a labeling of every larger tree with that few leaves. Every counterexample has fewer than $2^{28}k$ nonleaf vertices. [Linear order test, permutation construction and checks](research/large-order/hall-pools.md)
+At any modulus $k$, testing all trees below order **$66k$** suffices to decide the conjecture at that modulus. Every tree with at most $k+1$ leaves and more than $66k$ vertices is cordial. Any tree containing a path on $66k+1$ vertices is also cordial, with arbitrary branching along the path. [Proof, constructive checks and Lean packing bound](research/large-order/short-pools.md) Every counterexample has fewer than $2^{28}k$ nonleaf vertices. [Linear order test, permutation construction and checks](research/large-order/hall-pools.md)
 
 **Every counterexample at modulus $k$ has order $O(k)$**, with unrestricted tree shape. In particular, order $2^{80}k$ suffices at every modulus. The proof assigns the available leaf parents to signed jumps in successive ranges, keeping the count of each label and endpoint sum bounded as the subtree joining those parents grows. The remaining edges can then be repaired with bounded cost per parent. [Linear order theorem, construction and independent checks](research/large-order/linear.md) · [Earlier square-root logarithmic bound](research/large-order/interval-paths.md)
 
