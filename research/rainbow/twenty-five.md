@@ -51,10 +51,18 @@ python3 -B "$src/check_spine_samples.py" spine25/53.spn
 
 ## A finite pilot for 26
 
-At modulus 26, shard 53 with stride 524,288 contains 10,986 shapes and 709,471 witness rows. Its SHA-256 is `409a9ceb99f82f1a82ed6d15922ba56cb876a302607d80b90f8ba625d22d3637`. Generation to disk and generation through a pipe agreed. The native verifier accepted all local witness and coverage checks and reported an incomplete catalog at its final count, as expected for one shard. With stride 499 the independent sample checker examined 27 forests, 2,874 rows and 503,127 boundary inputs. A separate exhaustive topology pass ranked all 5,759,636,510 shapes without duplication. The [rank proof and command](shape-rank.md#checks) verify the shape inventory independently of the local labeling checks. This pilot is finite evidence for 26. The theorem above is for 25, and Hovey's conjecture over all moduli remains open.
+At modulus 26, shard 53 with stride 524,288 contains 10,986 shapes and 709,471 witness rows. Its SHA-256 is `409a9ceb99f82f1a82ed6d15922ba56cb876a302607d80b90f8ba625d22d3637`. Generation to disk and generation through a pipe agreed. The native verifier accepted all local witness and coverage checks and reported an incomplete catalog at its final count, as expected for one shard. An independent Python pass examined every record and every witness in this pilot. It checked 55,865,961 boundary assignments by enumerating the actual positions at which a color can change. A separate exhaustive topology pass ranked all 5,759,636,510 shapes without duplication. The [rank proof and command](shape-rank.md#checks) verify the shape inventory independently of the local labeling checks. This pilot is finite evidence for 26. The theorem above is for 25, and Hovey's conjecture over all moduli remains open.
 
 ~~~sh
 ./generate 26 53 524288 pilot26.spn --ranked-cover
 shasum -a 256 pilot26.spn
-python3 -B "$src/check_spine_samples.py" pilot26.spn --stride 499
+python3 -B "$src/check_spine_samples.py" pilot26.spn --stride 1
+~~~
+
+At stride 4,096, shard 53 has 1,406,162 shapes and 90,562,434 rows (2,280,934,799 bytes). From a separate SSH checkout the regenerated file had SHA-256 `be107ef66279a8e91b1fd00bde3b4638cadd2d809572f32e3d5804ca5af61f41`. A separate native build finished all local checks and then reported the expected incomplete catalog. The Python checker sampled 33 shapes, 3,968 rows and 572,183 boundary assignments, spanning run counts zero through four. The full audit at 26 is in progress.
+
+~~~sh
+./generate 26 53 4096 shard26-53.spn --ranked-cover
+shasum -a 256 shard26-53.spn
+python3 -B "$src/check_spine_samples.py" shard26-53.spn --stride 50000
 ~~~
