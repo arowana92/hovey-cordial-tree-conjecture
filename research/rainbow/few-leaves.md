@@ -22,7 +22,7 @@ Indeed, at a leaf centroid each component contains at most $q$ original leaves. 
 
 ## Six terminals at 26 labels
 
-The verifier accepted 15,627,230 forests with 293,707,294 witness rows covering 17,299,915,880 boundary assignments. Since $\lfloor2\cdot10/3\rfloor=6$ and the complete order-26 base is available, this proves the ten-leaf result. The three-group argument above also reduces the class with at most thirteen leaves to checking the first $2k$ orders. Thus an ordinary smallest 26-label counterexample with eleven, twelve or thirteen leaves would have between 47 and 52 vertices.
+The verifier accepted 15,627,230 forests with 293,707,294 witness rows covering 17,299,915,880 boundary assignments. Since $\lfloor2\cdot10/3\rfloor=6$ and the complete order-26 base is available, this proves the ten-leaf result. The three-group argument above also reduces the class with at most thirteen leaves to checking the first $2k$ orders. Thus an ordinary smallest 26-label counterexample with eleven, twelve or thirteen leaves would have between 49 and 52 vertices. [Current lower bound](twenty-one-free.md)
 
 A separate build replayed all witness rows. Regenerating shard 11 with stride 65,537 produced exactly the corresponding 239 records of the full stream, byte for byte. A Python reader scanned the complete stream and checked 13 selected forests across all four possible run counts, covering 2,431 rows and 494,338 boundary assignments.
 
@@ -30,7 +30,7 @@ A separate build replayed all witness rows. Regenerating shard 11 with stride 65
 
 The full stream covers 23,665,913 forests, 394,996,404 witness rows and 28,035,301,149 boundary assignments. A separately built native verifier replayed the entire stream. An independent generator reproduced all 362 records from shard 11 at stride 65,537 byte for byte. A Python scan checked 13 selected forests across all four run counts, 1,933 rows and 554,229 literal boundary assignments.
 
-Together with the complete order-27 base, the six-terminal reduction proves every tree with at most ten leaves is 27-cordial. The three-group argument reduces the class with at most thirteen leaves to checking orders through 54. A smallest 27-label counterexample in that class would have eleven through thirteen leaves and order between 48 and 54. [Order restrictions](short-forests.md)
+Together with the complete order-27 base, the six-terminal reduction proves every tree with at most ten leaves is 27-cordial. The three-group argument reduces the class with at most thirteen leaves to checking orders through 54. A smallest 27-label counterexample in that class would have eleven through thirteen leaves and order between 50 and 54. [Order restrictions](twenty-one-free.md)
 
 ## Five-terminal certificates
 

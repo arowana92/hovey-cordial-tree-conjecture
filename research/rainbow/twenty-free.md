@@ -1,6 +1,6 @@
 # Excluding order residue 21 by restoring twenty vertices
 
-**Theorem.** At every modulus, a smallest unrestricted counterexample would have order $mk+s$ with $22\le s\le k$. The [twenty-one-vertex extension](twenty-one-free.md) further excludes residue 22 at 26 labels. Every tree on at most **48 vertices** is both 26- and 27-cordial. A smallest counterexample at 26 labels has order **49 through 546**. [Upper bound from branching vertices](terminal-paths.md)
+**Theorem.** At every modulus, a smallest unrestricted counterexample would have order $mk+s$ with $22\le s\le k$. The [twenty-one-vertex extension](twenty-one-free.md) further excludes residue 22 at 26 and 27 labels. Every tree through order **48** is 26-cordial, and every tree through order **49** is 27-cordial. A smallest counterexample at 26 labels has order **49 through 546**. [Upper bound from branching vertices](terminal-paths.md)
 
 ## Why twenty free vertices suffice
 
