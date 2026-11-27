@@ -52,9 +52,14 @@ def largest(k, s, threshold, paths=5):
             result |= combine(single[largest], side_forest(leaves-largest, largest))
             return result & group_limit if leaves <= 6 else result
 
+        profile = [[None]*(run+1) for _ in range(max_tips+1)]
         for tips in range(2, max_tips+1):
             # pending[e] contains base orders admissible up to outer length e.
-            pending = [0]*(run+1)
+            pending = {}
+            def bins(tag):
+                if tag not in pending:
+                    pending[tag]=[0]*(run+1)
+                return pending[tag]
             for largest in range(1, tips):
                 side_tips = tips-largest
                 can_open = side_tips <= 4 and (side_tips >= 2 or k%2 == 0)
@@ -66,7 +71,7 @@ def largest(k, s, threshold, paths=5):
                             cost = max(0, w+d-tips*threshold)
                             last = k-1-w-d if can_open and w <= k-3 else run
                             if last >= 0 and cost <= budget:
-                                pending[min(last,run)] |= 1 << (1+w+d+stride*cost)
+                                bins((side_tips,w,d-1) if side_tips<=3 else (4,0,0))[min(last,run)] |= 1 << (1+w+d+stride*cost)
                     continue
 
                 choices = side_forest(side_tips, largest)
@@ -76,18 +81,51 @@ def largest(k, s, threshold, paths=5):
                     cost, w = divmod(bit.bit_length()-1, stride)
                     for g, child in enumerate(rows[largest]):
                         last = k-2-w-g if can_open and w <= k-3 else run
-                        if last >= 0:
-                            pending[min(last,run)] |= child << (1+w+stride*cost)
+                        if last < 0:
+                            continue
+                        last = min(last,run)
+                        shift = 1+w+stride*cost
+                        if side_tips >= 4:
+                            bins((4,0,0))[last] |= child << shift
+                            continue
+                        regular, high, short = profile[largest][g][side_tips-1]
+                        t = k-2-g-w
+                        fmax = min(t,k-3-w)
+                        common = regular | high[max(0,fmax+1)]
+                        target = bins((side_tips,w,g))
+                        # The contribution for e is decreasing with e. A bin at
+                        # e also contributes to all shorter exterior corridors.
+                        previous = None
+                        for e in range(last,-1,-1):
+                            choice = common | short[max(0,t-e)]
+                            if choice != previous:
+                                target[e] |= choice << shift
+                                previous = choice
 
-            allowed = 0
-            for e in reversed(range(run+1)):
-                allowed |= pending[e]
-                states = ((allowed & safe[e]) << e) & full
-                if tips <= 6:
-                    side_cap = cap if tips <= 3 else mass
-                    states &= repeat*((1 << (side_cap+1))-1)
-                rows[tips][e] = states
-                single[tips] |= states
+            for e in range(run+1):
+                profile[tips][e] = [[0,[0]*(k+1),[0]*(2*k+1)] for _ in range(3)]
+            for (q,w,g), by_end in pending.items():
+                allowed = 0
+                for e in reversed(range(run+1)):
+                    allowed |= by_end[e]
+                    states = ((allowed & safe[e]) << e) & full
+                    if tips <= 6:
+                        side_cap = cap if tips <= 3 else mass
+                        states &= repeat*((1 << (side_cap+1))-1)
+                    if not states:
+                        continue
+                    rows[tips][e] |= states
+                    for r,filters in enumerate(profile[tips][e],1):
+                        if r+q>4 or w>k-3:
+                            filters[0] |= states
+                        else:
+                            filters[1][w] |= states
+                            filters[2][w+g+1] |= states
+            for e, filters in enumerate(profile[tips]):
+                single[tips] |= rows[tips][e]
+                for regular, high, short in filters:
+                    for i in reversed(range(k)): high[i] |= high[i+1]
+                    for i in range(2*k): short[i+1] |= short[i]
         side_forest.cache_clear()
         return rows
 

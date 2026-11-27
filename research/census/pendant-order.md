@@ -1,6 +1,6 @@
 # A smallest 26-label counterexample has at most 286 vertices
 
-The [side-forest substitution](ring-order.md) lowers the ceiling to **234**.
+The [side-forest substitution](ring-order.md) lowers the ceiling to **208**.
 
 **Theorem (computer-assisted).** Write the order of a smallest counterexample as $26m+s$ with $1\le s\le26$. Only the four residues in the table remain. Testing ordinary trees through order **286** would suffice to settle the unrestricted case at 26. The bounds apply to a counterexample of minimum order over all trees.
 

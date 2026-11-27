@@ -1,13 +1,13 @@
 # Five independently attached paths and order bounds at 26 and 27 labels
 
-**Theorem (computer-assisted).** If a counterexample exists at 26 labels, one of least order has **49 through 234 vertices**. At 27 labels the corresponding interval is **50 through 351 vertices**. At both 26 and 27 labels, any five paths attached by their endpoints at arbitrary vertices of a prescribed cordial core of order zero or one modulo $k$ can grow in any prescribed interleaving. One labeling works on every prefix.
+**Theorem (computer-assisted).** If a counterexample exists at 26 labels, one of least order has **49 through 208 vertices**. At 27 labels the corresponding interval is **50 through 351 vertices**. At both 26 and 27 labels, any five paths attached by their endpoints at arbitrary vertices of a prescribed cordial core of order zero or one modulo $k$ can grow in any prescribed interleaving. One labeling works on every prefix.
 
 Write the minimum order as $km+s$, $1\le s\le k$. The possible order lies in the interval in the corresponding cell and is congruent to its column heading modulo $k$.
 
 | $k$ | $s=23$ | $s=24$ | $s=25$ | $s=26$ | $s=27$ |
 |---:|---:|---:|---:|---:|---:|
-| 26 | 49–179 | 50–180 | 51–207 | 52–234 | |
-| 27 | 50–212 | 51–240 | 52–268 | 53–296 | 54–351 |
+| 26 | 49–153 | 50–180 | 51–181 | 52–208 | |
+| 27 | 50–185 | 51–213 | 52–241 | 53–269 | 54–351 |
 
 The lower endpoints and residue exclusions follow from the [21-vertex extension](../rainbow/twenty-one-free.md). The maxima are upper bounds from necessary conditions. For 26 the previous ceiling was [286 vertices](pendant-order.md).
 
@@ -40,13 +40,17 @@ The total length of terminal arms at one joint is at most $M$ by the [single-joi
 
 Let $e$ and $g$ be the numbers of degree-two vertices on the incoming corridor and the chosen downward corridor. The joint, its entire side forest, and any initial portions of those two corridors make a piece of every order from $1+w$ through $1+w+e+g$. If the interval contains $k$ and $k-w\ge3$, closing the piece gives a unicyclic graph of girth $k-w$ with precisely $q$ leaves. The [ring census](few-leaf-rings.md) excludes this configuration for $q=2,3,4$, and for $q=1$ at even modulus. Since $w\le M\le k-2$ in all these cases, it suffices to test the upper endpoint of the interval. At an end joint with selected arm length $d$, retain its leaf and put $g=d-1$.
 
+The same reduction applies across two consecutive joints in the selected direction. Suppose their side forests have $q,r$ leaves and orders $w,f$. Let $g$ be the interior of the joining corridor and $e,h$ the exterior corridor interiors. Taking both side forests and the entire joining corridor gives minimum piece size $b=2+w+g+f$. The largest size is $b+e+h$. Whenever $q+r\le4$, the piece is forbidden if $b\le k\le b+e+h$ and $k-w-f\ge3$. There are always at least two side leaves in this test. The two forests may themselves branch.
+
 ## Reproducing the bounds
 
 Build branch tables in increasing leaf count. A branch records the length $e$ of its incoming corridor, total order including that corridor, number of leaves, and arm excess. To build a joint with $T$ leaves, try every largest child leaf count $l=1,\ldots,T-1$. The side forest has $T-l$ leaves. It contains any number of terminal arms and a multiset of branching children having at most $l$ leaves each. If $l=1$, try a longest terminal arm of length $d$ and all possible total lengths of the other arms. If $l\ge2$, attach the side forest to the chosen branching child with its recorded corridor length. Enforce the small-side, local substitution, and terminal arm bounds. A side of base order $b$ before the parent corridor gives cut sizes $b,b+1,\ldots,b+e$. Discard it if any size is congruent to zero or $s$ modulo $k$ by the [divisible-cut theorem](../divisible-cuts.md).
 
 Every true branch appears by induction, taking its chosen direction and the actual remaining components as its side forest. A side forest made from terminal arms uses the lower bound $(w-jz)_+$ for $j$ arms of total length $w$. Other children contribute their separately computed costs. At the joining corridor the two halves share its $e$ internal vertices, counted only once. Take the largest order of the required residue, also allowing $1+6M$ without a joining corridor. The enumeration relaxes some restrictions, for example when several different downward choices could expose a removable piece. This preserves the upper bound.
 
-The [Python calculation](ring_order.py) stores all exact orders and excess costs as bits. A recursive multiset formula builds each side forest by omitting its largest allowed branch type or taking one more branch of that leaf count. The [C++ calculation](check_ring_order.cpp) instead adds allowed leaf counts to a table incrementally and keeps the minimum cost at each exact order, with no prespecified maximum order. In C++ the corridor cuts are checked one edge at a time. Python uses masks of admissible intervals. Both calculations give the table above. A [separate geometric check](check_ring_cuts.py) removed pairs of actual edges in 3,245 trees and compared 187,661 resulting middle components with the interval formula. It encountered 1,395 eligible size-26 pieces and 1,439 eligible size-27 pieces with two through four side leaves.
+The [Python calculation](ring_order.py) stores all exact orders and excess costs as bits. A recursive multiset formula builds each side forest by omitting its largest allowed branch type or taking one more branch of that leaf count. The [C++ calculation](check_ring_order.cpp) instead adds allowed leaf counts to a table incrementally and keeps the minimum cost at each exact order, with no prespecified maximum order. In C++ the corridor cuts are checked one edge at a time. Python uses masks of admissible intervals. For a two-joint test put $t=k-2-g-w$. Among children of a compatible leaf count it suffices to keep the union with $f>\min(t,k-3-w)$ or $f+h<t-e$. Python tabulates the two cumulative unions. C++ stores the actual child triples $(r,f,h)$ and directly tests the interval. Lean 4.36.0 also checks that every intermediate corridor size can be realized, that the cumulative test is equivalent to the interval exclusion, and that the padded-side threshold works for both parities. [Lean arithmetic](SideForestOrder.lean)
+
+Both calculations give the table above. A [separate geometric check](check_ring_cuts.py) removed pairs of actual edges in 3,245 trees and compared 187,661 single-joint and 123,337 two-joint middle components with the interval formulas. It encountered 1,395 eligible size-26 pieces and 1,439 eligible size-27 pieces with two through four side leaves.
 
 ~~~bash
 set -euo pipefail
@@ -66,6 +70,7 @@ done
 (cd "$out" && shasum -a 256 -c "$r/independent-paths.sha256" && shasum -a 256 -c "$r/five-paths.sha256")
 python3 -B -m research.rainbow.check_path_growth "$out"
 python3 -B -m research.census.check_ring_cuts
+lean "$c/SideForestOrder.lean"
 python3 -B "$c/ring_order.py"
 c++ -std=c++17 -O3 "$c/check_ring_order.cpp" -o "$out/bounds"
 "$out/bounds"
