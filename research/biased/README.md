@@ -8,6 +8,8 @@ both have residue counts differing pairwise by at most one. The offsets on adjac
 
 At four, eight and nine labels, every edge can independently receive any multiple of 2, 4 and 3 respectively. Together these results characterize every allowable offset set through modulus 15. [Prime powers and optimality](prime-powers.md)
 
+At every prime and every tree order, arbitrary offsets also work with two arbitrary leaf populations attached at the ends of a path of length two or three. At length two the middle vertex may carry one further leaf. A determinant on any fixed two-site core makes the signed test eventually periodic along rational proportions of the two populations. [Exact counts, further families and independent checks](two-sites.md)
+
 ## Reduction to one order
 
 At every modulus $k\ge2$, the assertion with arbitrary edge offsets at **order exactly $k$** implies the same assertion at all orders. At order $k$ it asks for a vertex bijection and distinct edge weights. A smaller tree can be padded to order $k$ and the labeling restricted.
