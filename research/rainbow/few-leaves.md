@@ -2,7 +2,7 @@
 
 **Theorem (computer-assisted).** Every finite tree with at most eight leaves is $k$-cordial for every $1\le k\le30$. The proof covers arbitrary tree orders. At $26\le k\le30$, it combines five-terminal extension certificates with a separate order-$k$ base. The [unrestricted modulus proofs](../../README.md) supply the smaller moduli.
 
-A smallest ordinary counterexample at any of these five new moduli must therefore have at least nine leaves. At 26 and 27 labels its order residue $s$ also satisfies $s\ge21$. [Short-forest proof](short-forests.md)
+At 26 labels every finite tree with at most ten leaves is cordial, by the six-terminal certificate below. A smallest ordinary counterexample would have at least eleven leaves at 26, and at least nine at 27 through 30. At every modulus its order residue $s$ also satisfies $s\ge21$. [Short-forest proof](short-forests.md)
 
 ## The cut with a bound on terminal vertices
 
@@ -19,6 +19,12 @@ When $L-1\le q$, the same forest audit supplies the order-$k$ base. Root any suc
 For each $26\le k\le30$, checking all orders up to $2k$ would suffice for every tree with at most eleven leaves. More generally suppose the $q$-terminal extension test at order $k-1$ holds. A least counterexample among trees with at most $2q+1$ leaves would have order at most $2k$.
 
 Indeed, at a leaf centroid each component contains at most $q$ original leaves. Merge parts whenever their combined leaf count is at most $q$. If four or more parts remained, two disjoint pairs of them would account for at least $2(q+1)$ leaves, a contradiction. If $n=mk+1+t$ with $m\ge2$ and $1\le t<k$, the largest of the at most three groups contains at least $t$ vertices because $n-1=mk+t>3(t-1)$. Keep the centroid and all the other groups as a connected seed. Preorder the chosen group from the centroid, in nondecreasing child-subtree size, growing the seed to $mk+1$ vertices. The exterior has at most $q$ terminals and passes the same extension test. Order $1\bmod k$ is covered by deleting one leaf. This excludes every larger least counterexample in the class.
+
+## Six terminals at 26 labels
+
+The verifier accepted 15,627,230 forests with 293,707,294 witness rows covering 17,299,915,880 boundary assignments. Since $\lfloor2\cdot10/3\rfloor=6$ and the complete order-26 base is available, this proves the ten-leaf result. The three-group argument above also reduces the class with at most thirteen leaves to checking the first $2k$ orders. Thus an ordinary smallest 26-label counterexample with eleven, twelve or thirteen leaves would have between 47 and 52 vertices.
+
+A separate build replayed all witness rows. Regenerating shard 11 with stride 65,537 produced exactly the corresponding 239 records of the full stream, byte for byte. A Python reader scanned the complete stream and checked 13 selected forests across all four possible run counts, covering 2,431 rows and 494,338 boundary assignments.
 
 ## Five-terminal certificates
 
@@ -57,6 +63,9 @@ c++ -O3 -std=c++17 "$src/spine_generate.cpp" "$src/leaf_search.cpp" "$out/refere
 c++ -O3 -std=c++17 -pthread "$src/spine_verify.cpp" -o "$out/verify"
 python3 -B -m research.rainbow.check_tip_forests --binaries "$out/generate" "$out/verify"
 python3 -B -m research.rainbow.check_tip_forests --tips 5
+"$out/generate" 26 0 1 "$out/k26-t6.spn" --tips 6
+"$out/verify" 26 --tips 6 "$out/k26-t6.spn"
+python3 -B "$src/check_spine_samples.py" "$out/k26-t6.spn" --stride 1600000
 for t in 4 5; do
     for k in 26 27 28 29 30; do
         "$out/generate" "$k" 0 1 "$out/k$k-t$t.spn" --tips "$t"

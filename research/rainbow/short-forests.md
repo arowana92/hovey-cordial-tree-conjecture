@@ -1,6 +1,6 @@
 # Excluding order residues by checking shorter forests
 
-**Theorem (computer-assisted).** At every positive modulus $k$, a smallest noncordial tree, if one exists, has order $mk+s$ with $21\le s\le k$. In particular at $k=26$ its order would lie between 47 and 598 inclusive and be congruent to one of $0,21,22,23,24,25$ modulo 26. It would have at least nine leaves. If it has nine through eleven leaves, its order must be one of 47 through 52. The lower endpoint uses the complete order-26 base. The upper bounds use the [divisible-cut inequality](../divisible-cuts.md) and the [five-terminal theorem](few-leaves.md#a-finite-reduction-for-eleven-leaves).
+**Theorem (computer-assisted).** At every positive modulus $k$, a smallest noncordial tree, if one exists, has order $mk+s$ with $21\le s\le k$. In particular at $k=26$ its order would lie between 47 and 598 inclusive and be congruent to one of $0,21,22,23,24,25$ modulo 26. It would have at least eleven leaves. If it has eleven through thirteen leaves, its order must be one of 47 through 52. The lower endpoint uses the complete order-26 base. The upper bounds use the [divisible-cut inequality](../divisible-cuts.md) and the [six-terminal theorem](few-leaves.md#six-terminals-at-26-labels).
 
 ## The reduction
 
