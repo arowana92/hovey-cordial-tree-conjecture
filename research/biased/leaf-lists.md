@@ -39,6 +39,8 @@ For necessity, let the common list consist of $\lfloor r/d\rfloor$ entire orbits
 
 For tree attachments, this supplies the same $h+e+r$ bound at any modulus whenever the two effective shifts meet condition 3. At a prime every nonzero shift difference has order $p$. At a composite modulus the common-list construction gives explicit counterexamples to the list statement at every failing multiplicity pair.
 
+One additional available residue in each list resolves every exception for two shifts. A progression of shifts and the same argument on cores of arbitrary order give further tree bounds. [Proof and checks](spare-lists.md)
+
 ## Verification
 
 The checker classified all 1,815 tested parameter triples for common sets at moduli through 10 by enumerating the sets and shifted subsets. At moduli through five and list sizes at most three it also checked 86 parameter triples by direct enumeration over separate lists. It constructed and checked actual labels on 176 independently offset trees at the prime threshold and checked the counting obstruction at 22 boundary sizes. [Direct checker](check_leaf_lists.py)
