@@ -2,7 +2,7 @@
 
 **Theorem (computer-assisted).** Every finite tree with at most eight leaves is $k$-cordial for every $1\le k\le30$. The proof covers arbitrary tree orders. At $26\le k\le30$, it combines five-terminal extension certificates with a separate order-$k$ base. The [unrestricted modulus proofs](../../README.md) supply the smaller moduli.
 
-At 26 and 27 labels every finite tree with at most ten leaves is cordial, by the six-terminal certificates below. A smallest ordinary counterexample would have at least eleven leaves at either modulus, and at least nine at 28 through 30. At every modulus its order residue $s$ also satisfies $s\ge21$. [Short-forest proof](short-forests.md)
+At 26 and 27 labels every finite tree with at most ten leaves is cordial, by the six-terminal certificates below. A smallest ordinary counterexample would have at least eleven leaves at either modulus, and at least nine at 28 through 30. At every modulus its order residue $s$ also satisfies $s\ge22$. [Twenty-vertex extension](twenty-free.md)
 
 ## The cut with a bound on terminal vertices
 
