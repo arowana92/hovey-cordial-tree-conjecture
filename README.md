@@ -32,6 +32,8 @@ At eight labels, Lean proves the theorem for finite trees built by joining roote
 
 For **any finite tree and any chosen vertex**, adding at least $C(h+1)^2$ leaves at that vertex gives a super edge-magic tree, where $h$ is the original order and $C$ is absolute. One integer labeling then works at every positive modulus. For each fixed bound on the matching number or on the number of nonleaf vertices, only finitely many trees can fail to be super edge-magic. [Quadratic integer bound and independent checks](research/hub/quadratic-endpoint.md) · [Bounded-nonleaf result](research/hub/endpoint-hub.md)
 
+If each original edge is subdivided with at least 76 internal vertices, adding $830N$ leaves at any original vertex suffices, where $N$ is the order after subdivision. This linear bound also holds for connected unicyclic graphs. The underlying path construction preserves both endpoint labels and assigns one independent target weight per original edge. [Prescribed path theorem and checks](research/hub/prescribed-paths.md)
+
 Every tree of diameter at most four is cordial for **every** positive modulus. A computer-assisted construction gives one integer labeling with consecutive vertex labels and consecutive edge sums. [Proof, certificates and independent checks](research/hub/all-radius-two.md)
 
 For diameter five, every tree is $k$-cordial for $1\le k\le36$. At any modulus, testing only trees of order exactly $k$ suffices. Every diameter-five tree of order at least $2k-5$ is $k$-cordial regardless of that test. [Reduction, finite proofs and reproducible checks](research/hub/diameter-five.md)
