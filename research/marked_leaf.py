@@ -57,7 +57,8 @@ def cut(graph, t):
     return set(walk[-t:])
 
 
-def label(parent, m, mark=None):
+def growth(parent, m, mark=None, *, witness=rainbow):
+    """Return the connected growth order and labels indexed by vertex."""
     graph = {v:[] for v in range(len(parent))}
     for v,u in enumerate(parent[1:],1):
         graph[u].append(v)
@@ -89,8 +90,18 @@ def label(parent, m, mark=None):
             mark = None
 
     f = {next(iter(graph)):0}
-    vertices, weights = Counter(f.values()), Counter()
-    for queue,roots,fill_deficit in reversed(steps):
+    restore_batches(m, f, Counter(), reversed(steps), witness)
+    return list(f), [f[v] for v in range(len(parent))]
+
+
+def label(parent, m, mark=None):
+    return growth(parent, m, mark)[1]
+
+
+def restore_batches(m, f, weights, steps, witness):
+    """Append each parent-first batch to a labeled core in insertion order."""
+    vertices = Counter(f.values())
+    for queue,roots,fill_deficit in steps:
         if fill_deficit:
             (v,w), = queue
             deficit = min(range(m),key=weights.__getitem__)
@@ -100,9 +111,8 @@ def label(parent, m, mark=None):
             local = {v:i for i,(v,_) in enumerate(queue)}
             links = [-1-(f[w]-surplus)%m if i < roots else local[w]
                      for i,(_,w) in enumerate(queue)]
-            digits = rainbow(links,m)
+            digits = witness(links,m)
             f.update((v,(x+surplus)%m) for (v,_),x in zip(queue,digits))
         for v,w in queue:
             vertices[f[v]] += 1
             weights[(f[v]+f[w])%m] += 1
-    return [f[v] for v in range(len(parent))]

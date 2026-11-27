@@ -4,7 +4,7 @@
 
 At eight labels, a prescribed cordial core of order one modulo eight extends across any attached forest of any size other than seven. At seven new vertices exactly 42 colored forests obstruct extension. This classification gives a second proof for every ordinary tree. [Eight-label attachment theorem](research/eight/surplus.md)
 
-At **eight and nine labels**, any chosen starting vertex admits a connected growth order and one labeling cordial on every prefix. At every composite modulus, an explicit tree has a prescribed order for which this is impossible. Moving one vertex earlier gives a successful order of the same tree. [Growth theorem, obstruction and reproducible checks](research/eight/growth-orders.md)
+At **every modulus through 25**, each finite tree has a connected growth order and one labeling cordial on every prefix. A specified leaf can be placed in the last block. At eight and nine labels any chosen vertex can start. [Growth from ordered cuts and fixed-site extensions](research/rainbow/cut-growth.md) At every composite modulus, an explicit tree has a prescribed order for which this is impossible. Moving one vertex earlier gives a successful order of the same tree. [Growth theorem, obstruction and reproducible checks](research/eight/growth-orders.md)
 
 For two stars attached to any fixed divisible-order core, an interval of possible star sizes and a gcd test decide prefix-cordial growth at every modulus. At 26 labels the last possible obstructed attachment has 28 new vertices. [Exact two-star criterion and sharp threshold](research/rainbow/two-star-growth.md)
 
