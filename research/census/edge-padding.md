@@ -2,6 +2,8 @@
 
 **One-edge padding theorem.** Fix a modulus $k$ and any edge $e$ of an $n$-vertex tree. Subdividing just $e$ by **any** number $P\ge(k-1)(n-2)$ of vertices produces a $k$-cordial tree. More generally, for any path through $e$ on $d$ vertices, $P\ge(k-1)(n-d)$ suffices.
 
+The [Euler circuit construction](euler-subdivision.md) also gives the sufficient bound $n+3k-3$ and improves the following bound to $35k$ uniformly, or $25k$ for odd $k$.
+
 **Bound independent of tree order.** At $k\ge5$, **every tree containing a path with at least $2(k-3)(k-1)^2$ internal vertices of degree two is $k$-cordial**. The endpoints, degrees elsewhere, and total tree order are unrestricted. The earlier [bare-path repair theorem](../hub/bare-path-repair.md) instead gives a threshold uniform over moduli for trees in specified degree classes.
 
 **One-period subdivisions on an arbitrary fixed core.** At every odd $k$, and at every $k\ge8$ divisible by four, one can subdivide any chosen edge of **any cordially labeled tree** by exactly $k$ vertices while keeping all old labels. The [complete one-period classification](period-subdivision.md) also covers every $k\equiv2\pmod4$, $k\ge6$, at every old order except one modulo $k$. Repeated applications may use different edges.
