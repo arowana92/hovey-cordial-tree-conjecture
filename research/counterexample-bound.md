@@ -26,6 +26,8 @@ At any modulus, writing $n=mk+s$ with $1\le s\le k$, the total leaf count at the
 
 More generally, at every modulus $2s-k\ge1+\min(L,6)\ge6$. At an even modulus the first permitted residue requires precisely five leaves. [Six-row list identities and proof](biased/six-spare-leaves.md)
 
+At every modulus, removing all leaves and applying a rainbow matching theorem gives $L\le 2(2s-k)-1$. Together with the degree-excess theorem this forces $2s-k>k^{1-\epsilon}$ at all sufficiently large moduli for each fixed $0<\epsilon<1$. [Proof and primary matching theorems](biased/six-spare-leaves.md#removing-every-leaf-at-once)
+
 For any odd prime $p\ge5$ the order residue must satisfy $s\ge(p+13)/2$. Choosing the core allows the ten-row argument to avoid exceptional prime divisors. [Ten-row pruning theorem](biased/pruned-forests.md) · [Nine-row list proof](biased/nine-row-lists.md) · [Five-leaf boundary argument](biased/two-star-lists.md#excluding-one-more-residue-at-every-odd-prime)
 
 ### Shortening paths

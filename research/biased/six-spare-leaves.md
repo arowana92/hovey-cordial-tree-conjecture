@@ -46,10 +46,37 @@ k-2u+1=2r-(2s-k)+1
 $$
 residues. If $2s-k\le r$, every list has at least $r+1$ entries. The list theorem lets these leaves occupy distinct low vertex bins and distinct low edge bins. This restores cordiality, so $2s-k\ge r+1$. The [four-leaf theorem](../census/four-leaves.md) gives $L\ge5$ for ordinary trees. At equality $2s-k=6$, this forces $L=5$.
 
+## Removing every leaf at once
+
+Write $t=2s-k$. Every minimum counterexample at a fixed modulus satisfies
+$$
+L\le 2t-1.
+$$
+For sufficiently large $L$ it also satisfies
+$$
+t\ge L+2-\lceil 7L^{3/4}\rceil.
+$$
+Both statements allow arbitrary prescribed edge offsets if minimality is taken among trees with such offsets.
+
+Delete all $L$ original leaves. The same argument gives each leaf a list of at least $2L-t+1$ residues. Form a bipartite multigraph on two copies of $\mathbb Z/k$. For each leaf $i$ use its own color on the edges from each allowed $x$ to $x+b_i$, with $b_i$ its parent's label plus any offset on that edge. Translation is a bijection, so every color class is a matching. Parallel edges of different colors are allowed. A matching using every color assigns all leaves distinct low vertex labels and distinct low edge weights, which restores the tree.
+
+Aharoni, Kotlar and Ziv's Theorem 1.5 guarantees such a matching when each color has at least $\lceil 3L/2\rceil+1$ edges. If $t\le\lfloor L/2\rfloor$, then $2L-t+1$ meets this threshold. Thus $t\ge\lfloor L/2\rfloor+1$, or equivalently $L\le2t-1$. [Aharoni, Kotlar and Ziv, *Representation of large matchings in bipartite graphs*](https://arxiv.org/pdf/1601.00943)
+
+For sufficiently large $L$, the proof of Theorem 1.3 of Munhá Correia, Pokrovskiy and Sudakov gives a full rainbow matching when each color has at least $L+\lceil 7L^{3/4}\rceil$ edges. Minimality forces $2L-t+1<L+\lceil 7L^{3/4}\rceil$, which gives the second bound. [Munhá Correia, Pokrovskiy and Sudakov, *Short proofs of rainbow matching results*](https://arxiv.org/pdf/2108.07734)
+
+**Consequence at large moduli.** For every fixed $0<\epsilon<1$, at all sufficiently large $k$, an ordinary minimum counterexample requires
+$$
+2s-k>k^{1-\epsilon}.
+$$
+Indeed, the [degree-excess theorem](../bounded-degree/excess.md) with degree threshold three implies that its excess above three exceeds $k^{1-\epsilon/2}$. The excess is at most $L-2$ by the tree degree sum. Hence $t\ge\lfloor L/2\rfloor+1>L/2>k^{1-\epsilon}$ once $k^{\epsilon/2}\ge2$. This holds along composite moduli as well as primes. The threshold on $k$ depends on $\epsilon$.
+
 ## Reproduction
 
 ~~~sh
 python3 -B -m research.biased.check_spare_leaf_identities
+python3 -B -m research.biased.check_rainbow_leaf_bound
 ~~~
 
 One verifier uses permutation signs and groups coefficients by sorted exponent vectors. The other multiplies the Vandermonde's linear factors, constructs the unsymmetrized integer polynomial and explicitly adds every variable permutation. The resulting polynomial has exactly one monomial, with coefficient $r!D$. The checker also constructs and validates 3,600 assignments on separate lists through modulus 40. The exact identities establish the result at every modulus. [Independent expansions and assignment checks](check_spare_leaf_identities.py)
+
+The second check constructs 4,692 actual trees at the finite rainbow-matching threshold, assigns every deleted leaf and counts both histograms from the original edges. It includes repeated parent shifts, independent edge offsets and core orders above the modulus. [Matching reduction check](check_rainbow_leaf_bound.py)
