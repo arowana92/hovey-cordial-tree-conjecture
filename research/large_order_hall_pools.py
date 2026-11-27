@@ -52,26 +52,37 @@ def zero_block(counts):
 
 
 def hall_pair(block):
-    """Find p,t permutations with their sum list equal to the given zero-sum block."""
+    """Realize a zero-sum request list by Hall's two-request exchange (1952)."""
     k = len(block)
-    pairs = []
-
-    def visit(i,left,right):
-        if i == k:
-            return True
-        for p in range(k) if i else (0,):
-            t = (block[i]-p)%k
-            if left >> p & 1 or right >> t & 1:
-                continue
-            pairs.append((p,t))
-            if visit(i+1,left|(1<<p),right|(1<<t)):
-                return True
-            pairs.pop()
-        return False
-
-    if not visit(0,0,0):
-        raise ValueError("missing Hall permutations")
-    return pairs
+    if not k:
+        return []
+    if sum(block) % k:
+        raise ValueError("the requests must sum to zero modulo their number")
+    # Each request has a source and a destination equal to source + shift.
+    # Start with the identity permutation, then install requests one at a time.
+    shift = [0] * k
+    source = list(range(k))
+    request_at = list(range(k))
+    for j in range(k - 1):
+        a, b = source[j], source[j + 1]
+        first, second = (a + shift[j]) % k, (b + shift[j + 1]) % k
+        shift[j], shift[j + 1] = block[j] % k, (shift[j] - block[j]) % k
+        loose = j
+        while True:
+            row = (first - shift[loose]) % k
+            if row == a or row == b:
+                other = b if row == a else a
+                source[loose], source[j + 1] = row, other
+                request_at[row], request_at[other] = loose, j + 1
+                break
+            displaced = request_at[row]
+            request_at[row], source[loose] = loose, row
+            first, second = second, (row + shift[displaced]) % k
+            loose = displaced
+    # Negated sources and ordinary destinations are permutations whose sums
+    # are the requests. Normalize the first left entry to zero.
+    origin = source[0]
+    return [((origin - x) % k, (x + w - origin) % k) for x, w in zip(source, block)]
 
 
 def pairs_for(counts):
