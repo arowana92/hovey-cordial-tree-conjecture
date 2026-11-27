@@ -22,7 +22,8 @@ struct Tree { int size; Code code; };
 class Generator {
     int k, shard, shards;
     bool cover;
-    std::ofstream out;
+    std::ofstream file;
+    std::ostream& out;
     std::map<int,std::vector<int>> orbit_codes;
     std::vector<std::uint64_t> stamp;
     std::vector<Tree> catalog;
@@ -200,7 +201,9 @@ class Generator {
 
 public:
     Generator(int mod, int part, int total, const char* path, bool packed):
-        k(mod), shard(part), shards(total), cover(packed), out(path, std::ios::binary) {
+        k(mod), shard(part), shards(total), cover(packed),
+        out(std::string(path)=="-" ? std::cout : static_cast<std::ostream&>(file)) {
+        if (&out==&file) file.open(path,std::ios::binary);
         if (!out) throw std::runtime_error("cannot open output");
     }
 
@@ -224,15 +227,18 @@ public:
             };
             enumerate(k-1, 0, 0, check);
         }
-        out.close();
+        if (file.is_open()) file.close();
+        else out.flush();
         if (!out) throw std::runtime_error("write failed");
-        std::cout << "shard " << shard << ": " << selected << " shapes, " << cases
+        auto& report = &out==&file ? std::cout : std::cerr;
+        report << "shard " << shard << ": " << selected << " shapes, " << cases
                   << " witnesses, full catalog " << shapes << '\n';
     }
 };
 }
 
 int main(int argc, char** argv) {
+    std::ios::sync_with_stdio(false);
     if (argc < 5 || argc > 6) return 2;
     std::string mode = argc == 6 ? argv[5] : "";
     if (!mode.empty() && mode != "--cover" && mode != "--ranked-cover") return 2;

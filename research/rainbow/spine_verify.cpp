@@ -6,6 +6,7 @@
 #include <array>
 #include <cstdint>
 #include <cstdio>
+#include <cstdlib>
 #include <iostream>
 #include <map>
 #include <memory>
@@ -305,7 +306,15 @@ void parallel_audit(int k, int workers, const std::vector<std::string>& paths, b
         jobs.push_back(std::async(std::launch::async,[&] {
             Audit local(k,bits.get());
             for (auto j = next.fetch_add(1); j < paths.size(); j = next.fetch_add(1)) {
-                local.verify(paths[j].c_str());
+                try {
+                    local.verify(paths[j].c_str());
+                } catch (const std::exception& error) {
+                    // A sibling may be blocked opening a FIFO whose writer is waiting for us.
+                    // End this CLI audit immediately so its producer can cancel the whole run.
+                    std::fprintf(stderr,"%s\n",error.what());
+                    std::fflush(stderr);
+                    std::_Exit(1);
+                }
                 if (!compact) {
                     std::lock_guard<std::mutex> guard(output);
                     keys.insert(keys.end(),local.seen.begin(),local.seen.end());

@@ -4,6 +4,7 @@ import argparse
 import errno
 import hashlib
 import os
+from contextlib import contextmanager
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from pathlib import Path
 import subprocess
@@ -12,7 +13,7 @@ import threading
 import time
 
 
-def run(k, shards, workers, generator, verifier, output, rank_bits=False):
+def run(k, shards, workers, generator, verifier, output, rank_bits=False, pipe_witnesses=False):
     if workers < 1 or shards < 1 or not 5 <= k <= 26:
         raise ValueError("expected positive concurrency and shard count, and 5 <= k <= 26")
     output.mkdir()  # Preserve results of an earlier run.
@@ -26,13 +27,32 @@ def run(k, shards, workers, generator, verifier, output, rank_bits=False):
                                  stdout=subprocess.PIPE, text=True)
         stopped = threading.Event()
 
+        @contextmanager
+        def witnesses(i):
+            shard = tmp / f"{i}.spn"
+            with (output / f"{i}.log").open("w") as log:
+                cmd = [generator, str(k), str(i), str(shards),
+                       "-" if pipe_witnesses else shard, "--ranked-cover"]
+                if pipe_witnesses:
+                    child = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=log)
+                    try:
+                        with child.stdout as source:
+                            yield source
+                        if child.wait():
+                            raise subprocess.CalledProcessError(child.returncode, cmd)
+                    finally:
+                        if child.poll() is None:
+                            child.kill()
+                            child.wait()
+                else:
+                    subprocess.run(cmd, check=True, stdout=log, stderr=log)
+                    with shard.open("rb") as source:
+                        yield source
+                    shard.unlink()
+
         def process(i):
             if stopped.is_set():
                 return
-            shard = tmp / f"{i}.spn"
-            with (output / f"{i}.log").open("w") as log:
-                subprocess.run([generator, str(k), str(i), str(shards), shard, "--ranked-cover"],
-                               check=True, stdout=log, stderr=log)
             # The verifier opens its inputs on demand. Detect early reader exit,
             # including failures in a different worker, while waiting to connect.
             while not stopped.is_set():
@@ -48,12 +68,11 @@ def run(k, shards, workers, generator, verifier, output, rank_bits=False):
             else:
                 return
             digest = hashlib.sha256()
-            with os.fdopen(fd, "wb") as sink, shard.open("rb") as source:
+            with os.fdopen(fd, "wb") as sink, witnesses(i) as source:
                 os.set_blocking(sink.fileno(), True)
                 for block in iter(lambda: source.read(1 << 20), b""):
                     sink.write(block)
                     digest.update(block)
-            shard.unlink()
             return digest.hexdigest()
 
         digests = [None] * shards
@@ -87,6 +106,8 @@ if __name__ == "__main__":
     parser.add_argument("verifier", type=Path)
     parser.add_argument("output", type=Path)
     parser.add_argument("--rank-bits",action="store_true",help="use one global bit per rooted base")
+    parser.add_argument("--pipe-witnesses", action="store_true",
+                        help="send generator stdout directly through the hash and verifier")
     args = parser.parse_args()
     run(args.modulus, args.shards, args.workers, args.generator.resolve(),
-        args.verifier.resolve(), args.output.resolve(), args.rank_bits)
+        args.verifier.resolve(), args.output.resolve(), args.rank_bits, args.pipe_witnesses)
