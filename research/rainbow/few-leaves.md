@@ -2,7 +2,7 @@
 
 **Theorem (computer-assisted).** Every finite tree with at most eight leaves is $k$-cordial for every $1\le k\le30$. The proof covers arbitrary tree orders. At $26\le k\le30$, it combines five-terminal extension certificates with a separate order-$k$ base. The [unrestricted modulus proofs](../../README.md) supply the smaller moduli.
 
-At 26 labels every finite tree with at most ten leaves is cordial, by the six-terminal certificate below. A smallest ordinary counterexample would have at least eleven leaves at 26, and at least nine at 27 through 30. At every modulus its order residue $s$ also satisfies $s\ge21$. [Short-forest proof](short-forests.md)
+At 26 and 27 labels every finite tree with at most ten leaves is cordial, by the six-terminal certificates below. A smallest ordinary counterexample would have at least eleven leaves at either modulus, and at least nine at 28 through 30. At every modulus its order residue $s$ also satisfies $s\ge21$. [Short-forest proof](short-forests.md)
 
 ## The cut with a bound on terminal vertices
 
@@ -25,6 +25,12 @@ Indeed, at a leaf centroid each component contains at most $q$ original leaves. 
 The verifier accepted 15,627,230 forests with 293,707,294 witness rows covering 17,299,915,880 boundary assignments. Since $\lfloor2\cdot10/3\rfloor=6$ and the complete order-26 base is available, this proves the ten-leaf result. The three-group argument above also reduces the class with at most thirteen leaves to checking the first $2k$ orders. Thus an ordinary smallest 26-label counterexample with eleven, twelve or thirteen leaves would have between 47 and 52 vertices.
 
 A separate build replayed all witness rows. Regenerating shard 11 with stride 65,537 produced exactly the corresponding 239 records of the full stream, byte for byte. A Python reader scanned the complete stream and checked 13 selected forests across all four possible run counts, covering 2,431 rows and 494,338 boundary assignments.
+
+## Six terminals at 27 labels
+
+The full stream covers 23,665,913 forests, 394,996,404 witness rows and 28,035,301,149 boundary assignments. A separately built native verifier replayed the entire stream. An independent generator reproduced all 362 records from shard 11 at stride 65,537 byte for byte. A Python scan checked 13 selected forests across all four run counts, 1,933 rows and 554,229 literal boundary assignments.
+
+Together with the complete order-27 base, the six-terminal reduction proves every tree with at most ten leaves is 27-cordial. The three-group argument reduces the class with at most thirteen leaves to checking orders through 54. A smallest 27-label counterexample in that class would have eleven through thirteen leaves and order between 48 and 54. [Order restrictions](short-forests.md)
 
 ## Five-terminal certificates
 
@@ -66,6 +72,9 @@ python3 -B -m research.rainbow.check_tip_forests --tips 5
 "$out/generate" 26 0 1 "$out/k26-t6.spn" --tips 6
 "$out/verify" 26 --tips 6 "$out/k26-t6.spn"
 python3 -B "$src/check_spine_samples.py" "$out/k26-t6.spn" --stride 1600000
+"$out/generate" 27 0 1 "$out/k27-t6.spn" --tips 6
+"$out/verify" 27 --tips 6 "$out/k27-t6.spn"
+python3 -B "$src/check_spine_samples.py" "$out/k27-t6.spn" --stride 2400000
 for t in 4 5; do
     for k in 26 27 28 29 30; do
         "$out/generate" "$k" 0 1 "$out/k$k-t$t.spn" --tips "$t"
