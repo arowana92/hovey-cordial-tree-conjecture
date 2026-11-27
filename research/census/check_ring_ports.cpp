@@ -74,8 +74,15 @@ struct Ring {
     }
 };
 
+struct Assignments {
+    int i,j;
+    // Four bits per difference orbit, one for each old-deficit orbit.
+    unsigned covered=0;
+};
+
 int main(int argc, char** argv) {
-    if (argc!=3) return 2;
+    bool divisible = argc==4 && std::string(argv[3])=="--divisible";
+    if (argc!=3 && !divisible) return 2;
     std::ifstream catalog(argv[1]), proof(argv[2]);
     check(bool(catalog) && bool(proof),"missing input");
     // For any candidate difference, record the two normalized parent
@@ -84,6 +91,8 @@ int main(int argc, char** argv) {
     for (int d=0; d<n; ++d) for (int u=1; u<n; ++u) if (std::gcd(u,n)==1) {
         if ((d*u)%n==1) orbit[d] |= 1;
         if ((d*u)%n==2) orbit[d] |= 2;
+        if ((d*u)%n==13) orbit[d] |= 4;
+        if ((d*u)%n==0) orbit[d] |= 8;
     }
     std::string key,prev,line;
     long graphs=0,eligible=0,rows=0;
@@ -95,13 +104,20 @@ int main(int argc, char** argv) {
         std::vector<int> candidates;
         for (int i=0; i<g.c; ++i) if (g.possible_mate(i)) candidates.push_back(i);
         ++graphs;
-        if (candidates.empty()) continue;
-        ++eligible;
+        if (candidates.empty() && !divisible) continue;
+        if (!candidates.empty()) ++eligible;
         check(bool(std::getline(proof,line)),"missing record");
         std::istringstream fields(line);
         std::string word;
         check(bool(fields>>word) && word==key,"mismatched record");
         std::vector<std::array<Mask,2>> covered(g.c);
+        std::vector<Assignments> pending;
+        if (divisible) {
+            for (int i : candidates) for (int j=0; j<g.c; ++j) if (i!=j) {
+                pending.push_back({i,j});
+                ports+=16;
+            }
+        }
         while (fields>>word) {
             check(word.size()==n,"wrong label count");
             std::array<int,n> f;
@@ -113,6 +129,24 @@ int main(int argc, char** argv) {
             }
             for (auto [a,b] : g.edges) ez |= 1U<<((f[a]+f[b])%n);
             check(vz==all && ez==all,"invalid bijection");
+            ++rows;
+            if (divisible) {
+                size_t left=0;
+                for (auto request : pending) {
+                    int j=request.j, i=request.i;
+                    int a=f[j], b=f[(j+1)%g.c];
+                    int u=(a+b)%n, v=(f[i]+f[(i+1)%g.c])%n;
+                    int diff=orbit[(u-v-a+b+2*n)%n] | orbit[(v-u-a+b+2*n)%n];
+                    int deficit=orbit[(u-a-b+2*n)%n] | orbit[(v-a-b+2*n)%n];
+                    for (int d=0; d<4; ++d) {
+                        unsigned supported=(diff & (1<<d)) ? 15 : deficit;
+                        request.covered |= supported<<(4*d);
+                    }
+                    if (request.covered!=65535) pending[left++]=request;
+                }
+                pending.resize(left);
+                continue;
+            }
             for (int i : candidates) {
                 int lost=(f[i]+f[(i+1)%g.c])%n;
                 int parity=lost%2;
@@ -126,7 +160,10 @@ int main(int argc, char** argv) {
                     if (works & target) covered[i][parity] |= 1U<<j;
                 }
             }
-            ++rows;
+        }
+        if (divisible) {
+            check(pending.empty(),"uncovered difference and deficit");
+            continue;
         }
         for (int i : candidates) {
             Mask required=((1U<<g.c)-1) ^ (1U<<i);

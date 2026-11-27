@@ -131,7 +131,7 @@ def possible_fake(edges,edge):
     return True
 
 
-def sample_whole_trees(path,rng):
+def sample_whole_trees(path,rng,all_parents=False):
     tested = 0
     with path.open() as source:
         for j,line in enumerate(source):
@@ -141,21 +141,38 @@ def sample_whole_trees(path,rng):
             c,edges = ring(key)
             records = [decode(w) for w in words]
             mates = [i for i in range(c) if possible_fake(edges,edges[i])]
-            for _ in range(12):
+            if not mates:
+                continue
+            for trial in range(12):
                 fake = rng.choice(mates)
                 close = rng.choice([i for i in range(c) if i!=fake])
                 pieces = [edge for i,edge in enumerate(edges) if i not in (fake,close)]
-                # A second copy cut at any edge is a bijectively labeled 26-vertex tree.
+                # Cutting a cycle edge keeps all 26 vertices of the core connected.
                 base = rng.choice(records)
-                cut = rng.randrange(N)
+                cut = rng.randrange(c)
                 core = edges[:cut]+edges[cut+1:]
                 deficit = sum(base[v] for v in edges[cut])%N
                 a,b = rng.sample(range(N),2)
-                if base[a]%13==base[b]%13:
+                if all_parents and trial%3==0:
+                    b=a
+                elif all_parents and trial%3==1:
+                    b=base.index((base[a]+13)%N)
+                elif base[a]%13==base[b]%13:
                     b = next(v for v in range(N) if base[a]%13!=base[v]%13)
                 left,right = edges[close]
                 f = actual_join(records,pieces,[left,right],[base[a],base[b]],deficit)
                 tree = core+[(N+x,N+y) for x,y in pieces]+[(a,N+left),(b,N+right)]
+                adj = [[] for _ in range(2*N)]
+                for x,y in tree:
+                    adj[x].append(y)
+                    adj[y].append(x)
+                seen,queue = {0},[0]
+                for x in queue:
+                    for y in adj[x]:
+                        if y not in seen:
+                            seen.add(y)
+                            queue.append(y)
+                assert len(seen)==2*N
                 labels = base+f
                 sums = [(labels[x]+labels[y])%N for x,y in tree]
                 assert len(tree)==51 and all(labels.count(v)==2 for v in range(N))
@@ -167,8 +184,14 @@ def sample_whole_trees(path,rng):
 if __name__ == '__main__':
     opt = ArgumentParser()
     opt.add_argument('directory',type=Path)
-    out = opt.parse_args().directory
+    opt.add_argument('--divisible',action='store_true')
+    args = opt.parse_args()
+    out = args.directory
     rng = Random(521991)
+    if args.divisible:
+        print('connected 52-vertex joins',sum(sample_whole_trees(out/f'diverse{b}',rng,True)
+                                               for b in range(1,7)))
+        raise SystemExit
     print('unbranched arm records',28672,'bijections',check_arms(out/'arms.out',rng))
     print('literal 52-vertex joins',sum(sample_whole_trees(out/f'socket{b}.txt',rng)
                                         for b in range(1,6)))
