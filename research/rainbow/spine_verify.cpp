@@ -1,5 +1,8 @@
 // Independent verifier for the binary SPN1 and SPN2 forest certificates.
 #include <algorithm>
+#include <atomic>
+#include <future>
+#include <mutex>
 #include <array>
 #include <cstdint>
 #include <cstdio>
@@ -260,19 +263,58 @@ struct Audit {
             else ++base_only;
         }
     }
-    void finish() const {
-        check(seen.size() == rooted_count(k), "incomplete rooted-tree catalog");
-        std::cout << "k=" << k << " rooted bases=" << seen.size() << " eligible forests=" << eligible
+    void finish(Count distinct) const {
+        check(distinct == rooted_count(k), "incomplete rooted-tree catalog");
+        std::cout << "k=" << k << " rooted bases=" << distinct << " eligible forests=" << eligible
                   << " base-only shapes=" << base_only << " witness rows=" << rows
                   << " eligible boundary assignments=" << colorings << '\n';
     }
 };
+// Only records in different files run concurrently. Globally sort all canonical
+// words to establish nonduplication across shards before reporting completeness.
+void parallel_audit(int k, int workers, const std::vector<std::string>& paths) {
+    check(workers > 0 && !paths.empty(), "expected a worker count and shard files");
+    Audit totals(k);
+    std::atomic<std::size_t> next{0};
+    std::mutex output;
+    std::vector<Count> keys;
+    keys.reserve(rooted_count(k));
+    std::vector<std::future<void>> jobs;
+    for (int w = 0; w < workers && static_cast<std::size_t>(w) < paths.size(); ++w) {
+        jobs.push_back(std::async(std::launch::async,[&] {
+            Audit local(k);
+            for (auto j = next.fetch_add(1); j < paths.size(); j = next.fetch_add(1)) {
+                local.verify(paths[j].c_str());
+                {
+                    std::lock_guard<std::mutex> guard(output);
+                    keys.insert(keys.end(),local.seen.begin(),local.seen.end());
+                }
+                local.seen.clear();
+            }
+            std::lock_guard<std::mutex> guard(output);
+            totals.rows += local.rows;
+            totals.eligible += local.eligible;
+            totals.base_only += local.base_only;
+            totals.colorings += local.colorings;
+        }));
+    }
+    for (auto& job : jobs) job.get();
+    std::sort(keys.begin(),keys.end());
+    check(std::adjacent_find(keys.begin(),keys.end()) == keys.end(), "repeated forest across shards");
+    totals.finish(keys.size());
+}
+
 }
 int main(int argc, char** argv) {
     if (argc < 3) return 2;
     int k = std::stoi(argv[1]);
     if (k < 5 || k > 26) return 2;
     try {
+        if (std::string(argv[2]) == "--parallel") {
+            if (argc < 5) return 2;
+            parallel_audit(k,std::stoi(argv[3]),std::vector<std::string>(argv+4,argv+argc));
+            return 0;
+        }
         Audit audit(k);
         if (argc == 3 && std::string(argv[2]) == "--files-stdin") {
             std::string path;
@@ -281,7 +323,7 @@ int main(int argc, char** argv) {
         } else {
             for (int i = 2; i < argc; ++i) audit.verify(argv[i]);
         }
-        audit.finish();
+        audit.finish(audit.seen.size());
     } catch (const std::exception& e) {
         std::cerr << e.what() << '\n';
         return 1;
