@@ -12,6 +12,8 @@ In particular **three ports always work**, independently of all old labels and r
 
 Consequently a smallest counterexample cannot have a connected part $U$ of order $k$, maximum degree $D$, with at least two original leaves and exactly three edges to its complement at distinct vertices of $U$. Delete $U$, connect the three outside components in a path, and label the resulting smaller tree by minimality. The theorem restores $U$. The outside vertices, degrees and sizes are unrestricted. This is a restriction on the shape of a counterexample for sufficiently large moduli.
 
+The [sparse-port classification](sparse-ports.md) also settles uniform increments when fewer than two leaves lie outside the ports.
+
 ## The necessary moment
 
 Uniform vertex increments make the free labels $x_v$ a permutation with sum $S=\sum\mathbb Z_k$. The net edge sum is

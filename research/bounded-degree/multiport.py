@@ -27,25 +27,12 @@ def residue_sums(modulus,coefficients,target):
     return solutions[target%modulus]
 
 
-def construct(edges,ports,old_labels,deleted,rng):
-    k = len(edges)+1
-    t = len(ports)
-    assert len(set(ports))==t==len(old_labels)==len(deleted)+1 and t>=2
-    adj = adjacency(k,edges)
-    coefficients = [len(row)-1 for row in adj]
-    for v in ports:
-        coefficients[v] += 1
-    target = sum(deleted)-sum(old_labels)
-    divisor = reduce(gcd,coefficients,k)
-    if target%divisor:
-        return None
-    leaves = [i for i,c in enumerate(coefficients) if c==0][:2]
-    assert len(leaves)==2
-    representatives = {c:i for i,c in enumerate(coefficients) if c}
-    protected = set(ports)|set(representatives.values())|set(leaves)
+def routing(edges,adj,t,protected,d):
+    """One auxiliary wire per component, using sites of the specified degree."""
+    k = len(adj)
     unavailable = neighborhood(adj,protected,3)
     pairs = []
-    for a,b in edges:
+    for a,b in (edges if t>1 else ()):
         if min(len(adj[a]),len(adj[b]))>=2 and a not in unavailable and b not in unavailable:
             pairs.append((a,b))
             unavailable.update(neighborhood(adj,(a,b),4))
@@ -73,9 +60,11 @@ def construct(edges,ports,old_labels,deleted,rng):
                 if u not in owner:
                     owner[u] = root
                     stack.append(u)
+    if t==1:
+        root = next(v for v in range(k) if v not in unavailable)
+        anchors.append(root)
+        owner = dict.fromkeys(range(k),root)
     assert len(anchors)==t and len(owner)==k
-    d = Counter(len(row) for row in adj if len(row)>=2).most_common(1)[0][0]
-    g = gcd(k,d-1)
     unavailable = neighborhood(forest,fixed|set(anchors),1)
     pools = {a:[] for a in anchors}
     for v in range(k):
@@ -89,6 +78,28 @@ def construct(edges,ports,old_labels,deleted,rng):
         wires.append((a,available.pop()))
         if j:
             available.extend(pools[a])
+    return pairs,kept,anchors,wires
+
+
+def construct(edges,ports,old_labels,deleted,rng):
+    k = len(edges)+1
+    t = len(ports)
+    assert len(set(ports))==t==len(old_labels)==len(deleted)+1 and t>=2
+    adj = adjacency(k,edges)
+    coefficients = [len(row)-1 for row in adj]
+    for v in ports:
+        coefficients[v] += 1
+    target = sum(deleted)-sum(old_labels)
+    divisor = reduce(gcd,coefficients,k)
+    if target%divisor:
+        return None
+    leaves = [i for i,c in enumerate(coefficients) if c==0][:2]
+    assert len(leaves)==2
+    representatives = {c:i for i,c in enumerate(coefficients) if c}
+    protected = set(ports)|set(representatives.values())|set(leaves)
+    d = Counter(len(row) for row in adj if len(row)>=2).most_common(1)[0][0]
+    g = gcd(k,d-1)
+    pairs,kept,anchors,wires = routing(edges,adj,t,protected,d)
     # Base variables are lifted from assigned quotient residues to the full group.
     base_vertices = (set(ports)|set(anchors)|set(representatives.values())|
                      {a for a,b in pairs})
