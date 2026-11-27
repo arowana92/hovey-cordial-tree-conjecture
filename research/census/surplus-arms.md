@@ -31,6 +31,8 @@ If more than $b$ remain, first use all $b$ paths. The core is now divisible, wit
 
 Let a smallest counterexample at an odd modulus have order $qk+s$, $2\le s\le k$. At each vertex it has at most **$\lfloor(s-2)/2\rfloor$ pendant paths of length two**, each with a degree-two intermediate vertex and a leaf tip. For odd $s$, removing $(s-1)/2$ paths leaves a smaller tree of order one modulo $k$. Restore them by the omitted-vertex theorem. For even $s$, removing $s/2$ paths leaves a divisible core. Restore them by the short construction hitting its edge deficit. All removals retain the joint. This sharpens the modulus-only restriction whenever the order residue is smaller.
 
+There is also a sufficient bound for constructing larger trees. Start with any $n$-vertex tree and attach at least $(n-1)(k-1)/2$ two-edge paths at one vertex. The result is $k$-cordial for every odd $k$ satisfying this inequality. Begin at that vertex alone. Add the $n-1$ original vertices in parent-before-child order, accompanying each by $(k-1)/2$ paths at the joint using the two-site theorem. The resulting order is one modulo $k$. The surplus extension adds all remaining paths.
+
 The [constructor](two_site_arms.py) labels the full graft. The [checker](check_surplus_arms.py) tests 2,656 prescribed holes and 7,854 complete trees, with old path and star cores, recomputing all bins and checking that the core labels stay fixed. Its large-modulus cases include modulus 65,535.
 
 ~~~bash
