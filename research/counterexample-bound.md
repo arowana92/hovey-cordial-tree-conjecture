@@ -1,5 +1,7 @@
 # A size bound for a smallest counterexample
 
+The [divisible-cut theorem](divisible-cuts.md) gives the stronger bound $k(k-3)$, including for trees with independent edge offsets. The path and leaf deletions below also give local structural restrictions.
+
 **Theorem.** Fix $k\ge 5$. If there is a tree with no $k$-cordial labeling, there is one on at most
 
 $$
