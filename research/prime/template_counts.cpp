@@ -1,7 +1,7 @@
 // Input rows: prime, number of active vertices, distinguished vertex (-1 for
 // zero boundary), then parents (negative for an external parent). Output:
 // signed count modulo p, the first moments, and one witness if any exists.
-// Only the distinguished external parent carries boundary label 1.
+// Only the distinguished edge carries additive offset 1.
 #include <algorithm>
 #include <cstdint>
 #include <iostream>
@@ -96,8 +96,8 @@ struct Counts {
             bool fixed = false;
             for (size_t j = 1; j < moving.size(); ++j) {
                 int source = moving[j], dest = image[j];
-                if (source == dest) {
-                    fixed = true;  // the parent contributes a nonzero label
+                if (source == dest && (parents[source] < 0 || source != special)) {
+                    fixed = true;  // the total shift is necessarily nonzero
                     break;
                 }
                 Row row(n + 1);
@@ -138,8 +138,6 @@ int main() {
         for (int i = 0; i < n; ++i)
             if (!(std::cin >> parents[i]) || parents[i] < -1 || parents[i] >= i)
                 throw std::runtime_error("invalid parent vector");
-        if (marked >= 0 && parents[marked] >= 0)
-            throw std::runtime_error("the marked vertex must have an external parent");
         Counts count{p, parents, marked, Row(n + 1), {}};
         count.run();
         for (int x : count.sums) std::cout << x << ' ';
