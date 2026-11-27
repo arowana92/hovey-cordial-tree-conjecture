@@ -19,7 +19,9 @@ def erasures(steps,jumps,start,k):
     cycles = []
     for v in steps:
         tail = positions[-1]
-        head = (tail+jumps[v]) % k
+        head = tail+jumps[v]
+        if k is not None:
+            head %= k
         edges.append((v,tail))
         if head in where:
             j = where[head]

@@ -54,7 +54,8 @@ def path_values(p,q,w,z,k):
     d = w-neutral_arm(p,0,3)[-1]-neutral_arm(q,0,4)[-1]
     left = neutral_arm(p,-3*d+14*z,3)
     right = neutral_arm(q,2*d-9*z,4)
-    return [x % k for x in left+right[::-1]]
+    values = left+right[::-1]
+    return values if k is None else [x % k for x in values]
 
 
 def starred(windows,parents,labels,blocked,b,t,gap,k,rng):
@@ -114,12 +115,13 @@ def guard_order(window,reverse=False):
     return total,tips
 
 
-def leafy(kind,windows,parents,labels,blocked,b,t,gap,k,rng):
+def leafy_layout(kind,windows,labels,b,gap,k):
     # Each entry gives a left-to-right (possibly reversed) path and a weight.
     # Marks t, X and G acquire their values in the simultaneous specialization.
     segments,marks = [],{}
     def original(w):
-        return (labels[w.left]+labels[w.right])%k
+        weight = labels[w.left]+labels[w.right]
+        return weight if k is None else weight%k
     if kind=='active':
         guards = []
         for w in windows[:2]:
@@ -162,6 +164,11 @@ def leafy(kind,windows,parents,labels,blocked,b,t,gap,k,rng):
         raise ValueError("unknown repair type")
     if any(w.children for w in windows):
         raise ValueError("a leafy repair expects only direct leaves")
+    return segments,marks,backward
+
+
+def leafy(kind,windows,parents,labels,blocked,b,t,gap,k,rng):
+    segments,marks,backward = leafy_layout(kind,windows,labels,b,gap,k)
     # Bridge entries have coefficient at most 126 in their own parameter.
     # In moving marks the arm constant is linear with bounded coefficients.
     # Each backward tail contains at most one term per leaf plus its start.
