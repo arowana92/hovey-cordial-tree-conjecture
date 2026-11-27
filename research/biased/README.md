@@ -6,7 +6,7 @@ f(v)+f(w)+b_{vw}
 $$
 both have residue counts differing pairwise by at most one. The offsets on adjacent edges may differ. Setting every offset to zero gives ordinary cordiality.
 
-At **every prime** $p$, paths of all orders and any tree with every edge replaced by a path of length at least $p-1$ admit independently prescribed offsets on every edge. For a cycle of length divisible by an odd prime, uniformity is equivalent to the offsets summing to zero. [Prime path, cycle and circulant theorems](prime-paths.md) A coefficient formula also gives an exact high-digit lift criterion for trees obtained from connected prime-sheeted covers of suitable unicyclic bases. [Cover theorem and checks](cyclic-covers.md)
+At **every prime** $p$, paths of all orders and any tree with every edge replaced by a path of length at least $p-1$ admit independently prescribed offsets on every edge. For a cycle of length divisible by an odd prime, uniformity is equivalent to the offsets summing to zero. [Prime path, cycle and circulant theorems](prime-paths.md) A coefficient formula also gives an exact high-digit lift criterion for trees obtained from connected prime-sheeted covers of suitable unicyclic bases. [Cover theorem and checks](cyclic-covers.md) Independent cycle certificates also give arbitrary-offset paths and the subdivision theorem at $k=6,8,9,10,12$. [Composite path proofs](composite-paths.md)
 
 At four, eight, nine and sixteen labels, every edge can independently receive any multiple of 2, 4, 3 and 8 respectively. These results characterize every allowable offset set through modulus 16 and at the mixed composite moduli 18, 20, 21, 22 and 24. [Prime powers and optimality](prime-powers.md)
 
