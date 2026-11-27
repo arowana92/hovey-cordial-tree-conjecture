@@ -5,8 +5,8 @@ from research.prime.verify_templates import primes_through
 
 def block(p, offsets):
     """One full permutation along a path, with root zero and distinct edge weights."""
-    if p not in primes_through(p) or len(offsets)!=p-1:
-        raise ValueError("expected a prime and p-1 offsets")
+    if (p not in (6,8,9,10,12) and p not in primes_through(p)) or len(offsets)!=p-1:
+        raise ValueError("expected a certified path modulus and one fewer offsets than labels")
     values = [0]
     all_bits = (1<<p)-1
 
@@ -68,6 +68,13 @@ def two_paths(p, labels, arms, deficit):
     x = (deficit-labels[parent]-b)%p
     labels[first] = x
     arms[0] = (first,steps)
+    on_surplus(p,labels,arms,x)
+
+
+def on_surplus(p, labels, arms, x):
+    """Grow one or two paths at a core with uniform weights and surplus vertex label x."""
+    if not 1<=len(arms)<=2 or sum(len(steps) for _,steps in arms)>p-1:
+        raise ValueError("expected at most two arms and at most p-1 new vertices")
     adjusted = []
     for parent,steps in arms:
         if steps:
@@ -145,3 +152,43 @@ def merge_paths(parts):
     if len(parts)==2 and parts[0][1][-1][0]==parts[1][0]:
         return [(parts[0][0],parts[0][1]+parts[1][1])]
     return parts
+
+
+
+def terminal_tree(k, children, offsets, root=0):
+    """Use preorder slices on a rooted tree; offsets[v] is on the incoming edge to v."""
+    parent = [None]*len(children)
+    preorder = []
+    stack = [root]
+    while stack:
+        u = stack.pop()
+        preorder.append(u)
+        for v in reversed(children[u]):
+            parent[v] = u
+            stack.append(v)
+    labels = [None]*len(children)
+    labels[root] = 0
+    surplus = 0
+    i = 1
+    while i<len(preorder):
+        part = preorder[i:i+k-1]
+        arms = []
+        prev = None
+        for v in part:
+            u = parent[v]
+            if u!=prev:
+                if labels[u] is None:
+                    raise ValueError("a new arm meets a branch inside the current slice")
+                arms.append((u,[]))
+            arms[-1][1].append((v,offsets[v]))
+            prev = v
+        on_surplus(k,labels,arms,surplus)
+        i+=len(part)
+        if i<len(preorder):
+            used = {(labels[v]+labels[parent[v]]+offsets[v])%k for v in part}
+            deficit, = set(range(k))-used
+            v = preorder[i]
+            surplus = (deficit-labels[parent[v]]-offsets[v])%k
+            labels[v] = surplus
+            i+=1
+    return labels

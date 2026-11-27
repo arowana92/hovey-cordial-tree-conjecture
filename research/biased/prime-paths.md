@@ -58,3 +58,19 @@ The direct checker sums signs over every normalized permutation in 2,085 tests. 
 ~~~sh
 python3 -B -m research.biased.check_prime_paths
 ~~~
+
+## It suffices to lengthen the terminal arms
+
+**Theorem.** At every prime $k$ and at $k=6,8,9,10,12$, take any tree and give each edge an arbitrary independent offset. If every path from a leaf to its nearest branching vertex has at least $k-2$ edges, the tree has a $k$-cordial labeling. Distances between branching vertices are unrestricted, so lengthening only the pendant edges suffices. A path is already covered at every one of these moduli. The assertion also holds at any further modulus for which the full order-$k$ biased path test succeeds. [Composite proofs](composite-paths.md)
+
+Root the tree at a branching vertex and list all other vertices in depth-first preorder. Break the list between successive vertices when the second is not a child of the first. Each resulting list is a downward path ending at a leaf. Its final $k-2$ vertices are on the terminal arm strictly below the last branch. Thus the list has at least $k-2$ vertices and none of its last $k-2$ vertices can start another path. At $k=2$ the slices below are singletons and the argument is immediate.
+
+Take any consecutive slice of at most $k-1$ listed vertices, after retaining its entire earlier prefix. It meets at most two lists: meeting three would require the complete middle list and a vertex at each end. If it meets two, its portion in the first has at most $k-2$ vertices, all in the nonbranching suffix. The second arm's parent therefore belongs to the retained prefix. The first arm's parent also belongs to the prefix. This proves precisely the two-arm condition, even when the slice crosses between far-apart branches or many short edges join the branching vertices.
+
+Start with the root as a one-vertex cordial core. Use a slice of $k-1$ vertices (or all those left) and the surplus-core two-path extension. After a full slice, the tree has order divisible by $k$ and one deficient weight. Use the next vertex of the preorder, if any, to fill that deficit. The core is back at order one modulo $k$ with uniform weights. Continue to the end. The same argument attaches any such sequence at an already prescribed core of order zero or one modulo $k$, starting with the appropriate step. In that setting what is required of the sequence is exactly the slice condition just proved.
+
+The checker rebuilds and verifies 377 trees with arbitrary independent offsets, keeping their internal edges short and testing the terminal length threshold. [Preorder constructor](prime_paths.py) · [Whole-tree checker](check_terminal_paths.py)
+
+~~~sh
+python3 -B -m research.biased.check_terminal_paths
+~~~
