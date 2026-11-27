@@ -4,6 +4,8 @@
 
 For example, the three arms of length two at a common center give a small case where gluing at an extreme path label fails. Label the center 3 and the arms in outward order $(6,0),(5,2),(1,4)$. The edge sums are precisely $4,5,6,7,8,9$. The general proof assembles paths of arbitrary lengths and checks a finite list of such exceptions. [Integer certificates](four-leaf-certificates.json) · [Witness constructor](four_leaves.py)
 
+Panpa, Imnang and Wasuanankul studied graceful labelings of spiders with up to five legs and gave $\alpha$-labelings for several of the building blocks used here. Meng's verification archive treats super edge-magic spiders with equal leg lengths, including the four-leg case. The theorem above allows unequal lengths and also covers trees with two branching vertices. [Panpa, Imnang and Wasuanankul (2025)](https://doi.org/10.1155/jama/5826777) · [Meng's equal-leg archive (2026)](https://zenodo.org/records/22652143)
+
 ## Two ways to join labeled trees
 
 Use a bipartition with classes of sizes $A,B$. In each class assign ranks starting at 0, using every rank below the class size once. Require the edge rank sums to be exactly $0,\ldots,A+B-2$. Adding $A$ to all ranks in the second class produces the required ordinary vertex labeling. These ranks are also an equivalent description of an $\alpha$-labeling, by replacing the second-class rank $y$ by the ordinary graceful label $A+B-1-y$. Reflecting both rows of ranks around their midpoints preserves the rank property. A vertex of rank $x$ in a class of size $A$ has *deficiency* $A-1-x$.
