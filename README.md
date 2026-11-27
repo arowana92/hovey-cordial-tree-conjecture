@@ -30,6 +30,8 @@ For an even tree with equal bipartition classes, consider whether every vertex c
 
 If $T$ has edge-ranking number $h$, it has a subdivision on every prescribed order $N\ge 2^h$ that is cordial at every modulus. At orders $2^h$ and $2^h-1$, the original tree itself admits an integer $\alpha$-labeling. The power-of-two threshold is exact for subdivisions that can be recursively bisected by single edges down to singleton vertices. [Proof, construction and independent checks](research/census/ranked-subdivisions.md)
 
+For every tree with $n\ge3$ vertices and $h$ nonleaves, a single integer labeling is cordial modulo every $k\ge n+h-1$. The construction places leaves on both sides of the labeled core. [Proof, Lean scan lemma and reconstruction](research/census/leaf-intervals.md)
+
 Every tree with $m$ edges and diameter $D$ is an induced subtree of an $\alpha$-labeled tree on at most $2m-D$ edges. For the original $n$-vertex tree, if a leaf-to-leaf path together with its adjacent original leaves covers all but $d$ vertices, then every modulus $k\ge n+d$ works. [Level construction and independent checks](research/census/level-hosts.md)
 
 At eight labels, Lean proves the theorem for finite trees built by joining rooted subtrees. It checks the finite certificate, the induction and the counts on each tree’s actual edges. [Formal proof and replay](research/eight/README.md#the-complete-eight-label-theorem-in-lean)
@@ -62,6 +64,7 @@ A vertex labeling takes values in the residues modulo $k$. Each edge receives th
 - Driscoll, Krop and Nguyen proved the six-label case by choosing smaller families of rooted pieces and fitting their label and weight counts to the core. Their paper states Hovey’s finite test in Theorem 2.2. [*All trees are six-cordial* (2017)](https://www.ejgta.org/index.php/ejgta/article/view/231)
 - Driscoll proved the seven-label case by splitting trees, listing local labelings and matching them to deficient weights or surplus vertex labels. [*All Trees are Seven-Cordial* (2019 preprint, version 2)](https://arxiv.org/abs/1909.12351)
 - Youssef’s Theorem 4 shows that consecutive vertex labels and consecutive edge sums imply cordiality at every modulus. This relates the tree question to super edge-magic labelings. [*On k-cordial labelling* (2009)](https://ajc.maths.uq.edu.au/pdf/43/ajc_v43_p031.pdf)
+- Montgomery, Pokrovskiy and Sudakov proved asymptotic injective harmonious labeling for arbitrary finite abelian groups. In the cyclic case, any fixed positive relative surplus of labels suffices for sufficiently large trees. [Theorem 1.5 (2020)](https://doi.org/10.4171/JEMS/982)
 - Müyesser and Pokrovskiy discuss how their bounded-degree methods could approach Hovey’s conjecture when the modulus is sufficiently large relative to the degree bound. Section 6 describes the extra strengthening that such a proof would require. [*On the Graham–Sloane harmonious labelling conjecture* (2025 preprint, version 2)](https://arxiv.org/html/2509.05280v2#S6)
 
 At modulus $k=n-1$, a cordial labeling of an $n$-vertex tree uses every edge residue once and repeats exactly one vertex residue. Thus the full conjecture includes the Graham–Sloane harmonious tree conjecture. [Müyesser and Pokrovskiy, introduction](https://arxiv.org/html/2509.05280v2#S1)
