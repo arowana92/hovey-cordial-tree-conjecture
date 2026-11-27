@@ -6,6 +6,8 @@ Fix a cordial core of order one modulo $k$, and translate its surplus label to z
 
 For a prime-power modulus, arbitrary singleton-parent colors and arbitrary additive offsets on the new edges are allowed, and every such attachment on **at least $k$ new vertices** extends. Conversely, every modulus with two distinct prime divisors admits a one-period example with ordinary edge sums that fails to extend.
 
+The [one-spare-leaf construction](one-center-slack.md) gives a stronger all-modulus result: any $n\ge k+1$ works with independent offsets and arbitrary external parents.
+
 ## Equations for equal singleton-parent labels
 
 Fix center label $a$, set $d=a-b$, and write $B,C$ for child and singleton label multiplicities. We must add exactly $q$ edges of each weight because the initial and final edge histograms are uniform. If $x$ is the new surplus, the new vertex counts must be $q\mathbf1-e_0+e_x$. Let $z^d$ denote the shift taking $e_i$ to $e_{i+d}$. Subtract $b$ from the edge weights. The vertex and edge equations become
