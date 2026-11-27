@@ -6,6 +6,8 @@ f(v)+f(w)+b_{vw}
 $$
 both have residue counts differing pairwise by at most one. The offsets on adjacent edges may differ. Setting every offset to zero gives ordinary cordiality.
 
+At four, eight and nine labels, every edge can independently receive any multiple of 2, 4 and 3 respectively. Together these results characterize every allowable offset set through modulus 15. [Prime powers and optimality](prime-powers.md)
+
 ## Reduction to one order
 
 At every modulus $k\ge2$, the assertion with arbitrary edge offsets at **order exactly $k$** implies the same assertion at all orders. At order $k$ it asks for a vertex bijection and distinct edge weights. A smaller tree can be padded to order $k$ and the labeling restricted.
