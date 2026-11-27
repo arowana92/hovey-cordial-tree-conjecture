@@ -1,0 +1,54 @@
+# Exact counts for a growing leaf population at a prescribed joint
+
+Fix a rooted tree $R$ with $s\ge1$ edges and mark any vertex $v$. At modulus $n\ge s$, add $n-s$ leaves at $v$, giving $n$ free vertices besides the root. In a **uniform extension** the free labels and all new weights both permute $\mathbb Z_n$. At a prescribed cordial core of order divisible by $n$, a second possibility is to repeat its deficient weight $d$ while omitting one weight. Translate the root to zero and adjust $d$ by the same translation on edge sums.
+
+**Theorem.** For every fixed $(R,v)$ the number of normalized uniform labelings, divided by $(n-s)!$, is an effectively computable quasipolynomial in $n$. There is also an exact finite arithmetic test for the existence of an extension for each $(n,d)$. The set of moduli admitting an extension for **every** $d$ is effectively ultimately periodic.
+
+## Removing all the additional leaf variables
+
+Write $x$ for the labels of the $s$ original free vertices, $x_r=0$, $S$ for the set of free labels in this kernel, and $a=x_v$. Require the $s$ entries of $x$ to be distinct. The new leaves receive the complement of $S$, in any of $(n-s)!$ orders. After subtracting $a$ from every weight, the added leaf weights occupy precisely this complement.
+
+For a uniform extension, choose a bijection $\pi$ from the original edges to the original free vertices. On each edge $ij$ impose $x_i+x_j-a=x_{\pi(ij)}$. For a solution with distinct entries the bijection is unique. The count $N(n)$ sums over all $s!$ bijections.
+
+For the second test, distinguish an original edge $h$ and replace its equation by $x_i+x_j=d$. Keep the other $s-1$ equations. Count these **marked** solutions as $M(n,d)$. Removing the distinguished edge leaves $n-1$ distinct weights. Conversely, if the repeated weight is $d$, at least one of its occurrences is an original edge because the added leaf weights are distinct. Deleting such an occurrence leaves a unique omitted element of $S$ in the shifted kernel, determining $\pi(h)$. Thus a full block can extend the given deficit exactly when $N(n)+M(n,d)>0$. The marked count can count the same labeling more than once.
+
+For each system, impose injectivity by summing over partitions $P$ of the free vertices. Merge coordinates within each block and multiply by $\prod_{B\in P}(-1)^{|B|-1}(|B|-1)!$. This is Möbius inversion on the partition lattice. The resulting integer system has the form $Az=b d$, with $b=0$ in the uniform count. Diagonalize $A$ by invertible integer row and column operations and transform $b$ by the row operations. Write $a_i$ for the nonzero diagonal entries in absolute value and $c_i$ for the transformed right-hand coefficients. The contribution before its Möbius factor is zero unless
+
+* $\gcd(n,a_i)\mid c_i d$ for every nonzero diagonal entry, and
+* $n\mid c_i d$ in each zero row.
+
+Otherwise it is $n^{u}\prod_i\gcd(n,a_i)$, where $u$ is the number of columns minus the rank. This follows by solving each scalar congruence. No divisibility order on the diagonal entries is needed. The finite sum proves the quasipolynomial assertion for $N$. The role of integer elementary divisors in modular arrangement counts is classical. [Kamiya, Takemura and Terao](https://arxiv.org/abs/math/0703904) · [Integer diagonalization and counts](leaf_kernel.py)
+
+## Deciding all deficits at once
+
+Let $L$ be the lcm of the nonzero diagonal entries across the finite calculation. In each summand combine the zero-row coefficients into their nonnegative gcd $b$ (zero for no restriction). The additive order $h$ of $d$ must divide $b$ when $b>0$. Let $H$ be the finite set of positive divisors of all such $b$.
+
+Multiplication by a unit identifies deficits of equal order. For $h\in H$ with $h\mid n$, take $d=n/h$. Whether the summand contributes and its gcd factors then depend only on $h$ and $\gcd(n/h,L)$. For $h\notin H$ discard terms with $b>0$. The remaining factors depend only on $g=\gcd(n,L)$ and $f=\gcd(d,g)$. This yields finitely many ordinary polynomials in $n$. The sum of the neutral and marked counts is nonnegative on each realizable type.
+
+Once $n>L\max(H\cup\{1\})$, every $f\mid g$ occurs in the latter group: take $d=f\bmod n$, whose order is $n/f$. The available small orders and all their gcd types depend only on $n$ modulo $L\operatorname{lcm}(H)$ (empty lcm one). Each polynomial is identically zero or eventually has a fixed sign, with computable cutoff. This proves effective ultimate periodicity. The verifier can certify positivity earlier by shifting the polynomial origin to an integer threshold and checking that all coefficients are nonnegative and the constant term is positive. Smaller moduli are checked individually.
+
+## Three edges on one side of the joint
+
+Let the root have two neighbors. One has $n-4$ leaf children. The other starts a path of length three from the root. This gives $n$ free vertices for $n\ge4$.
+
+**Exact obstruction.** A uniform extension at this root exists exactly when $4\mid n$ or $5\mid n$. Nevertheless, at every modulus a prescribed cordial core of divisible order extends across every tree in this family.
+
+Write $x$ for the leaf parent's label and $y,z,t$ along the other path. After subtracting $x$, the four kernel weights are
+$$
+0,\quad y-x,\quad y+z-x,\quad z+t-x .
+$$
+They must permute $x,y,z,t$. Summing gives $y+z=4x$. One of $x,y,z,t$ equals zero. If $z=0$, two weights coincide. If $x=0$, the remaining two weights $y+z,z+t$ must permute $z,t$. As $y\ne0$ this forces $y+z=t$ and then $t=0$, impossible.
+
+If $y=0$, then $z=4x$. The weight $-x$ cannot be $x$, since that would imply $z=0$. If it were $t$, the weight $3x$ would have to be $x$ or $4x$, again impossible. Thus $-x=z$ and $x$ has order five. The remaining weights force $t=-2x$, which works for every such $x$. If $t=0$, the weight $3x$ must be one of $x,y,z$. Equality with $y$ or $z$ would make the other equal $x$. Therefore $2x=0$, $z=-y$, and subtracting $x$ interchanges $y$ and $z$. This is equivalent to $2y=x$ with $y$ of order four. Every such choice works. The exact count is $2\mathbf1_{4\mid n}+4\mathbf1_{5\mid n}$ before ordering the additional leaves.
+
+**Prescribed deficit.** Set $x=0$, choose $z$, and put $y=d-2z$, $t=d-z$. The four vertex labels are distinct if $z\notin\{0,d\}$, $2z\ne d$ and $3z\ne d$. Their edge weights are $0,y,t,d$. The other leaves copy their own labels, so the complete weights replace one occurrence of $z$ by $d$. At most $2+\gcd(2,n)+\gcd(3,n)\le7$ choices of $z$ are excluded. This proves existence for $n\ge8$. At $n=4,5$ a uniform extension always works. At $n=6,7$ direct substitution of $z=0,\ldots,n-1$ gives an allowed value for every $d$.
+
+At a modulus $k\ge4$ below the attachment size, first retain $k-4$ leaves at $x$ and use the full block. Every omitted leaf now has a labeled parent. For a smaller attachment with a leaf at $x$, pad up to $k$ there. If a dummy leaf supplies $d$, exchange its label with a real leaf at $x$ before restriction. Distinct free labels and the prescribed deficiency condition survive the restriction. With no leaf at $x$ the attachment is a path. The short caterpillar theorem applies. At $k\le3$ use the two-label extension or the prime caterpillar theorem. [Leaf batches](../counterexample-bound.md#removing-leaves) · [Short caterpillars](caterpillar-joints.md) · [Prime extension](prime-joints.md)
+
+For $n\ge6$ the four nonleaves ensure that the total degree equation and parallel-edge test admit a repeated partner even at the excluded moduli. This yields infinitely many failures of uniform gluing on trees which are themselves cordial. [Degree classification](repeated-moment.md)
+
+The independent checker enumerates injections and reconstructs every original edge and every additional leaf weight. It compares both the unmarked count and every marked deficit count for all rooted kernels with up to four edges, every site, and four successive moduli per kernel. It also checks the entire four-variable neutral expression and its values through modulus 4,999. [Direct verifier](check_leaf_kernel.py)
+
+~~~sh
+python3 -B -m research.census.check_leaf_kernel
+~~~
