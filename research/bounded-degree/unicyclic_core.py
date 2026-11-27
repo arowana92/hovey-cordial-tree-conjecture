@@ -3,7 +3,7 @@ from collections import Counter
 from math import gcd
 
 
-def core(k,edges,cut,pins=None,spare_leaves=None):
+def core(k,edges,cut,pins=None,spare_leaves=None,buffer_degree=None):
     """Return a partial labeling satisfying the two embedding moments.
 
     Edges are pairs on range(k), and cut is a cycle-edge index. The theorem
@@ -30,7 +30,7 @@ def core(k,edges,cut,pins=None,spare_leaves=None):
         need = max(0,6-inside)
         marked.update(rest if len(rest)-need<6 else rest[:need])
 
-    d = Counter(x for x in deg if x>=2).most_common(1)[0][0]
+    d = buffer_degree or Counter(x for x in deg if x>=2).most_common(1)[0][0]
     outside = [i for i in range(k) if deg[i]==d and i not in marked
                and neighbors[i].isdisjoint(marked)]
     y = outside[0]
@@ -51,7 +51,7 @@ def core(k,edges,cut,pins=None,spare_leaves=None):
     modulus = d-1
     g = gcd(k,modulus)
     for i,a in pins.items():
-        assert a%g==0 and a not in used and weights.isdisjoint(weight_list(i,a))
+        assert a not in used and weights.isdisjoint(weight_list(i,a))
         assign(i,a)
     for i in sorted(marked-{p,q}-set(pins)):
         a = next(a for a in range(0,k,g) if a not in used
