@@ -137,7 +137,7 @@ For fixed $D,s$ there are only finitely many counterexample pairs of **any fixed
 
 For every $r$, a fixed connected prefix can already have distinct vertex labels and edge weights yet fail to extend when one two-edge arm is added at each of $r$ distinct parents and leaves at zero fill the tree to order $k$. The obstruction persists for all sufficiently large $k$, even allowing each new neighbor any fixed positive number of children. The underlying trees admit other cordial labelings. [Integer obstruction certificates and an eight-label example](research/hub/scattered-arm-obstruction.md)
 
-For fixed $k\ge 5$, a smallest counterexample, if one exists, has at most $k-2$ leaves and $3k^2-13k+3$ vertices. The proof combines Hall’s permutation theorem with explicit labelings of pendant paths and subdivided edges. [Counterexample size bound](research/counterexample-bound.md)
+For fixed $k\ge5$, a smallest counterexample, if one exists, has at most $k-2$ leaves and $3k^2-14k+5$ vertices. At every odd modulus any path joined by an edge at any position extends a prescribed cordial core of order one modulo $k$. At every modulus this holds for an endpoint attachment. [Counterexample size bound](research/counterexample-bound.md) · [Path proof and Lean rank inequalities](research/census/surplus-path.md)
 
 A second sufficient test uses rainbow labelings of forests on $k-1$ free vertices. Choosing a connected core that contains several original leaves reduces the number of forest shapes needed. For composite moduli, a prescribed star can fail the unrestricted version of this test by an explicit divisibility condition. [Rainbow forest reduction](research/rainbow/README.md) · [Pinned star obstruction](research/rainbow/pinned-star.md)
 

@@ -51,3 +51,7 @@ The number of edges is at most $L(k-1)+(L-3)2k$. Substituting $L\le k-2$ gives t
 For any odd $k$, subdivide an edge by $k$ vertices. If the first endpoint has label $a$, insert $a+1,\ldots,a+k$ in that order. The last new vertex has label $a$, so the last edge has the original edge weight. The first $k$ edges have weights $2a+2i+1$ for $0\le i<k$. Multiplication by two permutes the residues, so the net increment is one of each vertex label and one of each edge weight. Thus an internal segment of a minimum counterexample has length at most $k$ for these moduli.
 
 For odd $k\ge5$ the order bound improves to $1+L(k-1)+(L-3)k\le 2k^2-8k+3$. At odd primes a star extension further improves the leaf bound. [Prime-modulus argument](rainbow/prime-star.md)
+
+### A bound using the actual order residue
+
+A path at an endpoint now extends any prescribed cordial core of order one modulo $k$. Hence a minimum counterexample of order $mk+s$, $1\le s\le k$, has terminal arm lengths at most $s-2$. In the preceding bounds one may replace $L(k-1)$ by $L(s-2)$. This gives $3k^2-14k+5$ vertices at most for all $k\ge5$ and $2k^2-9k+5$ for odd $k\ge5$. [Path extension and proof](census/surplus-path.md#arbitrary-path-length)
