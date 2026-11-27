@@ -1,6 +1,6 @@
 # Replacing a prescribed edge with a path and one side branch
 
-**Theorem (computer-assisted).** For every $4\le k\le63$, take an arbitrary edge $ab$ of an arbitrarily labeled $k$-cordial tree. Replace it by a path with $c\ge3$ new internal vertices and attach a pendant path with $k-c\ge1$ new vertices at any of these internal vertices. The labeling of all old vertices extends. This holds at **every old tree order** and with the original endpoint labels fixed.
+**Theorem (computer-assisted).** For every $4\le k\le63$, take an arbitrary edge $ab$ of an arbitrarily labeled $k$-cordial tree. Replace it by a path with $c\ge3$ new internal vertices and attach a pendant path with $k-c\ge1$ new vertices at any of these internal vertices. The labeling of all old vertices extends. This holds at **every old tree order** and with the original endpoint labels fixed. A separate [rainbow-path argument](../bounded-degree/unicyclic.md) gives the same conclusion for every sufficiently large modulus.
 
 For all even moduli in the range, every vertex and edge count can increase by one. For every odd $k$, an incidence identity rules out those simultaneous uniform increments. Two other constructions preserve cordiality at the certified odd moduli. In particular, the [order bound at 27 labels](ring-order.md) drops from 351 to **243 vertices**.
 
