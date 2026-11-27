@@ -52,6 +52,12 @@ def grow(k,s,t,a,b,deficit):
     used = {(centers[1]+b)%k} | {(x+z+x)%k for z in singles} | {
         (centers[1]+z+x)%k for z in kids}
     gap, = set(range(k))-used
+    return result+leaf_suffix(k,pending,centers,gap)
+
+
+def leaf_suffix(k,pending,centers,gap):
+    """Restore leaves at fixed centers, starting with the given edge deficit."""
+    result = []
     for start in range(0,len(pending),k):
         group = pending[start:start+k]
         first_side = group[0]
