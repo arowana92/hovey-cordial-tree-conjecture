@@ -23,7 +23,7 @@ The verifier atomically sets the corresponding bit and rejects a second occurren
 
 ## Checks
 
-The checker compared the rank with sorted bracket strings on 409,113 named parent arrays through mass nine. It also checked 2,732,469 forest words exhaustively through mass 17 and 400,565 sampled words at masses 18 through 25. An additional exhaustive pass assigned distinct ranks in range to **all 2,067,174,645 forests of mass 24**, the entire shape catalog at modulus 25. The exhaustive pass tests tree shapes alone. [Rank checker](check_shape_ranks.cpp)
+The checker compared the rank with sorted bracket strings on 409,113 named parent arrays through mass nine. It also checked 2,732,469 forest words exhaustively through mass 17 and 400,565 sampled words at masses 18 through 25. An additional exhaustive pass assigned distinct ranks in range to **all 2,067,174,645 forests of mass 24**, the entire shape catalog at modulus 25. At modulus 26, the same independent ranker assigned distinct ranks in range to **all 5,759,636,510 forests of mass 25**. These exhaustive passes check the complete catalogs of tree shapes. A labeling theorem also requires verified witnesses and boundary coverage. [Rank checker](check_shape_ranks.cpp)
 
 On four complete modulus-16 shards, the original and bit-array verifiers returned identical counts of 235,381 bases, 217,251 eligible forests, 4,970,751 witness rows and 109,930,416 boundary assignments. Both modes rejected seven deliberate faults on data from modulus 25. The tests exercise a missing catalog, duplicates within and across files, an out-of-range vertex, truncation, an empty record and incomplete boundary coverage. [Fault tests](check_spine_faults.py)
 
@@ -33,6 +33,7 @@ out=$(mktemp -d)
 c++ -O3 -std=c++17 -pthread "$src/check_shape_ranks.cpp" -o "$out/ranks"
 "$out/ranks"
 "$out/ranks" --mass 24 4
+"$out/ranks" --mass 25 3
 c++ -O3 -std=c++17 -pthread "$src/spine_verify.cpp" -o "$out/verify"
 ~~~
 

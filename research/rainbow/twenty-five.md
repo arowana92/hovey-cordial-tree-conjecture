@@ -51,7 +51,7 @@ python3 -B "$src/check_spine_samples.py" spine25/53.spn
 
 ## A finite pilot for 26
 
-At modulus 26, shard 53 with stride 524,288 contains 10,986 shapes and 709,471 witness rows. Its SHA-256 is `409a9ceb99f82f1a82ed6d15922ba56cb876a302607d80b90f8ba625d22d3637`. Generation to disk and generation through a pipe agreed. The native verifier accepted all local witness and coverage checks and reported an incomplete catalog at its final count, as expected for one shard. With stride 499 the independent sample checker examined 27 forests, 2,874 rows and 503,127 boundary inputs. A full catalog would contain 5,759,636,510 shapes. This pilot is finite evidence for 26. The theorem above is for 25, and Hovey's conjecture over all moduli remains open.
+At modulus 26, shard 53 with stride 524,288 contains 10,986 shapes and 709,471 witness rows. Its SHA-256 is `409a9ceb99f82f1a82ed6d15922ba56cb876a302607d80b90f8ba625d22d3637`. Generation to disk and generation through a pipe agreed. The native verifier accepted all local witness and coverage checks and reported an incomplete catalog at its final count, as expected for one shard. With stride 499 the independent sample checker examined 27 forests, 2,874 rows and 503,127 boundary inputs. A separate exhaustive topology pass ranked all 5,759,636,510 shapes without duplication. The [rank proof and command](shape-rank.md#checks) verify the shape inventory independently of the local labeling checks. This pilot is finite evidence for 26. The theorem above is for 25, and Hovey's conjecture over all moduli remains open.
 
 ~~~sh
 ./generate 26 53 524288 pilot26.spn --ranked-cover
