@@ -2,7 +2,7 @@
 
 **Theorem.** Let $k=2p^a$ with $p$ an odd prime and $a\ge1$. Give $r<p$ leaves arbitrary shifts $b_i$ modulo $k$ and a separate list of allowed vertex residues for each leaf. If $r$ is odd, lists of size $r$ suffice to choose distinct labels $x_i$ whose shifted values $x_i+b_i$ are also distinct. For even $r$, size $r$ still suffices when an even number of shifts are odd. In the remaining parity case, one extra entry in any one list suffices. A row of opposite shift parity may then have only $r-1$ entries.
 
-**Consequence.** A smallest ordinary counterexample at 26 labels would have to have order $26m+s$ with $17\le s\le26$. At $s=17$ it would have five or six leaves. More generally, for every $k=2p^a$ with $p\ge7$, its order residue is at least $k/2+4$. These results concern arbitrary tree order.
+**Consequence.** For every $k=2p^a$ with $p\ge7$, its order residue is at least $k/2+4$. A separate [short-forest audit](../rainbow/short-forests.md) strengthens the bound at 26 labels. At exactly $p$ rows and $k=2p$, an [exact list criterion](prime-size-lists.md) identifies all obstructions.
 
 ## Reduction of the coefficient
 
