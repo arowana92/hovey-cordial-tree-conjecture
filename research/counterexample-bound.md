@@ -24,6 +24,8 @@ $$
 
 At any modulus, writing $n=mk+s$ with $1\le s\le k$, the total leaf count at the two busiest parents must be less than $2s-k$. At primes $p$ the entire leaf count must be less than $2s-p-1$. [Leaf-list extension on a prescribed core](biased/spare-lists.md#restoring-leaves-on-a-cordial-core-of-arbitrary-order)
 
+For any odd prime $p\ge5$ the order residue must satisfy $s\ge(p+7)/2$. A four-vertex forest excludes the first residue left by the leaf bound, with a five-vertex certificate at the exceptional prime 211. [List-coefficient proof and restrictions at 29](biased/star-lists.md)
+
 ### Shortening paths
 
 All labels below are taken modulo $k$. A pendant path of $k$ new vertices extends any labeled core while adding one to every vertex and edge count. Write $a$ for its old endpoint label and set $b=a+\lfloor k/2\rfloor+1$. Along the path, starting at the old endpoint, label positions $2i$ by $a+i$ and positions $2i+1$ by $b+i$. The new even and odd positions together receive the residues $a+1,\ldots,a+k$ once each. The $j$-th edge, with positions numbered from zero and endpoints $j,j+1$, weighs $a+b+j$. It covers each residue once as $j$ runs from 0 to $k-1$. This is the endpoint-rooted path instance of the caterpillar construction. [Driscoll, Krop and Nguyen, Proposition 2.1](https://www.ejgta.org/index.php/ejgta/article/download/231/pdf_33)
