@@ -48,7 +48,7 @@ python3 -B "$src/check_spine_faults.py" "$out/verify" "$shard" --rank-bits
 
 The complete ordered-cut test at modulus 27 asks for 16,083,734,329 rooted bases, of which 15,825,505,189 have eligible forests. The latter require 92,009,660,290,353 boundary assignments before unit symmetry. These are inventory counts from the partition recurrence. The unrestricted certificate audit is in progress.
 
-One reproducible shard contains 7,670 shapes and 451,990 witness rows. The independent Python checker examined every record, recomputed the distinct weights, and checked all 44,779,592 required boundary inputs on the sampled eligible forests. The ranker comparison now includes 450,566 sampled forest words at masses 18 through 26. The native rank verifier rejected each of the seven deliberate faults on this shard. These checks give finite evidence for 27. [Independent partition counts](spine_counts.py) · [Pilot checker](check_spine_samples.py)
+One reproducible shard contains 7,670 shapes and 451,990 witness rows. The independent Python checker examined every record, recomputed the distinct weights, and checked all 44,779,592 required boundary inputs across the pilot, including the all-zero inputs for base-only shapes. A separate SSH checkout rebuilt the generator and reproduced the pilot byte for byte. The ranker comparison now includes 450,566 sampled forest words at masses 18 through 26. The native rank verifier rejected each of the seven deliberate faults on this shard. These checks give finite evidence for 27. [Independent partition counts](spine_counts.py) · [Pilot checker](check_spine_samples.py)
 
 Use the build commands from the [25-label reproduction](twenty-five.md#reproduction), then run the following.
 

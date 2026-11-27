@@ -9,6 +9,8 @@
 | 3 | 11 through 30 | 603,596 |
 | 4 | 26 and 27 | 2,093,931 |
 
+These bijections are harmonious labelings of unicyclic graphs. Barrientos proves the odd-girth case for cycles with pendant edges, and Barrientos and Minion give constructions from trees with $\alpha$-labelings. The finite check here groups graphs by leaf count and allows branching in the attached trees. [Barrientos, Theorem 3.1](https://www.ijc.or.id/index.php/ijc/article/download/121/83) · [Barrientos and Minion, section 3](https://www.ejgta.org/index.php/ejgta/article/download/1200/pdf_184)
+
 ## Restoring a piece between two retained vertices
 
 Let $uv$ be any cycle edge of a graph in the theorem. Replace an edge $ab$ of any labeled tree by the opened graph, attaching $a$ to $u$ and $v$ to $b$. Translate the graph labels until $v$ has the label of $a$. Translation permutes both lists of residues. The new edge $au$ has the former sum on $vu$, and $vb$ has the deleted sum on $ab$. Thus **every vertex and edge frequency increases by one**. A smaller cordial tree gives a cordial labeling of the restored tree at any old order and with either orientation of the ports.
@@ -27,7 +29,7 @@ A cycle site carries an unordered rooted forest. The generator enumerates the ch
 
 On the first witness for each nonempty cycle-length class, the checker also tries every oriented cut edge and all differences of old endpoint labels. It counts the actual increments after subtracting the deleted edge, then checks complete three- and five-sheeted covers. [Generator](few_leaf_rings.py) · [Burnside count](count_few_leaf_rings.py) · [Independent verifier](check_few_leaf_rings.cpp) · [Stream hashes](few-leaf-rings.sha256)
 
-Run from the repository root in Bash. The streams may be checked one at a time.
+Run from the repository root in Bash. A separate SSH checkout regenerated all 52 streams, matching every hash and verifier total. The streams may be checked one at a time.
 
 ~~~bash
 set -euo pipefail
