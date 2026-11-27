@@ -6,7 +6,7 @@ Two unconditional conclusions hold for every modulus. Let $T$ have exact diamete
 
 **Finite application.** Every finite tree of diameter at most five is $k$-cordial for every $1\le k\le36$. For the moduli $21$ through $36$, the independent verifier checks 3,290,454 order-equals-modulus witnesses. The theorem gives the result at all tree orders. [All-tree results through twenty-one](../../README.md) · [Witness counts and stream digests](diameter-five-counts.txt)
 
-An infinite subfamily has an integer construction at every modulus. Attach $a,b$ two-edge arms to the two centers. If $a+b=2h$ and each side has at least $\lfloor h/2\rfloor$ arms, the vertex labels and edge sums can each be consecutive integers. [Construction and verification](matched-arms.md)
+Every tree whose branches at the two centers are single leaves or two-edge paths is super edge-magic. The numbers of branches of either kind at either center are unrestricted. [All partial subdivisions of double stars](subdivided-double-stars.md) · [Earlier matched-arm construction](matched-arms.md)
 
 For equal numbers of branch parents on the two sides, every positive branch child count can be chosen independently. The integer construction also allows direct leaves at a center when their number is less than every branch child count on its side. [Two-center layer theorem](two-center-layers.md)
 
