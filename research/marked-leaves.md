@@ -22,7 +22,7 @@ In the near-perfect case move the exposure to an original leaf, add a temporary 
 
 The [constructor](marked_leaf.py) records an actual cut, labels the core with the required surplus when the mark survives, and restores the exterior. The [checker](check_marked_leaf.py) computes the two histograms on the original edges. It tests 6,939 marked small trees, 200 additional marked trees, path cuts placing the mark on both sides, and 90 matching lifts through 58 labels. The [matching constructor](near_matching.py) starts from the original tree.
 
-At modulus six the native verifier accepted 20 rooted bases, seven eligible forests, 38 rows and 102 boundary assignments. At eight it accepted 115 rooted bases, 87 eligible forests, 548 rows and 3,216 assignments. To regenerate these small sufficient tests and the marked-leaf checks, run the following from the repository root in Bash.
+With the reference search in the commands below, the verifier accepted 20 rooted bases, seven eligible forests, 43 rows and 102 boundary assignments at modulus six. At eight it accepted 115 rooted bases, 87 eligible forests, 552 rows and 3,216 assignments. A second search using the leaf-completion solver covered the same forests and boundary assignments in 38 and 548 rows, respectively. To regenerate these small sufficient tests and the marked-leaf checks, run the following from the repository root in Bash.
 
 ~~~bash
 set -e
