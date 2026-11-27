@@ -1,4 +1,4 @@
-import research.eight.Base
+import research.eight.BaseRows
 import research.eight.Representation
 import research.eight.Tree
 import research.eight.Data
@@ -122,7 +122,8 @@ theorem forest : ForestTest 8 := by
 
 /-- Every finite parent-array tree is eight-cordial, with no certificate hypothesis. -/
 theorem allTrees (p : Nat → Nat) (hp : ∀ i, p i ≤ i) (n : Nat) :
-    ∃ f : Nat → Fin 8, IsCordial p n f := reduction forest p hp n
+    ∃ f : Nat → Fin 8, IsCordial p n f :=
+  Cordial.reduction (by decide) Kernel.base forest p hp n
 
 /-- Every nonempty finite tree, built by joining rooted subtrees, has balanced
     label counts on its vertices and on its intrinsic list of endpoint pairs. -/
