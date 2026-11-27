@@ -1,6 +1,6 @@
 # Hovey’s cordial tree conjecture
 
-**Work in progress.** This repository gives reproducible computer-assisted proofs that every finite tree is $k$-cordial for each modulus from 8 through 22. Hovey’s conjecture for every positive integer $k$ remains open. [Eight labels](research/eight/README.md) · [Nine through thirteen](research/rainbow/README.md) · [Fourteen through seventeen](research/rainbow/ordered-cut.md) · [Eighteen through twenty-one](research/rainbow/native-spine.md) · [Twenty-two](research/rainbow/twenty-two.md)
+**Work in progress.** This repository gives reproducible computer-assisted proofs that every finite tree is $k$-cordial for each modulus from 8 through 23. Hovey’s conjecture for every positive integer $k$ remains open. [Eight labels](research/eight/README.md) · [Nine through thirteen](research/rainbow/README.md) · [Fourteen through seventeen](research/rainbow/ordered-cut.md) · [Eighteen through twenty-one](research/rainbow/native-spine.md) · [Twenty-two](research/rainbow/twenty-two.md) · [Twenty-three](research/rainbow/twenty-three.md)
 
 Every tree on **at most 26 vertices** is cordial at **every positive modulus**. A census verifies one integer labeling with consecutive endpoint sums for each of the 447,672,595 unrooted trees of orders 2 through 26. This also proves cordiality at modulus $k\le26$ for arbitrary-order trees with at most $k$ nonleaf vertices. [Super edge-magic census and independent verification](research/census/README.md)
 

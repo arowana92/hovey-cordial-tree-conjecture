@@ -1,4 +1,5 @@
 // Generate a binary witness stream for the size-ordered cut test.
+#include "ranked_forest.hpp"
 #include <algorithm>
 #include <array>
 #include <cstdint>
@@ -141,7 +142,6 @@ class Generator {
     }
 
     void forest(Code code) {
-        if (shapes++ % shards != static_cast<unsigned>(shard)) return;
         ++selected;
         std::array<int, 32> p{}, stack{}, labels{}, group{};
         std::vector<int> roots, gaps;
@@ -204,18 +204,26 @@ public:
         if (!out) throw std::runtime_error("cannot open output");
     }
 
-    void run() {
+    void run(bool ranked) {
         out.write(cover ? "SPN2" : "SPN1", 4);
         out.put(static_cast<char>(k));
-        for (int size = 1; size < k; ++size) {
-            std::vector<Tree> layer;
-            auto add = [&](Code f) { layer.push_back({size, (Code(1) << (2*size-1)) | (f<<1)}); };
-            enumerate(size-1, 0, 0, add);
-            std::sort(layer.begin(), layer.end(), [](Tree a, Tree b) { return a.code < b.code; });
-            catalog.insert(catalog.end(), layer.begin(), layer.end());
+        if (ranked) {
+            RankedForests catalog(k-1);
+            shapes = catalog.count();
+            for (Code i = shard; i < shapes; i += shards) forest(catalog[i]);
+        } else {
+            for (int size = 1; size < k; ++size) {
+                std::vector<Tree> layer;
+                auto add = [&](Code f) { layer.push_back({size, (Code(1) << (2*size-1)) | (f<<1)}); };
+                enumerate(size-1, 0, 0, add);
+                std::sort(layer.begin(), layer.end(), [](Tree a, Tree b) { return a.code < b.code; });
+                catalog.insert(catalog.end(), layer.begin(), layer.end());
+            }
+            auto check = [&](Code f) {
+                if (shapes++ % shards == static_cast<unsigned>(shard)) forest(f);
+            };
+            enumerate(k-1, 0, 0, check);
         }
-        auto check = [&](Code f) { forest(f); };
-        enumerate(k-1, 0, 0, check);
         out.close();
         if (!out) throw std::runtime_error("write failed");
         std::cout << "shard " << shard << ": " << selected << " shapes, " << cases
@@ -225,8 +233,10 @@ public:
 }
 
 int main(int argc, char** argv) {
-    if (argc != 5 && !(argc == 6 && std::string(argv[5]) == "--cover")) return 2;
+    if (argc < 5 || argc > 6) return 2;
+    std::string mode = argc == 6 ? argv[5] : "";
+    if (!mode.empty() && mode != "--cover" && mode != "--ranked-cover") return 2;
     int k = std::stoi(argv[1]), shard = std::stoi(argv[2]), total = std::stoi(argv[3]);
     if (k < 5 || k > 26 || shard < 0 || shard >= total) return 2;
-    Generator(k, shard, total, argv[4], argc == 6).run();
+    Generator(k, shard, total, argv[4], argc == 6).run(mode == "--ranked-cover");
 }
