@@ -1,6 +1,6 @@
 # Attaching terminal paths and bounding the number of branching vertices
 
-**Theorem.** For every modulus through 40, a prescribed cordial labeling of any tree of order zero or one modulo $k$ extends across arbitrarily many paths of arbitrary lengths attached by one end at a single chosen vertex. In particular every spider is $k$-cordial throughout this range. For every modulus through 34, every tree with at most two vertices of degree at least three is $k$-cordial, at every order. Degrees and the length of the path between the two branching vertices are unrestricted.
+**Theorem.** For every modulus through 45, a prescribed cordial labeling of any tree of order zero or one modulo $k$ extends across arbitrarily many paths of arbitrary lengths attached by one end at a single chosen vertex. In particular every spider is $k$-cordial throughout this range. For every modulus through 37, every tree with at most two vertices of degree at least three is $k$-cordial, at every order. Degrees and the length of the path between the two branching vertices are unrestricted.
 
 At a modulus in the first range a smallest counterexample with $b$ branching vertices has order at most $(b-1)k$. At 26 labels this lowers the unrestricted upper bound on its order from 598 to **546**. The full conjecture and the unrestricted 26-label case remain open.
 
@@ -34,7 +34,7 @@ The [path generator](terminal_paths.cpp) enumerates sorted partitions and parent
 
 At order $k$, a tree with exactly two branching vertices has two unordered lists of terminal arm lengths, each with at least two parts, together with a connector of positive length. The total of the arm lengths fixes the connector length. The [base generator](../census/two_centers.cpp) encodes each list by its partial sums as a bit mask. A separate verifier decodes the two lists, reconstructs the tree, counts all actual vertex labels and edge sums, and checks the number of unordered pairs against the partition numbers. For unequal side masses $a<b$ it expects $(p(a)-1)(p(b)-1)$ shapes, and for equal masses it counts unordered pairs with repetition. The [integer census](../census/README.md) supplies every base through order 27.
 
-The [constructive replay](check_path_grafts.py) fixes a path or star core, applies affine changes to its labeling, rebuilds the omitted path batches from the public certificates, and recomputes the two histograms on the entire tree. It also asserts that every core label was preserved. It checked 3,120 complete trees and 18,381 restoration steps through modulus 40. These samples exercise the construction. The exhaustive finite assertions and the induction prove the all-orders results.
+The [constructive replay](check_path_grafts.py) fixes a path or star core, applies affine changes to its labeling, rebuilds the omitted path batches from the public certificates, and recomputes the two histograms on the entire tree. It also asserts that every core label was preserved. It checked 3,520 complete trees and 20,336 restoration steps through modulus 45. These samples exercise the construction. The exhaustive finite assertions and the induction prove the all-orders results.
 
 ## Reproduction
 
@@ -49,15 +49,15 @@ c++ -O3 -std=c++17 -DRAINBOW_WIDE_MASK -c "$src/leaf_search.cpp" -o "$out/leaf.o
 c++ -O3 -std=c++17 "$src/terminal_paths.cpp" "$out/leaf.o" "$out/reference.o" -o "$out/paths"
 c++ -O3 -std=c++17 "$src/../census/two_centers.cpp" "$out/leaf.o" "$out/reference.o" -o "$out/bases"
 c++ -O3 -std=c++17 "$src/check_terminal_paths.cpp" -o "$out/check"
-for k in 2 3 {5..40}; do
+for k in 2 3 {5..45}; do
     "$out/paths" "$k" > "$out/leg$k"
     "$out/check" paths "$k" < "$out/leg$k"
 done
-for k in {28..34}; do
+for k in {28..37}; do
     "$out/bases" "$k" > "$out/base$k"
     "$out/check" bases "$k" < "$out/base$k"
 done
-python3 -B "$src/check_path_grafts.py" "$out" {2..40}
+python3 -B "$src/check_path_grafts.py" "$out" {2..45}
 lean "$src/BranchingBound.lean"
 (cd "$out" && shasum -a 256 -c "$src/terminal-paths.sha256")
 ~~~
