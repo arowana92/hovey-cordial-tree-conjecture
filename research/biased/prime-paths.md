@@ -74,3 +74,27 @@ The checker rebuilds and verifies 377 trees with arbitrary independent offsets, 
 ~~~sh
 python3 -B -m research.biased.check_terminal_paths
 ~~~
+
+## Which trees have transitive completed weight rows?
+
+For an odd prime $p$, take a tree on $p$ vertices, with a variable at each vertex. On permutations of the field, write its $p-1$ ordinary edge weights as linear forms and append the negative of their sum. Whenever the ordinary weights are distinct, the appended value is their missing residue. A coordinate permutation acts by renaming the vertex variables. Allow multiplying all outputs by a common nonzero scalar and adding a common linear form, operations preserving distinctness. Consider symmetries that send the $p$ completed forms to themselves, up to these operations, as functions on permutation inputs.
+
+**Proposition.** Such symmetries can act transitively on the completed forms exactly for paths and stars. In both cases a single cyclic symmetry suffices.
+
+Two linear forms agree on all permutation inputs exactly when their coefficient vectors differ by a multiple of the all-ones vector. Indeed swapping any two field values forces the two coefficients of their difference to be equal, and a permutation sums to zero. Join two output positions if their forms differ, modulo that vector, by a nonzero multiple of $x_i-x_j$ for some distinct $i,j$. The graph on output positions is invariant under the allowed operations. Transitivity forces regularity.
+
+For $p\ge5$ two ordinary rows are adjacent exactly when the corresponding edges meet. For disjoint edges the difference vector has entries $1,1,-1,-1$ and $p-4$ zeros. Subtracting any constant leaves at least $\min(4,p-2)>2$ nonzero entries. Deleting the appended position from the row graph therefore gives the line graph of the tree.
+
+Here is the graph-theoretic restriction. If the line graph of a tree is obtained by deleting a vertex of a regular simple graph, the tree is a path or a star. Suppose it has maximum degree $\Delta\ge3$ and is not a star. A maximum-degree vertex has a nonleaf neighbor. Their edge has line-graph degree at least $\Delta$, so the regular degree $d$ is at least $\Delta$. A leaf edge has line-graph degree at most $\Delta-1$. It must be adjacent to the deleted vertex, and its line-graph degree must be $d-1$. Thus $d=\Delta$ and every leaf has a parent of degree $\Delta$. The deleted vertex accommodates at most $\Delta$ leaf edges, whereas the tree has
+$$
+2+\sum_{\deg(v)\ge3}(\deg(v)-2)\ \ge\ \Delta
+$$
+leaves. Equality forces a unique branching vertex. All leaves are adjacent to it, giving a star and contradicting the assumption.
+
+For a path, the missing row closes the cycle, giving the cyclic symmetry already used above. For a star with center $c$, the missing row equals $2x_c$. Subtracting $x_c$ from all $p$ forms gives exactly the $p$ vertex coordinates, which can be cycled. At $p=3$ the unique tree is both a path and a star. This classifies this symmetry argument. Other tree shapes can still have nonzero signed counts.
+
+Direct checks computed the graph from the completed coefficient vectors for all 1,551 unrooted trees at orders $3,5,7,11,13$. Its restriction to ordinary rows always agreed with edge intersection, and regularity occurred exactly for the stated shapes. [Checker](check_row_symmetry.py)
+
+~~~sh
+python3 -B -m research.biased.check_row_symmetry
+~~~
