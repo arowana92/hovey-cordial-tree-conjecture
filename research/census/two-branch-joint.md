@@ -30,6 +30,8 @@ The zero-labeled free vertex must be a center. A zero-labeled grandchild would r
 
 Conversely, if $g=\gcd(b,k)>1$, use $y=k/g$ and select $b/g$ entire cosets of $\langle y\rangle$ away from the zero coset. These are available since $b<k$, and avoid both centers. The rest of the labels go to the other children. Exchange sides for the other gcd. In particular, at every prime $k\ge5$, every positive split $a+b=k-2$ gives an obstruction to a uniform increment at the joint. The full-block construction still extends over every deficient weight.
 
+At prime modulus there is an exact criterion for every number of ordinary leaves as well. It is a nonnegative integer representability test with three generators. [Full prime classification and constructive proof](prime-neutral.md)
+
 ## Other joints and arbitrary size
 
 A useful bridge rule works for any two cordial trees. If the core has order divisible by $k$, translate the new tree's labels so the new joining edge fills the core's unique deficient weight. Then the core and bridge contribute uniform edge counts, and the core contributes uniform vertex counts. The union is cordial for any order of the new tree. If instead the **new** tree has order divisible by $k$, its entire increment can be made uniform at any labeled parent $c$. If its root label and its missing weight are $y,m$, translate its labels by $z=c+y-m$. Then the new edge weighs $c+y+z=m+2z$. This rule also holds if an edge has a fixed additive offset, by including that offset in the equation for $z$.
