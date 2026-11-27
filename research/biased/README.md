@@ -14,6 +14,8 @@ At every prime and every tree order, arbitrary offsets also work with two arbitr
 
 A star mapped to a subgroup and its attached leaves admit an exact test for prescribed leaf offsets. The criterion depends only on their total and the leaf populations. [Subgroup theorem and direct checks](subgroup-offsets.md)
 
+At any prime $p\ge n+h-1$, every prescribed rainbow labeling on the nonleaf core of an $n$-vertex tree with $h$ nonleaves extends over independently offset leaves. For two effective shifts the corresponding list theorem has an exact multiplicity criterion at every modulus. [Leaf lists, sharp bound and checks](leaf-lists.md)
+
 ## Reduction to one order
 
 At every modulus $k\ge2$, the assertion with arbitrary edge offsets at **order exactly $k$** implies the same assertion at all orders. At order $k$ it asks for a vertex bijection and distinct edge weights. A smaller tree can be padded to order $k$ and the labeling restricted.
