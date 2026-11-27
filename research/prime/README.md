@@ -91,3 +91,13 @@ python3 -B -m research.prime.verify_forests 11 /tmp/hovey-forest-moments
 ~~~
 
 The same check at 3, 5 and 7 finds the scalar nonzero on all 2, 9 and 48 forest shapes respectively. [Enumeration by label assignments](forest_moments.cpp) · [Kernel and witness verifier](verify_forests.py)
+
+A direct witness stream independently covers **6,912,367** colored ten-vertex forests at eleven labels in **693,333** unit orbits. Each row uses all nonzero labels, with ten distinct actual edge weights. There are no failed rows. The orbit checker sums raw orbit cardinalities and compares them with an independent rooted-tree multiset recurrence. The stream SHA-256 is `060fc56ffc770f0f0dd403066450362ebe9978c2a3d3eba7a4302dd1ad335bc7`.
+
+~~~sh
+out=$(mktemp -d)
+c++ -O3 -std=c++17 -shared -fPIC research/rainbow/search.cpp -o "$out/search.so"
+python3 -B -m research.rainbow.surplus_spectrum 11 --native "$out/search.so" > "$out/eleven.jsonl"
+python3 -B -m research.rainbow.check_surplus_spectrum 11 "$out/eleven.jsonl"
+shasum -a 256 "$out/eleven.jsonl"
+~~~
