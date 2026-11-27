@@ -10,6 +10,35 @@ Every tree whose branches at the two centers are single leaves or two-edge paths
 
 For equal numbers of branch parents on the two sides, every positive branch child count can be chosen independently. The integer construction also allows direct leaves at a center when their number is less than every branch child count on its side. [Two-center layer theorem](two-center-layers.md)
 
+## Seven branch parents
+
+**Theorem.** Every tree of diameter five having at most seven nonleaf neighbors of the centers off the central edge is super edge-magic. It is therefore cordial at every modulus. There is no bound on the number of leaves adjacent to any center or any branch parent.
+
+Delete all leaves to get a double star. If it has at most seven vertices, use the [seven-nonleaf theorem](seven-nonleaf.md). For core orders eight and nine, reserve one leaf at each terminal vertex and rank all core vertices by their remaining leaf populations. The [interval layer argument](five-nonleaf.md#ranking-the-excess-leaf-counts) gives an independently repeatable extension for each allowed step in each rank. Each certificate cell records the initial labeling and all its steps. The periodic coverage test checks that the cells together handle every vector of ranked populations.
+
+| Core order | Ranked double stars | Certified cells | Largest seed order | Coverage representatives |
+| ---: | ---: | ---: | ---: | ---: |
+| 8 | 1,736 | 2,632 | 44 | 595,128 |
+| 9 | 4,536 | 7,985 | 62 | 4,340,168 |
+
+For completeness, choose an unordered pair of center ranks. Assign each other rank to a center, using both centers. In a valid core the centers are uniquely recoverable as its two nonterminal vertices, so there are exactly $\binom h2(2^{h-2}-2)$ ranked cores. The verifier checks the graph of every group, rejects duplicate groups and compares their count with this formula. It checks every seed, extension and cell cover using the common integer verifier. [Verifier and generator](double_core_cover.py) · [Order eight](double-core-8.jsonl.gz) · [Order nine](double-core-9.jsonl.gz)
+
+~~~sh
+python3 -B -m research.hub.double_core_cover 8
+python3 -B -m research.hub.double_core_cover 9
+~~~
+
+To regenerate the decompressed certificate streams independently, run the following from the repository root. Their SHA-256 digests are `edbccd158752919fede6a51e7857ba51261edcc083f22af919d7e68661b00958` and `5829776bb3c048b7eab454316a46f146ea54d042c6c32d5cf6334806074647ea` respectively.
+
+~~~sh
+out=$(mktemp -d)
+c++ -O3 -std=c++17 -shared -fPIC research/hub/ranked_core_search.cpp -o "$out/search.so"
+for h in 8 9; do
+    python3 -B -m research.hub.double_core_cover "$h" --generate "$out/search.so" > "$out/$h.jsonl" || exit 1
+    gzip -dc "research/hub/double-core-$h.jsonl.gz" | cmp - "$out/$h.jsonl" || exit 1
+done
+~~~
+
 ## Restoring one layer of leaves
 
 At order $0\bmod k$, a cordial tree has uniform vertex counts and one deficient edge residue. Add one leaf with the vertex label that supplies that residue. The order is now $1\bmod k$, with a single surplus vertex residue and uniform edge counts. From this state, up to $k-1$ new leaves with parents already present can be assigned distinct vertex labels avoiding the surplus and distinct edge weights. For a batch of exactly $k$ leaves, do this for the first $k-1$, then fill the resulting edge deficiency with the last leaf. Full batches return to order $1\bmod k$. The partial-batch assertion follows by padding the list of parent shifts to a zero-sum list of length $k$, applying Hall's permutation theorem, then translating the retained leaf labels to avoid the surplus. [Hall, *A combinatorial problem on abelian groups*](https://doi.org/10.1090/S0002-9939-1952-0050579-7) · [Detailed leaf extension](../counterexample-bound.md#removing-leaves)

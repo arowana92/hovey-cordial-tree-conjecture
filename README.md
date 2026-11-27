@@ -10,6 +10,8 @@ Every tree of diameter at most four is cordial for **every** positive modulus. A
 
 For diameter five, every tree is $k$-cordial for $1\le k\le36$. At any modulus, testing only trees of order exactly $k$ suffices. Every diameter-five tree of order at least $2k-5$ is $k$-cordial regardless of that test. [Reduction, finite proofs and reproducible checks](research/hub/diameter-five.md)
 
+Every diameter-five tree with at most **seven nonleaf neighbors off its two centers** is super edge-magic. The split between the two sides, the child count of each branch and the number of direct leaves at each center are arbitrary. [Proof and certificates for all leaf populations](research/hub/diameter-five.md#seven-branch-parents)
+
 Every tree obtained by subdividing any subset of the pendant edges of a double star once is super edge-magic and cordial at every modulus. A signed Langford construction places new two-edge branches in triples at either center. [Proof and independent verification](research/hub/subdivided-double-stars.md)
 
 For diameter five, an integer labeling works at **every modulus** if the two centers have equal numbers of nonleaf neighbors off the central edge and no direct leaves. The branches can have arbitrary, independently chosen child counts. The proof also permits some direct leaves and unequal numbers of branches. [Consecutive integer sums and verification](research/hub/two-center-layers.md)
