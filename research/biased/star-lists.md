@@ -70,6 +70,8 @@ At $p=29$, evaluating the formula at every $17\le s\le29$ leaves the following p
 | 26 | 10, 16 |
 | 28 | 9, 25 |
 
+The [two-terminal extension](two-star-lists.md) eliminates the equality case also at these three residues, and at every residue for each prime from 29 through 61.
+
 ## Verification
 
 From the repository root run
