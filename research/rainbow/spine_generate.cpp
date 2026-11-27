@@ -1,5 +1,6 @@
 // Generate a binary witness stream for the size-ordered cut test.
 #include "ranked_forest.hpp"
+#include "tip_forests.hpp"
 #include <algorithm>
 #include <array>
 #include <cstdint>
@@ -207,10 +208,15 @@ public:
         if (!out) throw std::runtime_error("cannot open output");
     }
 
-    void run(bool ranked) {
+    void run(bool ranked, int tip_limit) {
         out.write(cover ? "SPN2" : "SPN1", 4);
         out.put(static_cast<char>(k));
-        if (ranked) {
+        if (tip_limit) {
+            TipForests limited(k-1, tip_limit);
+            limited.each(k-1, [&](Code word) {
+                if (shapes++ % shards == static_cast<unsigned>(shard)) forest(word);
+            });
+        } else if (ranked) {
             RankedForests catalog(k-1);
             shapes = catalog.count();
             for (Code i = shard; i < shapes; i += shards) forest(catalog[i]);
@@ -232,17 +238,20 @@ public:
         if (!out) throw std::runtime_error("write failed");
         auto& report = &out==&file ? std::cout : std::cerr;
         report << "shard " << shard << ": " << selected << " shapes, " << cases
-                  << " witnesses, full catalog " << shapes << '\n';
+                  << " witnesses, " << (tip_limit ? "tip-limited catalog " : "full catalog ") << shapes << '\n';
     }
 };
 }
 
 int main(int argc, char** argv) {
     std::ios::sync_with_stdio(false);
-    if (argc < 5 || argc > 6) return 2;
-    std::string mode = argc == 6 ? argv[5] : "";
-    if (!mode.empty() && mode != "--cover" && mode != "--ranked-cover") return 2;
+    if (argc < 5 || argc > 7) return 2;
+    std::string mode = argc >= 6 ? argv[5] : "";
+    if ((mode == "--tips") != (argc == 7)) return 2;
+    if (!mode.empty() && mode != "--cover" && mode != "--ranked-cover" && mode != "--tips") return 2;
     int k = std::stoi(argv[1]), shard = std::stoi(argv[2]), total = std::stoi(argv[3]);
-    if (k < 5 || k > 26 || shard < 0 || shard >= total) return 2;
-    Generator(k, shard, total, argv[4], argc == 6).run(mode == "--ranked-cover");
+    if (k < 5 || k > (mode == "--tips" ? 30 : 26) || shard < 0 || shard >= total) return 2;
+    int tips = mode == "--tips" ? std::stoi(argv[6]) : 0;
+    if (mode == "--tips" && (tips < 1 || tips > 2*(k-2)/3)) return 2;
+    Generator(k, shard, total, argv[4], argc >= 6).run(mode == "--ranked-cover", tips);
 }

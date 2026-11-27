@@ -65,6 +65,30 @@ Count rooted_count(int k) {
     return ways[k-1];
 }
 
+// Bivariate multiset product for all forests of order k-1 with at most limit tips.
+Count tip_count(int k, int limit) {
+    std::vector<std::vector<Count>> ways(k, std::vector<Count>(limit+1));
+    ways[0][0] = 1;
+    for (int size = 1; size < k; ++size) {
+        auto layer = ways[size-1];
+        if (size == 1) layer[1] = 1; // a singleton has one tip
+        for (int tips = 1; tips <= limit; ++tips) {
+            Count types = layer[tips];
+            if (types == 0) continue;
+            auto next = ways;
+            Count choices = 1;
+            for (int n = 1; n*size < k && n*tips <= limit; ++n) {
+                choices = choices*(types+n-1)/n;
+                for (int s = n*size; s < k; ++s)
+                    for (int t = n*tips; t <= limit; ++t)
+                        next[s][t] += choices*ways[s-n*size][t-n*tips];
+            }
+            ways.swap(next);
+        }
+    }
+    return std::accumulate(ways.back().begin(), ways.back().end(), Count(0));
+}
+
 struct Shape {
     int k, pos = 0, leaves = 0;
     Count code;
@@ -221,7 +245,7 @@ struct Audit {
         visit(visit, 0, internal, 0, 1);
     }
 
-    void verify(const char* path) {
+    void verify(const char* path, int tip_limit=0) {
         Reader in(path);
         for (char c : std::string("SPN")) check(in.byte() == c, "bad header");
         int version = in.byte();
@@ -230,6 +254,7 @@ struct Audit {
         for (int first; (first = in.next()) >= 0;) {
             Count word = in.rest(first,8);
             Shape s(k,word);
+            check(!tip_limit || s.leaves <= tip_limit, "too many tips in restricted catalog");
             if (bits) bits->insert(s);
             else check(seen.insert(word).second, "repeated forest");
             const Profile& p = profiles.try_emplace(s.sizes, k, s).first->second;
@@ -342,8 +367,21 @@ void parallel_audit(int k, int workers, const std::vector<std::string>& paths, b
 int main(int argc, char** argv) {
     if (argc < 3) return 2;
     int k = std::stoi(argv[1]);
-    if (k < 5 || k > 26) return 2;
+    bool limited = std::string(argv[2])=="--tips";
+    if (k < 5 || k > (limited ? 30 : 26)) return 2;
     try {
+        if (limited) {
+            if (argc < 5) return 2;
+            int tips=std::stoi(argv[3]);
+            if (tips < 1 || tips > 2*(k-2)/3) return 2;
+            Audit audit(k);
+            for (int i=4; i<argc; ++i) audit.verify(argv[i],tips);
+            check(audit.seen.size()==tip_count(k,tips),"incomplete tip-limited catalog");
+            check(audit.eligible==audit.seen.size(),"unverified boundary colors");
+            std::cout << "k=" << k << " tip limit=" << tips << " forests=" << audit.eligible
+                      << " witness rows=" << audit.rows << " boundary assignments=" << audit.colorings << '\n';
+            return 0;
+        }
         bool compact=std::string(argv[2])=="--rank-bits";
         if (compact || std::string(argv[2]) == "--parallel") {
             if (argc < 5) return 2;
