@@ -11,7 +11,7 @@ Let $A$ be a nonempty set of residues modulo $k$. Give every edge an independent
 | 8 | All elements agree modulo 4 |
 | 9 | All elements agree modulo 3 |
 | 16 | All elements agree modulo 8 |
-| 6, 10, 12, 14, 15, 18, 20, 21, 22 | $A$ has one element |
+| 6, 10, 12, 14, 15, 18, 20, 21, 22, 24 | $A$ has one element |
 
 In particular, at eight labels a different choice between $0$ and $4$ can be prescribed on **every edge of every tree**. At nine labels the choices are $0,3,6$, and at sixteen they are $0,8$. Ordinary cordiality is the single-offset case. The nonconstant positive results at prime powers use the finite checks below.
 
@@ -19,7 +19,7 @@ In particular, at eight labels a different choice between $0$ and $4$ can be pre
 
 Take two offsets in $A$ whose difference is $b$, and subtract the first from every edge. For every proper divisor $1<s<k$, the order-$k$ double star with $s-1$ leaves on one side and $k-1-s$ on the other can accommodate offset $b$ on its central edge and zero elsewhere only if $s\mid b$. Indeed, normalize the label at the second center to zero and let $x$ be the other central label. When $b\ne0$, $x$ must be the missing weight. Summing the $k-1$ distinct weights gives $sx=-b\pmod k$. [Double-star calculation](../rainbow/pinned-star.md)
 
-Consequently every difference in $A-A$ must be divisible by the least common multiple of the proper divisors of $k$. For $k=p^a$, $a\ge2$, this is $k/p$. For $k$ with at least two distinct prime factors, the proper divisors $k/p$ as $p$ varies over those factors already have least common multiple $k$. Thus at any such mixed modulus a nonconstant set fails, with an explicit ordinary tree and a single changed edge. A singleton works exactly when ordinary Hovey cordiality holds at that modulus. The ordinary proofs cover the mixed moduli in the table. For prime moduli in the table use the [arbitrary-offset theorem](README.md).
+Consequently every difference in $A-A$ must be divisible by the least common multiple of the proper divisors of $k$. For $k=p^a$, $a\ge2$, this is $k/p$. For $k$ with at least two distinct prime factors, the proper divisors $k/p$ as $p$ varies over those factors already have least common multiple $k$. Thus at any such mixed modulus a nonconstant set fails, with an explicit ordinary tree and a single changed edge. A singleton works exactly when ordinary Hovey cordiality holds at that modulus. The ordinary proofs cover the mixed moduli in the table, including [24 labels](../rainbow/twenty-four.md). For prime moduli in the table use the [arbitrary-offset theorem](README.md).
 
 ## A sufficient finite test for cosets of a subgroup
 
