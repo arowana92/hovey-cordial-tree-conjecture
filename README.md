@@ -14,6 +14,8 @@ For an even tree with equal bipartition classes, consider whether every vertex c
 
 If $T$ has edge-ranking number $h$, it has a subdivision on every prescribed order $N\ge 2^h$ that is cordial at every modulus. At orders $2^h$ and $2^h-1$, the original tree itself admits an integer $\alpha$-labeling. The power-of-two threshold is exact for subdivisions that can be recursively bisected by single edges down to singleton vertices. [Proof, construction and independent checks](research/census/ranked-subdivisions.md)
 
+Every tree with $m$ edges and diameter $D$ is an induced subtree of an $\alpha$-labeled tree on at most $2m-D$ edges. For the original $n$-vertex tree, if a leaf-to-leaf path together with its adjacent original leaves covers all but $d$ vertices, then every modulus $k\ge n+d$ works. [Level construction and independent checks](research/census/level-hosts.md)
+
 At eight labels, Lean proves the theorem for finite trees built by joining rooted subtrees. It checks the finite certificate, the induction and the counts on each tree’s actual edges. [Formal proof and replay](research/eight/README.md#the-complete-eight-label-theorem-in-lean)
 
 For **any finite tree and any chosen vertex**, adding at least $C(h+1)^2$ leaves at that vertex gives a super edge-magic tree, where $h$ is the original order and $C$ is absolute. One integer labeling then works at every positive modulus. For each fixed bound on the matching number or on the number of nonleaf vertices, only finitely many trees can fail to be super edge-magic. [Quadratic integer bound and independent checks](research/hub/quadratic-endpoint.md) · [Bounded-nonleaf result](research/hub/endpoint-hub.md)
