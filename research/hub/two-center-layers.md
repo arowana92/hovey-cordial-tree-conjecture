@@ -4,6 +4,8 @@
 
 The theorem permits further leaves directly at either center. On each side their number must be strictly smaller than the least branch child count on that side. When $h=0$ any two direct leaf counts work. For example, one center can have branch child counts $(11,5,2)$ and one direct leaf, and the other counts $(21,7,4)$ and three direct leaves. The number of centers' neighbors with children is the only equality in the statement. The integer intervals give the result for all moduli by [Youssef's theorem](https://ajc.maths.uq.edu.au/pdf/43/ajc_v43_p031.pdf).
 
+When the two sides have matching branch child counts and at least three branch parents apiece, the direct leaf counts can instead be arbitrary and independent. [Graceful copies and unrestricted center leaves](graceful-copies.md)
+
 ## Two independently extensible lists of parents
 
 Start with one leaf per branch parent and put $m=2h+1$. Use the [matched-arm construction](matched-arms.md) with center labels $h,h+m$, integer vertex interval $[0,2m-1]$, and edge interval $[m,3m-2]$. At distance $j$ from the central index, always use the upper endpoint of pair $h-j$ as its arm parent and the lower endpoint of pair $h+j$ as its arm parent. For even $j$ the first belongs to the upper center and the second to the lower center. For odd $j$ those assignments reverse. This gives the required joining sums in the matched-arm table. Each center receives one branch at every distance.

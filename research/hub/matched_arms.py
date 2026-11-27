@@ -4,7 +4,7 @@
 def interval_lift(parents, indices, joins):
     """Return a labeling, or None when the specified pair allocation cannot work."""
     m = len(parents)
-    if m % 2 == 0 or sorted(indices) != list(range(m)):
+    if m % 2 == 0 or len(indices) != m or set(indices) != set(range(m)):
         raise ValueError("the quotient needs a permutation of odd order")
     sums = [indices[p] + indices[i] for i, p in enumerate(parents) if i]
     if {z % m for z in sums} != set(range(m - 1)):
