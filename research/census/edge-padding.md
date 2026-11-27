@@ -4,7 +4,7 @@
 
 **Bound independent of tree order.** At $k\ge5$, **every tree containing a path with at least $2(k-3)(k-1)^2$ internal vertices of degree two is $k$-cordial**. The endpoints, degrees elsewhere, and total tree order are unrestricted. The earlier [bare-path repair theorem](../hub/bare-path-repair.md) instead gives a threshold uniform over moduli for trees in specified degree classes.
 
-**One-period subdivisions on an arbitrary fixed core.** At every odd $k$, and at every $k\ge8$ divisible by four, one can subdivide any chosen edge of **any cordially labeled tree** by exactly $k$ vertices while keeping all old labels. At $k\equiv2\pmod4$, $k\ge6$, this holds for every cordial core of even order and for some odd orders as described below. Repeated applications may use different edges.
+**One-period subdivisions on an arbitrary fixed core.** At every odd $k$, and at every $k\ge8$ divisible by four, one can subdivide any chosen edge of **any cordially labeled tree** by exactly $k$ vertices while keeping all old labels. The [complete one-period classification](period-subdivision.md) also covers every $k\equiv2\pmod4$, $k\ge6$, at every old order except one modulo $k$. Repeated applications may use different edges.
 
 ## One new leaf and one old edge
 
@@ -30,7 +30,7 @@ If a low edge bin $D$ has high antipode $D+m$, follow the full cycle that repeat
 
 Now suppose $4\mid k$ and the high edge bins are invariant under the antipodal map. Their count is even. The old order is odd, so the number of high vertex bins is odd. Translation by $k/4$ partitions the residues into orbits of length four. Thus some high vertex label $y$ has low translate $z=y+k/4$. Use the $k-1$-vertex subdivision with hole $y$. Its missing weight is $2y-S=2z$ by the sum calculation above. The path contains $z$. Duplicating it next to itself supplies that weight, so the edge increments are uniform. The vertex increments are one per bin except for a transfer from $y$ to $z$, which preserves cordiality. This proves the fixed-core theorem. At two modulo four an order-one-residue core has the proved parity obstruction to a one-period subdivision.
 
-The [constructor](edge_padding.py) gives the labels along the chosen edge and on each original vertex. The [checker](check_edge_padding.py) counts the actual old and new edge weights in 10,850 uniform leaf-and-edge packets, tests 11,228 fixed-core period insertions including antipodally invariant high sets, and verifies 1,224 padded trees through modulus 4,096.
+The [constructor](edge_padding.py) gives the labels along the chosen edge and on each original vertex. The [checker](check_edge_padding.py) counts the actual old and new edge weights in 10,850 uniform leaf-and-edge packets, tests 11,231 fixed-core period insertions including antipodally invariant high sets, and verifies 1,224 padded trees through modulus 4,096.
 
 ~~~bash
 python3 -B -m research.census.check_edge_padding

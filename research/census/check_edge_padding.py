@@ -1,6 +1,7 @@
 """Independent actual-sum checks for a uniform leaf plus edge insertion."""
 from collections import Counter
 from random import Random
+from itertools import combinations
 
 from .edge_padding import leaf_packet, padded_tree, period
 
@@ -29,6 +30,24 @@ def check_period(k,vs,es,a,b):
         assert max(new)-min(new)<=1
 
 
+def invariant_sets():
+    total = 0
+    for k in (6,10,14):
+        m = k//2
+        for count in range(1,m):
+            for half in combinations(range(m),count):
+                es = set(half)|{x+m for x in half}
+                for high in combinations(range(k),2*count+1):
+                    vs = set(high)
+                    # For the two small moduli repeat at every possible
+                    # monochromatic endpoint to exercise the excluded anchor.
+                    choices = range(k) if k<=10 else [(sum(high)+sum(half))%k]
+                    for a in choices:
+                        check_period(k,vs,es,a,a)
+                        total += 1
+    return total
+
+
 def main():
     rng = Random(260208)
     packets = periods = trees = 0
@@ -45,10 +64,10 @@ def main():
             size = j%k
             vs = set(rng.sample(range(k),size))
             es = set(rng.sample(range(k),(size-1)%k))
-            if k%4 == 0 and size%2 and j%2:
+            if k%2 == 0 and size%2 and j%2:
                 half = rng.sample(range(k//2),(size-1)//2)
                 es = set(half) | {x+k//2 for x in half}
-            if k%4 != 2 or any((x+k//2)%k not in es for x in es):
+            if k%4 != 2 or size != 1:
                 check_period(k,vs,es,rng.randrange(k),rng.randrange(k))
                 periods += 1
         for _ in range(12):
@@ -63,7 +82,8 @@ def main():
                 c = freq(values,k)
                 assert max(c)-min(c)<=1
             trees += 1
-    print("uniform leaf and edge packets",packets,"fixed-core periods",periods,"padded trees",trees)
+    print("uniform leaf and edge packets",packets,"fixed-core periods",periods,"padded trees",trees,
+          "invariant histogram cases",invariant_sets())
 
 
 if __name__ == "__main__":
