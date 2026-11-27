@@ -5,16 +5,17 @@
 #include <vector>
 
 namespace {
-struct Arm {
-    int center, parent, tip;
-};
+template <std::size_t Length>
+using Arm = std::array<int, Length+1>;
 
-// Circular column and row lists for Algorithm X. Each row has four incidences.
+// Circular column and row lists for Algorithm X.
 struct Incidence {
     int left, right, up, down, column, arm;
 };
 
+template <std::size_t Length>
 class Search {
+    static constexpr int width = 2*Length;
     std::vector<Incidence> links;
     std::vector<int> sizes;
     int remaining[2];
@@ -47,7 +48,7 @@ class Search {
     }
 
 public:
-    std::vector<Arm> arms, answer;
+    std::vector<Arm<Length>> arms, answer;
 
     Search(int a, int b, int columns, int limit)
         : links(columns+1), sizes(columns+1), remaining{a, b}, budget(limit) {
@@ -55,14 +56,20 @@ public:
             links[i] = {(i+columns)%(columns+1), (i+1)%(columns+1), i, i, i, -1};
     }
 
-    void add(int arm, std::array<int,4> columns) {
+    void add(int arm, std::array<int,2*Length> columns) {
         int first = static_cast<int>(links.size());
-        for (int j = 0; j < 4; ++j) {
+        for (int j = 0; j < width; ++j) {
             int column = columns[j], i = first+j, above = links[column].up;
-            links.push_back({first+(j+3)%4, first+(j+1)%4, above, column, column, arm});
+            links.push_back({first+(j+width-1)%width, first+(j+1)%width, above, column, column, arm});
             links[above].down = links[column].up = i;
             ++sizes[column];
         }
+    }
+
+    void shuffle(unsigned trial) {
+        std::mt19937 rng(trial);
+        for (int j = static_cast<int>(arms.size()); j > 1; --j)
+            std::swap(arms[j-1], arms[rng()%j]);
     }
 
     bool solve() {
@@ -73,14 +80,14 @@ public:
             if (sizes[j] < sizes[column]) column = j;
         hide(column);
         for (int i = links[column].down; i != column && budget > 0; i = links[i].down) {
-            Arm arm = arms[links[i].arm];
-            if (!remaining[arm.center]) continue;
-            --remaining[arm.center];
+            auto arm = arms[links[i].arm];
+            if (!remaining[arm[0]]) continue;
+            --remaining[arm[0]];
             answer.push_back(arm);
             for (int j = links[i].right; j != i; j = links[j].right) hide(links[j].column);
             if (solve()) return true;
             for (int j = links[i].left; j != i; j = links[j].left) restore(links[j].column);
-            ++remaining[arm.center];
+            ++remaining[arm[0]];
             answer.pop_back();
         }
         restore(column);
@@ -102,7 +109,7 @@ extern "C" int armsearch(int a, int b, int lower, int cutoff, unsigned trial, in
         if (x != 0 && x != 1) vertex[x-lower] = ++columns;
     for (int y = lower+1; y <= upper; ++y)
         if (y != 1) weight[y-lower] = ++columns;
-    Search search(a, b, columns, limit);
+    Search<2> search(a, b, columns, limit);
     for (int c : {0, 1}) for (int p = lower; p <= upper; ++p) {
         int y = c+p;
         if (!vertex[p-lower] || y <= lower || y > upper || !weight[y-lower]) continue;
@@ -114,9 +121,7 @@ extern "C" int armsearch(int a, int b, int lower, int cutoff, unsigned trial, in
                 search.arms.push_back({c, p, x});
         }
     }
-    std::mt19937 rng(trial);
-    for (int j = static_cast<int>(search.arms.size()); j > 1; --j)
-        std::swap(search.arms[j-1], search.arms[rng()%j]);
+    search.shuffle(trial);
     for (int i = 0; i < static_cast<int>(search.arms.size()); ++i) {
         auto [c, p, x] = search.arms[i];
         search.add(i, {vertex[p-lower], vertex[x-lower], weight[c+p-lower], weight[p+x-lower]});
@@ -127,5 +132,44 @@ extern "C" int armsearch(int a, int b, int lower, int cutoff, unsigned trial, in
         *out++ = p;
         *out++ = x;
     }
+    return 1;
+}
+
+extern "C" int pathsearch(int a, int b, int lower, int d, unsigned trial, int limit, int* out) {
+    const int n = 2+3*(a+b), upper = lower+n-1;
+    if (lower > 0 || upper < 1 || (d && (lower > 3*(1-d) || upper < 3*d))) return 0;
+    auto speed = [&](int x, int origin) {
+        return d ? (x >= 3*d+origin) - (x < 3*(1-d)+origin) : 0;
+    };
+    std::vector<int> vertex(n), weight(n);
+    int columns = 0;
+    for (int x = lower; x <= upper; ++x)
+        if (x != 0 && x != 1) vertex[x-lower] = ++columns;
+    for (int y = lower+1; y <= upper; ++y)
+        if (y != 1) weight[y-lower] = ++columns;
+    Search<3> search(a, b, columns, limit);
+    auto available = [&](int parent, int child) {
+        const int sum = parent+child;
+        return vertex[child-lower] && sum > lower && sum <= upper && weight[sum-lower]
+            && speed(parent,0)+speed(child,0) == speed(sum,1);
+    };
+    for (int c : {0, 1}) for (int p = lower; p <= upper; ++p) {
+        if (!available(c,p)) continue;
+        for (int q = lower; q <= upper; ++q) {
+            if (p == q || !available(p,q)) continue;
+            for (int x = lower; x <= upper; ++x)
+                if (x != p && x != q && available(q,x) && c+p != q+x)
+                    search.arms.push_back({c,p,q,x});
+        }
+    }
+    search.shuffle(trial);
+    for (int i = 0; i < static_cast<int>(search.arms.size()); ++i) {
+        auto [c,p,q,x] = search.arms[i];
+        search.add(i, {vertex[p-lower], vertex[q-lower], vertex[x-lower],
+                       weight[c+p-lower], weight[p+q-lower], weight[q+x-lower]});
+    }
+    if (!search.solve()) return 0;
+    for (const auto& arm : search.answer)
+        for (int x : arm) *out++ = x;
     return 1;
 }
