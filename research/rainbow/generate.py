@@ -70,7 +70,7 @@ def ordered_boundaries(forest, k, spine=False):
         yield tuple(colors[g] for g in group_of)
 
 
-def rainbow(parents, k):
+def rainbow(parents, k, offsets=None):
     labels = []
 
     def choose(available, weights):
@@ -79,6 +79,8 @@ def rainbow(parents, k):
             return True
         p = parents[i]
         parent_label = -1 - p if p < 0 else labels[p]
+        if offsets is not None:
+            parent_label += offsets[i]
         candidates = available
         while candidates:
             bit = candidates & -candidates
