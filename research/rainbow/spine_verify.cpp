@@ -8,11 +8,13 @@
 #include <cstdio>
 #include <iostream>
 #include <map>
+#include <memory>
 #include <numeric>
 #include <stdexcept>
 #include <string>
 #include <unordered_set>
 #include <vector>
+#include "shape_rank.hpp"
 
 namespace {
 using Count = std::uint64_t;
@@ -143,12 +145,29 @@ struct Profile {
     }
 };
 
+class ShapeBits {
+    ShapeRank rank;
+    std::vector<std::atomic<Count>> bits;
+public:
+    explicit ShapeBits(int k): rank(k-1),bits((rank.total()+63)/64) {
+        check(rank.total()==rooted_count(k),"forest rank total");
+        for (auto& word : bits) word.store(0,std::memory_order_relaxed);
+    }
+    void insert(const Shape& s) {
+        Count id=rank(s.parents);
+        check(id<rank.total(),"forest rank out of range");
+        Count mask=Count(1)<<(id%64);
+        check(!(bits[id/64].fetch_or(mask,std::memory_order_relaxed)&mask),"repeated forest rank");
+    }
+};
+
 struct Audit {
     int k;
     std::unordered_set<Count> seen;
     std::map<std::vector<int>,Profile> profiles;
     Count rows = 0, eligible = 0, colorings = 0, base_only = 0;
-    explicit Audit(int k): k(k) {}
+    ShapeBits* bits;
+    explicit Audit(int k,ShapeBits* compact=nullptr): k(k),bits(compact) {}
 
     void cover_witness(Reader& in, const Shape& s, const Profile& p,
                        std::vector<bool>& covered, bool active) const {
@@ -209,8 +228,9 @@ struct Audit {
         check(in.byte() == k, "wrong modulus");
         for (int first; (first = in.next()) >= 0;) {
             Count word = in.rest(first,8);
-            check(seen.insert(word).second, "repeated forest");
             Shape s(k,word);
+            if (bits) bits->insert(s);
+            else check(seen.insert(word).second, "repeated forest");
             const Profile& p = profiles.try_emplace(s.sizes, k, s).first->second;
             const bool active = s.leaves <= 2*(k-2)/3;
             int count = active ? p.representatives : 1;
@@ -270,22 +290,23 @@ struct Audit {
                   << " eligible boundary assignments=" << colorings << '\n';
     }
 };
-// Only records in different files run concurrently. Globally sort all canonical
-// words to establish nonduplication across shards before reporting completeness.
-void parallel_audit(int k, int workers, const std::vector<std::string>& paths) {
+// Across files, establish uniqueness by sorting words or setting canonical rank bits.
+void parallel_audit(int k, int workers, const std::vector<std::string>& paths, bool compact) {
     check(workers > 0 && !paths.empty(), "expected a worker count and shard files");
     Audit totals(k);
     std::atomic<std::size_t> next{0};
     std::mutex output;
     std::vector<Count> keys;
-    keys.reserve(rooted_count(k));
+    std::unique_ptr<ShapeBits> bits;
+    if (compact) bits=std::make_unique<ShapeBits>(k);
+    else keys.reserve(rooted_count(k));
     std::vector<std::future<void>> jobs;
     for (int w = 0; w < workers && static_cast<std::size_t>(w) < paths.size(); ++w) {
         jobs.push_back(std::async(std::launch::async,[&] {
-            Audit local(k);
+            Audit local(k,bits.get());
             for (auto j = next.fetch_add(1); j < paths.size(); j = next.fetch_add(1)) {
                 local.verify(paths[j].c_str());
-                {
+                if (!compact) {
                     std::lock_guard<std::mutex> guard(output);
                     keys.insert(keys.end(),local.seen.begin(),local.seen.end());
                 }
@@ -299,6 +320,10 @@ void parallel_audit(int k, int workers, const std::vector<std::string>& paths) {
         }));
     }
     for (auto& job : jobs) job.get();
+    if (compact) {
+        totals.finish(totals.eligible+totals.base_only);
+        return;
+    }
     std::sort(keys.begin(),keys.end());
     check(std::adjacent_find(keys.begin(),keys.end()) == keys.end(), "repeated forest across shards");
     totals.finish(keys.size());
@@ -310,9 +335,10 @@ int main(int argc, char** argv) {
     int k = std::stoi(argv[1]);
     if (k < 5 || k > 26) return 2;
     try {
-        if (std::string(argv[2]) == "--parallel") {
+        bool compact=std::string(argv[2])=="--rank-bits";
+        if (compact || std::string(argv[2]) == "--parallel") {
             if (argc < 5) return 2;
-            parallel_audit(k,std::stoi(argv[3]),std::vector<std::string>(argv+4,argv+argc));
+            parallel_audit(k,std::stoi(argv[3]),std::vector<std::string>(argv+4,argv+argc),compact);
             return 0;
         }
         Audit audit(k);

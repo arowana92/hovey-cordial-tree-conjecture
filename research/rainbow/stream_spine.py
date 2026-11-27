@@ -12,7 +12,7 @@ import threading
 import time
 
 
-def run(k, shards, workers, generator, verifier, output):
+def run(k, shards, workers, generator, verifier, output, rank_bits=False):
     if workers < 1 or shards < 1 or not 5 <= k <= 26:
         raise ValueError("expected positive concurrency and shard count, and 5 <= k <= 26")
     output.mkdir()  # Preserve results of an earlier run.
@@ -21,7 +21,8 @@ def run(k, shards, workers, generator, verifier, output):
         pipes = [tmp / f"{i}.fifo" for i in range(shards)]
         for path in pipes:
             os.mkfifo(path)
-        audit = subprocess.Popen([verifier, str(k), "--parallel", str(workers), *pipes],
+        mode = "--rank-bits" if rank_bits else "--parallel"
+        audit = subprocess.Popen([verifier, str(k), mode, str(workers), *pipes],
                                  stdout=subprocess.PIPE, text=True)
         stopped = threading.Event()
 
@@ -85,6 +86,7 @@ if __name__ == "__main__":
     parser.add_argument("generator", type=Path)
     parser.add_argument("verifier", type=Path)
     parser.add_argument("output", type=Path)
+    parser.add_argument("--rank-bits",action="store_true",help="use one global bit per rooted base")
     args = parser.parse_args()
     run(args.modulus, args.shards, args.workers, args.generator.resolve(),
-        args.verifier.resolve(), args.output.resolve())
+        args.verifier.resolve(), args.output.resolve(), args.rank_bits)
