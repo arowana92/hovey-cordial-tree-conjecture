@@ -8,7 +8,7 @@
 | One | Even $k$ |
 | Two or more | All $k$ |
 
-The two bijections are a harmonious labeling. The result is a deduction from Müyesser and Pokrovskiy's rainbow embedding theorem for **trees**. We cut a cycle edge and choose the small prescribed embedding needed to put that edge back. [Definition 2.1 and Theorem 2.3](https://arxiv.org/html/2509.05280v2#S2) · [Lemma 4.9](https://arxiv.org/html/2509.05280v2#S4)
+The two bijections are a harmonious labeling. The [degree-excess extension](unicyclic-excess.md) allows unbounded maximum degree. The result is a deduction from Müyesser and Pokrovskiy's rainbow embedding theorem for **trees**. We cut a cycle edge and choose the small prescribed embedding needed to put that edge back. [Definition 2.1 and Theorem 2.3](https://arxiv.org/html/2509.05280v2#S2) · [Lemma 4.9](https://arxiv.org/html/2509.05280v2#S4)
 
 **Consequence for Hovey's conjecture.** Take any edge $ab$ of any labeled tree, open a cycle edge $ij$ of $R$, and insert $R-ij$ by joining $a$ to $i$ and $j$ to $b$. In all the harmonious cases, every vertex and edge frequency can increase by exactly one, with all old labels preserved. Translate the bijection so $j$ carries the label of $a$. The two entering edges then reproduce the deleted cycle weight and old edge weight. Only the piece has a maximum-degree restriction. For a one-leaf piece at odd $k$, a different construction below preserves every cordial old labeling.
 

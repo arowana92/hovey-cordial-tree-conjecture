@@ -1,8 +1,9 @@
 """Small prescribed rainbow cores for bounded-degree unicyclic graphs."""
 from collections import Counter
+from math import gcd
 
 
-def core(k,edges,cut):
+def core(k,edges,cut,pins=None,spare_leaves=None):
     """Return a partial labeling satisfying the two embedding moments.
 
     Edges are pairs on range(k), and cut is a cycle-edge index. The theorem
@@ -17,8 +18,10 @@ def core(k,edges,cut):
     leaves = [i for i in range(k) if deg[i]==1]
     if len(leaves)<2:
         raise ValueError('expected at least two leaves')
-    p,q = leaves[:2]
-    marked = {u,v,p,q}
+    p,q = leaves[:2] if spare_leaves is None else spare_leaves
+    pins = {} if pins is None else pins
+    assert p in leaves and q in leaves and p!=q and p not in pins and q not in pins
+    marked = set(pins)|{u,v,p,q}
     tree_degree = [d-int(i in (u,v)) for i,d in enumerate(deg)]
     for degree in sorted(set(tree_degree)):
         group = [i for i in range(k) if tree_degree[i]==degree]
@@ -46,13 +49,17 @@ def core(k,edges,cut):
         used.add(a)
 
     modulus = d-1
-    for i in sorted(marked-{p,q}):
-        a = next(a for a in range(0,k,modulus) if a not in used
+    g = gcd(k,modulus)
+    for i,a in pins.items():
+        assert a%g==0 and a not in used and weights.isdisjoint(weight_list(i,a))
+        assign(i,a)
+    for i in sorted(marked-{p,q}-set(pins)):
+        a = next(a for a in range(0,k,g) if a not in used
                  and weights.isdisjoint(weight_list(i,a)))
         assign(i,a)
     total = sum((deg[i]-1)*a for i,a in labels.items())
-    assert total%modulus==0
-    pair_sum = (-total//modulus)%k
+    assert total%g==0
+    pair_sum = (-total//g)*pow(modulus//g,-1,k//g)%(k//g)
     a = next(a for a in range(k) if a not in used and (pair_sum-a)%k not in used
              and a!=(pair_sum-a)%k)
     assign(y,a)
