@@ -39,6 +39,8 @@ python3 -B -m research.census.check_cycle_pendants "$out"
 
 ## Bounding the two-exposure case at 26
 
+The [branched substitution theorem](branched-rings.md) strengthens this first reduction to order 52 alone.
+
 Suppose some tree with a matching missing at most two vertices is not 26-cordial. Choose a counterexample of minimum order **within this class**. Its order is $26q$, $q\ge2$, and its maximum matching has exactly two exposures, by the [matching-deficiency theorem](../near-matching.md) and the order-26 base. In any maximum matching contract all its pairs, keeping the two exposures as singleton vertices. Let $h$ be the number of pairs on the path between the two singletons, and let $s$ be the number off that path. Thus $h+s=13q-1$.
 
 First $s\le12$. Otherwise remove 13 off-path pairs in child-before-parent order, rooting the off-path forest toward the path. The retained tree is connected and has a matching missing at most two vertices. Its smaller order is divisible by 26, so the [matched forest extension](../paired-forest.md) would restore all the removed pairs. This argument allows the removed forest to attach at several sites.
