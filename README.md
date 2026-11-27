@@ -160,6 +160,8 @@ With a fixed bound on the number of core leaves, an integer interval completion 
 
 For every core of order at most thirteen, arbitrary leaf counts at **two** specified vertices work at every modulus, including small counts at either hub. The independent coverage check verifies 31,820 marked-core witnesses and six residual one-hub cases. [Proof and reproducible certificate](research/hub/two-hubs-small.md)
 
+A binary linear system decides whether any fixed low labeling at order $2m$ lifts to a bijective rainbow labeling. A circulant family works for every odd $m$, even with arbitrary half-turn edge offsets. A matching sum counts lifts at arbitrary orders. [Exact criteria, proofs and independent checks](research/binary-fibers.md)
+
 Contracting a perfect matching reduces modulus $2m$ to $m$ for odd $m$, at every tree order. In particular every tree with a perfect matching is cordial at 22, 26, 30, 34, 38 and 42 labels. If the tree has diameter at most six, every modulus congruent to two modulo four works. [Construction, star extension and checks](research/matching-expansion.md)
 
 At 22 labels, a tree with a matching covering all but one vertex is cordial whenever its order is congruent to $1,3,5,7,9,11$ or $21$ modulo 22. More generally, at twice any odd known tree modulus $m$, every tree with order minus matching number at most $m$ is cordial. A related product theorem permits multi-vertex pieces on quotients of unrestricted order. [Matching transfers, product theorem and checks](research/matching-transfers.md)
