@@ -6,19 +6,19 @@ from .verify import components, key
 from research.rainbow.generate import boundary_orbits, forests, parent_vector, rainbow
 
 
-def shape(parents):
-    return key(components(parents),0,8)
+def shape(parents,k=8):
+    return key(components(parents),0,k)
 
 
-def mask_solver(r):
-    assignments = list(permutations(range(1,8),r))
+def mask_solver(r,k=8):
+    assignments = list(permutations(range(1,k),r))
     all_bits = (1<<len(assignments))-1
 
     @lru_cache(None)
     def weights(i,p):
-        groups = [bytearray((len(assignments)+7)//8) for _ in range(8)]
+        groups = [bytearray((len(assignments)+7)//8) for _ in range(k)]
         for j,f in enumerate(assignments):
-            w = (f[i]+(f[p] if p>=0 else -1-p))%8
+            w = (f[i]+(f[p] if p>=0 else -1-p))%k
             groups[w][j//8] |= 1<<(j%8)
         return [int.from_bytes(a,'little') for a in groups]
 
