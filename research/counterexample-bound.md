@@ -36,11 +36,11 @@ For even $k$, a subdivision adding only $k$ vertices cannot give the same exact 
 
 ### Counting the remaining vertices
 
-Every path is $k$-cordial by the caterpillar theorem, so a minimum counterexample has $L\ge3$. Suppress its vertices of degree two to form a tree with $L$ leaves and $B$ branching vertices. The degree-sum identity gives $\sum_{\deg(v)\ge3}(\deg(v)-2)=L-2$, hence $B\le L-2$. The suppressed tree has $L$ pendant edges and $B-1\le L-3$ edges between branching vertices.
+The [four-leaf construction](census/four-leaves.md) proves that a minimum counterexample has $L\ge5$ at every modulus. Suppress its vertices of degree two to form a tree with $L$ leaves and $B$ branching vertices. The degree-sum identity gives $\sum_{\deg(v)\ge3}(\deg(v)-2)=L-2$, hence $B\le L-2$. The suppressed tree has $L$ pendant edges and $B-1\le L-3$ edges between branching vertices.
 
 Each pendant edge represents a path of length at most $k-1$ in the original tree. Otherwise delete its last $k$ vertices and use the first path construction to extend a labeling of the smaller tree. Each edge between branching vertices represents a path of length at most $2k$. A longer path has at least $2k$ internal vertices of degree two. Suppress $2k$ consecutive such vertices and apply the subdivision construction to restore them. Both reductions contradict minimality.
 
-The number of edges is at most $L(k-1)+(L-3)2k$. Substituting $L\le k-2$ gives the stated bound. For example, at nine labels a smallest counterexample would have at most seven leaves and 129 vertices. The argument also excludes minimum counterexamples at three and four labels directly via $3\le L\le k-2$.
+The number of edges is at most $L(k-1)+(L-3)2k$. Substituting $L\le k-2$ gives the stated bound. For example, at nine labels a smallest counterexample would have at most seven leaves and 129 vertices. Combining the four-leaf construction with $L\le k-2$ also excludes minimum counterexamples at every modulus from three through six.
 
 ### Odd moduli
 
