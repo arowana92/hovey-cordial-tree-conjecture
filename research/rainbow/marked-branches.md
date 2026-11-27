@@ -1,6 +1,6 @@
 # Keeping a specified leaf in a most-frequent residue class
 
-**Theorem.** In every tree with at most one branching vertex, any specified leaf can receive a most-frequent vertex label for every modulus through 45. With at most two branching vertices, the same holds for every modulus through 39. Both statements hold at every tree order. A branching vertex has degree at least three.
+**Theorem.** In every tree with at most one branching vertex, any specified leaf can receive a most-frequent vertex label for every modulus through 45. With at most two branching vertices, the same holds for every modulus through 40. Both statements hold at every tree order. A branching vertex has degree at least three.
 
 Consequently every such tree with a perfect or near-perfect matching is $2m$-cordial for every odd $m$ through 45 or 39, respectively. The largest moduli given by these two conclusions are **90** and **78**. The proof also covers trees with arbitrarily many branching vertices if their matching contraction, after the completion described below, satisfies the branching bound.
 
