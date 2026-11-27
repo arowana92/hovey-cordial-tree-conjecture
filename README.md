@@ -16,6 +16,8 @@ Every tree obtained by subdividing any subset of the pendant edges of a double s
 
 At two adjacent centers, arbitrary numbers of three-edge paths and direct leaves on each side also give a super edge-magic tree. New paths can switch centers individually, preserving every edge sum. [Diameter-seven family and verification](research/hub/three-edge-paths.md)
 
+On a fixed core, attach arbitrary numbers of paths of any one fixed length at two adjacent sites. Two extra two-edge paths and sufficiently many leaves at one site give a super edge-magic tree, with a leaf threshold independent of both branch counts. The same holds for branches with a fixed number of leaf children. [Uniform theorem, several-site extension and checks](research/hub/uniform-branch-padding.md)
+
 For diameter five, an integer labeling works at **every modulus** if the two centers have equal numbers of nonleaf neighbors off the central edge and no direct leaves. The branches can have arbitrary, independently chosen child counts. The proof also permits some direct leaves and unequal numbers of branches. [Consecutive integer sums and verification](research/hub/two-center-layers.md)
 
 A vertex labeling takes values in the residues modulo $k$. Each edge receives the sum of its endpoint labels modulo $k$. Among vertices, every two residue counts must differ by at most one. The same condition holds independently among edges, including residues with count zero.
