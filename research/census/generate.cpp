@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include "../rainbow/ranked_forest.hpp"
+#include "leaf_centroids.hpp"
 
 bool interval_witness(int, const int*, int*, std::uint32_t);
 namespace {
@@ -50,6 +51,14 @@ class Census {
     }
 public:
     Census(int order, int part, int total, FILE* file): n(order),shard(part),shards(total),out(file) {}
+    void limited(int leaves) {
+        LeafCentroids trees(n,leaves);
+        trees.each([&](Code word) {
+            if (index++%shards == static_cast<unsigned>(shard)) certify(word);
+        });
+        std::cerr << written << " certified in shard " << shard << ", " << index
+                  << " shapes with at most " << leaves << " leaves\n";
+    }
     void run(bool ranked) {
         if (ranked) {
             // Removing a unique centroid leaves no component above (n-1)/2.
@@ -86,13 +95,18 @@ public:
 }
 
 int main(int argc,char** argv) {
-    if (argc < 5 || argc > 6) return 2;
+    if (argc < 5 || argc > 7) return 2;
     bool ranked = argc == 6;
     if (ranked && std::string(argv[5]) != "--ranked") return 2;
     int n = std::stoi(argv[1]), shard = std::stoi(argv[2]), shards = std::stoi(argv[3]);
     if (n < 2 || n > 30 || shards < 1 || shard < 0 || shard >= shards) return 2;
+    if (argc == 7 && std::string(argv[5]) != "--leaves") return 2;
+    int leaves = argc == 7 ? std::stoi(argv[6]) : 0;
+    if (argc == 7 && (leaves < 2 || leaves > n)) return 2;
     FILE* output = std::fopen(argv[4],"wb");
     if (!output) return 1;
-    Census(n,shard,shards,output).run(ranked);
+    Census census(n,shard,shards,output);
+    if (leaves) census.limited(leaves);
+    else census.run(ranked);
     return std::fclose(output) != 0;
 }

@@ -48,4 +48,7 @@ public:
     void each(int order, const Emit& emit) const {
         forest(order, limit, 1, 0, 0, 0, [&](Word code, int) { emit(code); });
     }
+    const std::vector<Word>& branches(int size, int tips) const {
+        return trees[size][tips];
+    }
 };
