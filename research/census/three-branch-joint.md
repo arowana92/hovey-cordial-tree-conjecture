@@ -29,8 +29,9 @@ When $n<k$, add twin leaves at one existing child's parent to reach $k$ free ver
 
 When $n>k\ge6$, retain the three centers, one child at each, and enough other leaves to form a $k$-edge prefix. Give this prefix the uniform construction. Every omitted vertex now has its parent labeled. The ordinary leaf-batch lemma extends over all of them. For $k=3,4,5$, start with the three centers and $k-3$ other leaves. The prefix has at most two branching neighbors and admits the earlier full-block extension, after which the leaf batches apply. For $k=2$ alternately fill the deficient weight and avoid the surplus vertex label in connected order. For $k=1$ all counts are immediate. [Leaf-batch lemma](../counterexample-bound.md#removing-leaves)
 
-The constructor tests the three choices of zero center using the short-path criterion. The verifier rebuilt each original edge and checked 91,520 complete permutations. Another 1,000 tests checked the histograms after reduction to divisors. [Construction and reproducible endpoint checks](three_branch_joint.py)
+The constructor tests the three choices of zero center using the short-path criterion. The verifier rebuilt each original edge and checked 91,520 complete permutations. Another 1,000 tests checked the histograms after reduction to divisors. Lean verifies the nonrepresentability of the target costs for the last two numerical cases. [Lean arithmetic proof](ThreeBranchArithmetic.lean) [Construction and reproducible endpoint checks](three_branch_joint.py)
 
 ~~~sh
 python3 -B -m research.census.three_branch_joint
+lean research/census/ThreeBranchArithmetic.lean
 ~~~
