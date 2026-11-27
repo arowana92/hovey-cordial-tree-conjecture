@@ -42,7 +42,7 @@ def seed_edges(edges, base, result):
 
 
 def check_record(edges, base, steps, result):
-    assert len(base) == len(steps) == len(result[1]) == 5
+    assert len(base) == len(steps) == len(result[1]) == len(edges)+1
     assert all(isinstance(n, int) and n >= 0 for n in (*base, *steps))
     lo, hi, actual = seed_edges(edges, base, result)
     _, f, _, bands = result

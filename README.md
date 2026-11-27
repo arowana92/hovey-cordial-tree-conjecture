@@ -138,7 +138,7 @@ For a core with at most $l$ leaves and $s$ marked sites, a second-largest added 
 
 On any fixed tree, select any two or more vertices and attach leaves only there. A computable minimum at each selected site suffices for a super edge-magic labeling, with independently varying counts. Consequently, for every fixed bound on the number of nonleaf vertices, there is a finite decision for the entire class at all moduli and all orders. [Proof, finite decision and independent verifier](research/hub/marked-leaf-threshold.md)
 
-Every tree with at most five nonleaf vertices is super edge-magic and cordial at every modulus. This includes all trees of matching number at most three. The fork-shaped nonleaf core uses 2,619 finite labelings whose repeatable leaf layers cover every population vector. [Proof, certificate and coverage check](research/hub/five-nonleaf.md)
+Every tree with at most seven nonleaf vertices is super edge-magic and cordial at every modulus. This includes every tree of matching number at most four. The certificates cover arbitrary leaf populations on all 930 ranked cores of order six and 14,280 of order seven outside the path and star cases. [Proof, certificates and independent verification](research/hub/seven-nonleaf.md) · [Proof through five nonleaf vertices](research/hub/five-nonleaf.md)
 
 For a fixed core the exact successful combinations of modulus and leaf counts form an effectively semilinear set. A bound on just the second-largest leaf count from below, depending only on core order, suffices at every modulus. The one-site projection also gives exact spectra with prescribed labels at specified vertices. [Spectrum theorem, one-site projections and checks](research/hub/bounded-core-spectra.md)
 
