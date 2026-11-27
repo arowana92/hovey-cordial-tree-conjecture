@@ -5,6 +5,7 @@ from random import Random
 
 from research.hub.decorated_spine import leafy_layout, path_values
 from research.hub.endpoint_windows import plan as endpoint_plan
+from research.hub.integer_layers import balanced_order
 from research.hub.star_repair import erasures
 
 
@@ -52,7 +53,7 @@ def finish_walk(row, blocked, order, jumps, g):
     return new_gap
 
 
-def restore(parents, labels, blocked, jobs, gap, rng=None, *, endpoint_windows=None):
+def restore(parents, labels, blocked, jobs, gap, rng=None, *, endpoint_windows=None, external_leaves=()):
     """A job is (kind, windows, deficit, surplus). Its surplus is reserved.
 
     All pruning has already been done. The input labels belong to the compressed
@@ -61,9 +62,11 @@ def restore(parents, labels, blocked, jobs, gap, rng=None, *, endpoint_windows=N
     if not jobs:
         return gap
     rng = rng or Random(175)
-    delayed = []
-    n = len(parents)+len(blocked)
-    width = 10*(n+1)**2
+    external = balanced_order({v: labels[parents[v]] for v in external_leaves})
+    delayed = list(external)
+    windows_all = [w for _, windows, _, _ in jobs for w in windows]+list(endpoint_windows or [])
+    fixed_bound = len(blocked)+sum(len(w.spine) for w in windows_all)
+    width = 10*(fixed_bound+1)*(len(parents)+fixed_bound+1)
     for i, (kind, windows, b, t) in enumerate(jobs):
         layout = leafy_layout(kind, windows, labels, b, gap, None)
         segments, _, backward = layout
@@ -75,7 +78,7 @@ def restore(parents, labels, blocked, jobs, gap, rng=None, *, endpoint_windows=N
         if last and endpoint_windows is not None:
             bound = max(abs(v) for v in (*labels.values(), b, t, gap))
             layout, order, centers = endpoint_plan(kind, windows, endpoint_windows, layout,
-                labels, parents, delayed, width, bound)
+                labels, parents, delayed, width, bound, external)
         dimension = len(centers)
         # The finite box suffices by affine avoidance. Try independent fast
         # samples first and retain an exhaustive fallback.

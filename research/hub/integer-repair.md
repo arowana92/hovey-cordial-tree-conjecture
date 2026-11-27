@@ -51,7 +51,7 @@ In the bounded-nonleaf alternative it suffices to prove the bound with a constan
 
 ## Reproduction
 
-The new window checker uses distinct original edge objects, reconstructs their subdivided paths, and recalculates full histograms on actual endpoint sums after restoring several jobs together. Its nine trees contain 126 jobs and 28,641 edges, including active profiles, unequal positive uniform counts across jobs, all-zero blocks and neutral jobs. The marked application also uses its 792 tests of moving the omission to an extreme. The universal structural and magnitude bounds are proved above. [Integer window constructor](integer_windows.py) · [Independent checks](check_integer_windows.py) · [Integer forest proof](integer-forest.md)
+The new window checker uses distinct original edge objects, reconstructs their subdivided paths, and recalculates full histograms on actual endpoint sums after restoring several jobs together. Its nine trees contain 126 jobs and 28,685 edges, including active profiles, unequal positive uniform counts across jobs, all-zero blocks and neutral jobs. The marked application also uses its 792 tests of moving the omission to an extreme. The universal structural and magnitude bounds are proved above. [Integer window constructor](integer_windows.py) · [Independent checks](check_integer_windows.py) · [Integer forest proof](integer-forest.md)
 
 ~~~sh
 python3 -B -m research.hub.check_integer_layers

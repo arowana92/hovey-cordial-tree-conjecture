@@ -56,7 +56,7 @@ For $h<k$ and total order below $k$, pad with temporary leaves at a site and res
 
 ## Verification and scope
 
-An end-to-end checker composes the forest, multiple repairs, final broom and exact leaf counts on 18 marked trees. It reconstructs the subdivided edges and checks the complete integer intervals by their range endpoints, through width 198,374,672,255. It recounts 29,270 ordinary edges and all requested populations. [End-to-end verifier](check_polynomial_marked.py)
+An end-to-end checker composes the forest, multiple repairs, final broom and exact leaf counts on 18 marked trees. It reconstructs the subdivided edges and checks the complete integer intervals by their range endpoints, through width 272,249,837,584. It recounts 32,345 ordinary edges and all requested populations. [End-to-end verifier](check_polynomial_marked.py)
 
 The forest checker measures the discrepancy before repair and the pooled-window checker recomputes sums after repair. The broom audit works at both two-site orientations after choosing its nonpositive parent, and at the signed triple and quadruple. The previous subdivision checkers exercise the marked-site buffers, actual segment lengths and exact remaining populations. The uniform bounds and the all-orders reduction use the arguments above. The full conjecture for unrestricted sites and moduli remains open. [Forest checks](check_integer_layers.py) · [Window and broom checks](check_integer_windows.py) · [Asymmetric marked-site checks](check_dominant_marked.py) · [Two-site subdivision checks](check_two_hub_buffer.py)
 

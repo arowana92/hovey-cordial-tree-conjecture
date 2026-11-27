@@ -10,15 +10,19 @@ RIGHT_MARK = (0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 270, 90, 270, -270, 360, -90, -18
 LEFT_MARK = (350, -280, 70, -210, 350, -140, 140, 210, 140, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0)
 
 
-def extremal_mass(total, bound, length, error):
+def extremal_mass(total, bound, length, error, external_drift=0):
     if total <= 2*bound:
         raise ValueError("the combined positive control total must exceed twice the largest slope")
-    return 10*(bound+1)*error*(1+length//total)
+    return 10*(bound+1)*(error*(1+length//total)+external_drift//total+1)
 
 
-def plan(kind, windows, extras, layout, labels, parents, delayed, width, old_bound):
+def plan(kind, windows, extras, layout, labels, parents, delayed, width, old_bound, external):
     segments, marks, backward = layout
-    length = len(parents)
+    length = len(backward)+len(delayed)-len(external)
+    position = drift = 0
+    for v in external:
+        position += labels[parents[v]]
+        drift = max(drift, abs(position))
     guard_scale = 10**4*(1+width+old_bound)
     error = 10**5*guard_scale
     if kind == 'active':
@@ -39,7 +43,7 @@ def plan(kind, windows, extras, layout, labels, parents, delayed, width, old_bou
             for v, a in zip(path[1:-1], SLOPES):
                 jumps.update((leaf, sign*a) for leaf in w.direct[v])
             segments.append((path[1:-1], path[0], path[-1], labels[w.left]+labels[w.right]))
-        scale = extremal_mass(sum(jumps.values()), max(map(abs, SLOPES)), length, error)
+        scale = extremal_mass(sum(jumps.values()), max(map(abs, SLOPES)), length+len(jumps), error, drift)
         order = backward[:2]+delayed+backward[2:]+balanced_order(jumps)
         centers = [0]*(2+len(segments)-len(signs))+[s*scale for s in signs]
         return (segments, marks, backward), order, centers
@@ -48,7 +52,7 @@ def plan(kind, windows, extras, layout, labels, parents, delayed, width, old_bou
         raise ValueError("expected a uniform final block or additional active bridges")
     w, = windows
     m = len(w.direct[w.spine[0]])
-    scale = 630*(1+10000*error*(1+length//max(1, m))//630)
+    scale = 630*(1+10000*(error*(1+length//max(1, m))+drift//max(1, m)+1)//630)
     centers = [0, -scale, -guard_scale, -guard_scale, 12*scale//7, 10*scale//9]
     if not backward:
         if delayed:

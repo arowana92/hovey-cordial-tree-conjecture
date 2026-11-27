@@ -177,3 +177,24 @@ def endpoint(parents):
     alternating = [v for uv in zip(left, right) for v in uv]
     gap = extend(labels, parents, alternating+direct, -l)
     return labels, gap, kind
+
+
+def support_first(parents):
+    """Extreme certificate after stripping the root's direct leaves and ordering supports first."""
+    kids = children_of(parents)
+    hubs = [v for v in range(1, len(parents)) if kids[v]]
+    other = [v for v in range(1, len(parents)) if not kids[v] and parents[v]]
+    ids = [0]+hubs+other
+    index = {v:i for i,v in enumerate(ids)}
+    short = [-1]+[index[parents[v]] for v in ids[1:]]
+    row, gap, _ = endpoint(short)
+    if gap == max(row):
+        row = [-x for x in row]
+        gap = -gap
+    labels = dict(zip(ids, row))
+    top = max(row)
+    for v in kids[0]:
+        if not kids[v]:
+            top += 1
+            labels[v] = top
+    return [labels[v] for v in range(len(parents))], gap
