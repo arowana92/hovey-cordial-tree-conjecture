@@ -55,7 +55,7 @@ Word named(int n) {
 
 void unpack(Word w,int n,std::vector<int>& parents) {
     parents.clear();
-    std::array<int,26> stack{};
+    std::array<int,27> stack{};
     int depth=0;
     for (int bit=2*n-1;bit>=0;--bit) {
         if ((w>>bit)&1) {
@@ -111,15 +111,15 @@ Word cross(int n,bool complete) {
 int main(int argc,char** argv) {
     if (argc==4 && std::string(argv[1])=="--mass") {
         int n=std::stoi(argv[2]),workers=std::stoi(argv[3]);
-        if (n<1 || n>25 || workers<1 || workers>256) return 2;
+        if (n<1 || n>26 || workers<1 || workers>256) return 2;
         std::cout<<single_mass(n,workers)<<" unique ranks at forest mass "<<n<<"\n";
         return 0;
     }
     int full=argc==2?std::stoi(argv[1]):17;
-    if (full<1 || full>25) return 2;
+    if (full<1 || full>26) return 2;
     Word tuples=0,whole=0,part=0;
     for (int n=1;n<=9;++n) tuples+=named(n);
-    for (int n=1;n<=25;++n) {
+    for (int n=1;n<=26;++n) {
         if (n<=full) whole+=cross(n,true);
         else part+=cross(n,false);
     }

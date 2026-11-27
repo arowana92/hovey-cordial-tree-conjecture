@@ -273,7 +273,7 @@ int main(int argc, char** argv) {
     if (partial ? argc != 8 : limited ? argc != 7 : argc > 6) return 2;
     if (!limited && !mode.empty() && mode != "--cover" && mode != "--ranked-cover") return 2;
     int k = std::stoi(argv[1]), shard = std::stoi(argv[2]), total = std::stoi(argv[3]);
-    int max_modulus = partial ? 40 : limited ? 30 : 26;
+    int max_modulus = partial ? 40 : limited ? 30 : 27;
     if (k < 5 || k > max_modulus || shard < 0 || shard >= total) return 2;
     int mass = partial ? std::stoi(argv[6]) : k-1;
     int tips = limited ? std::stoi(argv[argc-1]) : 0;

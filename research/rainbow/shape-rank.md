@@ -43,3 +43,25 @@ To run a full certificate with this mode, append `--rank-bits` to the documented
 python3 -B "$src/check_spine_faults.py" "$out/verify" "$shard"
 python3 -B "$src/check_spine_faults.py" "$out/verify" "$shard" --rank-bits
 ~~~
+
+## A 27-label pilot
+
+The complete ordered-cut test at modulus 27 asks for 16,083,734,329 rooted bases, of which 15,825,505,189 have eligible forests. The latter require 92,009,660,290,353 boundary assignments before unit symmetry. These are inventory counts from the partition recurrence. The unrestricted certificate audit is in progress.
+
+One reproducible shard contains 7,670 shapes and 451,990 witness rows. The independent Python checker examined every record, recomputed the distinct weights, and checked all 44,779,592 required boundary inputs on the sampled eligible forests. The ranker comparison now includes 450,566 sampled forest words at masses 18 through 26. The native rank verifier rejected each of the seven deliberate faults on this shard. These checks give finite evidence for 27. [Independent partition counts](spine_counts.py) · [Pilot checker](check_spine_samples.py)
+
+Use the build commands from the [25-label reproduction](twenty-five.md#reproduction), then run the following.
+
+~~~sh
+"$out/generate" 27 89 2097152 "$out/pilot-27.spn" --ranked-cover
+echo "efa34e4fe40468726418bd14afdf6d43bb8605963219f2d7e34b6523a2c905ac  $out/pilot-27.spn" | shasum -a 256 -c -
+python3 -B "$src/check_spine_samples.py" "$out/pilot-27.spn" --stride 1
+python3 -B "$src/check_spine_faults.py" "$out/verify" "$out/pilot-27.spn" --rank-bits
+python3 -B "$src/spine_counts.py" 27
+~~~
+
+The full run uses a rank bit array of approximately 1.87 GiB, plus worker memory. It streams witnesses directly through the independent verifier. Successful completion writes the global totals and the hash manifest in the audit directory.
+
+~~~sh
+python3 -B "$src/stream_spine.py" 27 8192 10 "$out/generate" "$out/verify" "$out/audit27" --pipe-witnesses --rank-bits
+~~~

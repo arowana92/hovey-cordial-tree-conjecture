@@ -11,7 +11,7 @@
 
 class ShapeRank {
     using Count = std::uint64_t;
-    static constexpr int limit = 26;
+    static constexpr int limit = 27;
     int n;
     Count ways[limit+1][limit+2]{};
     Count skip[limit+1][limit+1][limit+1]{};

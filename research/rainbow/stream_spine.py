@@ -14,8 +14,8 @@ import time
 
 
 def run(k, shards, workers, generator, verifier, output, rank_bits=False, pipe_witnesses=False):
-    if workers < 1 or shards < 1 or not 5 <= k <= 26:
-        raise ValueError("expected positive concurrency and shard count, and 5 <= k <= 26")
+    if workers < 1 or shards < 1 or not 5 <= k <= 27:
+        raise ValueError("expected positive concurrency and shard count, and 5 <= k <= 27")
     output.mkdir()  # Preserve results of an earlier run.
     with tempfile.TemporaryDirectory(dir=output) as scratch:
         tmp = Path(scratch)

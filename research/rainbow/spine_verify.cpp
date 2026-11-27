@@ -370,7 +370,7 @@ int main(int argc, char** argv) {
     int k = std::stoi(argv[1]);
     bool partial = std::string(argv[2])=="--short";
     bool limited = partial || std::string(argv[2])=="--tips";
-    int max_modulus = partial ? 40 : limited ? 30 : 26;
+    int max_modulus = partial ? 40 : limited ? 30 : 27;
     if (k < 5 || k > max_modulus) return 2;
     try {
         if (limited) {
