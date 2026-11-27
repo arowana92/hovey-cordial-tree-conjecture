@@ -131,8 +131,10 @@ def even_path(k,a,b,surplus,port):
 
 
 def prescribe(k,a,b,surplus,port):
-    if k<2 or min(a,b)<0 or (a+b)%k or a+b<k:
+    if k<1 or min(a,b)<0 or (a+b)%k or a+b<k:
         raise ValueError('expected a nontrivial path of order one modulo the modulus')
+    if k==1:
+        return [0]*(a+b+1)
     if k%2==0:
         return even_path(k,a,b,surplus,port)
     target = (port-surplus)%k
@@ -144,8 +146,8 @@ def prescribe(k,a,b,surplus,port):
 def long_attachment(k,n,mark,parent,vertices,weights):
     """Attach n path vertices with any residue, given two balanced core histograms."""
     e = 2 if k%4==0 else 1
-    reserve = 0 if k%2 else e*k
     remainder = n%k
+    reserve = 0 if k%2 or remainder==0 else e*k
     spare = n-reserve-remainder*(e*k+1)
     if not 0<=mark<n or spare<0 or n<=reserve:
         raise ValueError('outside the path decomposition range')
