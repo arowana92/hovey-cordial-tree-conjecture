@@ -2,6 +2,8 @@
 
 **Work in progress.** This repository gives reproducible computer-assisted proofs that every finite tree is $k$-cordial for each modulus from 8 through 22. Hovey’s conjecture for every positive integer $k$ remains open. [Eight labels](research/eight/README.md) · [Nine through thirteen](research/rainbow/README.md) · [Fourteen through seventeen](research/rainbow/ordered-cut.md) · [Eighteen through twenty-one](research/rainbow/native-spine.md) · [Twenty-two](research/rainbow/twenty-two.md)
 
+Every tree on **at most 26 vertices** is cordial at **every positive modulus**. A census verifies one integer labeling with consecutive endpoint sums for each of the 447,672,595 unrooted trees of orders 2 through 26. This also proves cordiality at modulus $k\le26$ for arbitrary-order trees with at most $k$ nonleaf vertices. [Super edge-magic census and independent verification](research/census/README.md)
+
 At eight labels, Lean proves the theorem for finite trees built by joining rooted subtrees. It checks the finite certificate, the induction and the counts on each tree’s actual edges. [Formal proof and replay](research/eight/README.md#the-complete-eight-label-theorem-in-lean)
 
 For **any finite tree and any chosen vertex**, adding at least $C(h+1)^2$ leaves at that vertex gives a super edge-magic tree, where $h$ is the original order and $C$ is absolute. One integer labeling then works at every positive modulus. For each fixed bound on the matching number or on the number of nonleaf vertices, only finitely many trees can fail to be super edge-magic. [Quadratic integer bound and independent checks](research/hub/quadratic-endpoint.md) · [Bounded-nonleaf result](research/hub/endpoint-hub.md)
