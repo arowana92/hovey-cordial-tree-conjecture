@@ -1,6 +1,6 @@
 # Attaching terminal paths and bounding the number of branching vertices
 
-**Theorem.** For every modulus through 45, a prescribed cordial labeling of any tree of order zero or one modulo $k$ extends across arbitrarily many paths of arbitrary lengths attached by one end at a single chosen vertex. In particular every spider is $k$-cordial throughout this range. For every modulus through 37, every tree with at most two vertices of degree at least three is $k$-cordial, at every order. Degrees and the length of the path between the two branching vertices are unrestricted.
+**Theorem.** For every modulus through 45, a prescribed cordial labeling of any tree of order zero or one modulo $k$ extends across arbitrarily many paths of arbitrary lengths attached by one end at a single chosen vertex. In particular every spider is $k$-cordial throughout this range. For every modulus through 39, every tree with at most two vertices of degree at least three is $k$-cordial, at every order. Degrees and the length of the path between the two branching vertices are unrestricted.
 
 At a modulus in the first range a smallest counterexample with $b$ branching vertices has order at most $(b-1)k$. At 26 labels this lowers the unrestricted upper bound on its order from 598 to **546**. The full conjecture and the unrestricted 26-label case remain open.
 
@@ -53,7 +53,7 @@ for k in 2 3 {5..45}; do
     "$out/paths" "$k" > "$out/leg$k"
     "$out/check" paths "$k" < "$out/leg$k"
 done
-for k in {28..37}; do
+for k in {28..39}; do
     "$out/bases" "$k" > "$out/base$k"
     "$out/check" bases "$k" < "$out/base$k"
 done
