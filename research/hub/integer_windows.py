@@ -4,6 +4,7 @@ from itertools import chain
 from random import Random
 
 from research.hub.decorated_spine import leafy_layout, path_values
+from research.hub.endpoint_windows import plan as endpoint_plan
 from research.hub.star_repair import erasures
 
 
@@ -31,7 +32,27 @@ def bare_row(layout, labels, target, coords):
     return row
 
 
-def restore(parents, labels, blocked, jobs, gap, rng=None):
+def finish_walk(row, blocked, order, jumps, g):
+    new_gap = g-sum(jumps.values())
+    residual, cycles, end = erasures(reversed(order), jumps, new_gap, None)
+    assert end == g
+    forbidden = blocked | set(row.values())
+    if new_gap == g or any(a in forbidden for _, a in residual):
+        return None
+    row.update(residual)
+    taken = forbidden | set(row.values())
+    for cycle in cycles:
+        for shift in range(len(taken)*len(cycle)+1):
+            if all(a+shift not in taken for _, a in cycle):
+                row.update((v, a+shift) for v, a in cycle)
+                taken.update(a+shift for _, a in cycle)
+                break
+        else:
+            raise AssertionError("integer translation exhausted")
+    return new_gap
+
+
+def restore(parents, labels, blocked, jobs, gap, rng=None, *, endpoint_windows=None):
     """A job is (kind, windows, deficit, surplus). Its surplus is reserved.
 
     All pruning has already been done. The input labels belong to the compressed
@@ -49,12 +70,19 @@ def restore(parents, labels, blocked, jobs, gap, rng=None):
         last = i == len(jobs)-1
         if last and delayed and not backward:
             raise ValueError("the last window needs controls for the deferred leaves")
-        dimension = 2+len(segments)
+        order = backward[:2]+delayed+backward[2:]
+        centers = [0]*(2+len(segments))
+        if last and endpoint_windows is not None:
+            bound = max(abs(v) for v in (*labels.values(), b, t, gap))
+            layout, order, centers = endpoint_plan(kind, windows, endpoint_windows, layout,
+                labels, parents, delayed, width, bound)
+        dimension = len(centers)
         # The finite box suffices by affine avoidance. Try independent fast
         # samples first and retain an exhaustive fallback.
         trials = chain(([rng.randrange(1, width+1) for _ in range(dimension)]
                         for _ in range(200)), box(width, dimension))
         for coords in trials:
+            coords = [c+u for c, u in zip(centers, coords)]
             row = bare_row(layout, labels, t, coords)
             if row is None:
                 continue
@@ -64,25 +92,11 @@ def restore(parents, labels, blocked, jobs, gap, rng=None):
             g = coords[1]
             if not last or not backward:
                 break
-            order = backward[:2]+delayed+backward[2:]
             jumps = {v: (row[parents[v]] if parents[v] in row else labels[parents[v]])
                      for v in order}
-            new_gap = g-sum(jumps.values())
-            residual, cycles, end = erasures(reversed(order), jumps, new_gap, None)
-            assert end == g
-            forbidden = blocked | values
-            if new_gap == g or any(a in forbidden for _, a in residual):
+            new_gap = finish_walk(row, blocked, order, jumps, g)
+            if new_gap is None:
                 continue
-            row.update(residual)
-            taken = forbidden | set(row.values())
-            for cycle in cycles:
-                for shift in range(len(taken)*len(cycle)+1):
-                    if all(a+shift not in taken for _, a in cycle):
-                        row.update((v, a+shift) for v, a in cycle)
-                        taken.update(a+shift for _, a in cycle)
-                        break
-                else:
-                    raise AssertionError("integer translation exhausted")
             g = new_gap
             break
         else:

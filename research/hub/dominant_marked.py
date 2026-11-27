@@ -39,12 +39,16 @@ def initial_edge(tree, anchors, p, q):
 
 def buffer(tree, anchors, positive, negative, h, capacity):
     parents,slot = insertion(anchors,negative,0)
-    tail = len(parents)-1-slot
     initial_x = min(negative-len(parents)-2,positive+negative-tree.hi-1-slot)
     gap = tree.lo-positive-initial_x
     if gap>0:
         pad(tree,anchors,max(2,gap),1)
-    iv = Interval(tree)
+    return buffer_interval(Interval(tree),parents,slot,positive,negative,h,capacity)
+
+
+def buffer_interval(iv, parents, slot, positive, negative, h, capacity):
+    """Grow a prepared opposite-sign edge from a range-compressed interval."""
+    tail = len(parents)-1-slot
     minor = sum(stop-start for p,start,stop in iv.blocks if p)
     original_width = iv.hi-iv.lo+1
     p = positive
