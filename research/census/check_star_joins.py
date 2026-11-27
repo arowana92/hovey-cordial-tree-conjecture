@@ -68,11 +68,13 @@ if __name__ == "__main__":
     count = 0
     for q in range(3,18,2):
         par = (-1,*range(q-1))
+        x = tuple(i//2+(q//2+1 if i%2 else 0) for i in range(q))
         for split in product(range(2),repeat=q-2):
             ends = [(split[i-1] if i else 0,0) for i in range(q-1)]
-            check(par,range(q),3,ends)
+            check(par,x,2,ends)
             count += 1
-    print(f"{count} three-leaf star paths, all incidence partitions through 17 copies")
+        check(par,x,1,[(0,0)]*(q-1))
+    print(f"{count} two-leaf star paths, all incidence partitions through 17 copies")
     for q in [51,101,255]:
         par = (-1,*range(q-1))
         check(par,range(q),5,[(rng.randrange(5),rng.randrange(5)) for _ in range(q-1)])

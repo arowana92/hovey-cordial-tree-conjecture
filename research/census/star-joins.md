@@ -11,7 +11,9 @@ Here $g$ is the maximum number of different attachment leaves used in one star. 
 Two specializations give simpler families.
 
 - If every incidence uses a different leaf in its star, $a\ge\Delta(Q)+1$ suffices. Equivalently, subdivide every edge of $Q$ twice, then attach enough leaves to each original vertex to bring its degree to $a$.
-- If $Q$ is any odd path, **three leaves per star suffice**, including arbitrary reuse of leaves. This holds for every $a\ge3$ independently of the path length.
+- If $Q$ has a centered integer labeling as defined below, **every feasible choice of attachment leaves works**, including reuse, for any $a\ge1$. Every odd path qualifies, as does every odd tree with a balanced $\alpha$-labeling.
+
+For path quotients a separate block argument also allows even numbers of stars and unequal monotone leaf counts. [Chains of unequal stars](chain-stars.md)
 
 ## The interval of joining weights
 
@@ -39,18 +41,11 @@ On a two-edge path the difference between endpoint potentials is the difference 
 
 Start with any component and grow a connected union of its projected subtrees. Each new component intersecting the union meets it at exactly one vertex, since a second meeting would create a cycle. At that star at most $g-1$ previous indices are forbidden. Each excludes at most one choice of $s_C$, so $a-w_C\ge g$ suffices. Assign unused indices to the remaining leaves in any order. This proves the theorem, including the potentially stronger input-specific bound $a\ge g+\max_C w_C$.
 
-## Three-leaf stars on paths with any odd number of vertices
+## Centered quotients need no spare leaves
 
-Number the $q$ path vertices $i=0,\ldots,q-1$. The initial labels $i$ miss edge weight $-1$. The normalized labels are $x_i=(i+c)\bmod q$ with $2c=t+1\pmod q$. Consider potentials on the unsplit path before choosing ports. Set $d_0=0$, using even positions for $U$. Across edge $i,i+1$ the increment is $-\epsilon_i$ for even $i$ and $+\epsilon_i$ for odd $i$.
+Suppose $Q$ has an integer bijection onto $[0,2t]$ whose edge sums fill $[t+1,3t]$. Call this a centered labeling. If the edge sums fill $[t,3t-1]$, complementing vertex labels $x\mapsto2t-x$ gives the displayed interval. A centered labeling already has missing edge residue $t$. More importantly, its carries $c_{uv}$ all equal one. Thus every joining equation is $j+j'=a-1$, every potential width is zero, and the sole requirement is $g\le a$. This holds for every specification of actual attachment leaves. At a star where several previously independent components meet, the shift construction simply assigns distinct indices to their different ports.
 
-Substitution in the floor formula gives these sequences, where powers denote repetitions, including zero repetitions.
-
-| Order | $c$ | Successive $\epsilon_i$ |
-| :--- | :--- | :--- |
-| $q=4u+1$, $u\ge1$ | $3u+1$ | $(-1)^{u-1},0,(+1)^u,0^{2u}$ |
-| $q=4u+3$, $u\ge0$ | $u+1$ | $0^{2u+1},(-1)^u,0,(+1)^u$ |
-
-For example the exceptional single zero between the two constant nonzero runs is the edge on which the normalized vertex labels wrap from $q-1$ to zero. Within each run the increments alternate. The intervening single zero reverses the position parity at the same time that the sign of the run reverses, so both runs use the same two potential values. In the first row these are $0,1$ and in the second row they are $-1,0$. Splitting vertices into different ports restricts these potentials to shorter paths. Thus every $w_C\le1$ and $g\le2$, proving the three-leaf assertion.
+Every odd path has such a labeling. Give position $2j$ label $j$ and position $2j+1$ label $t+1+j$. The edge at position $i$ weighs $t+1+i$ for $0\le i<2t$. Thus **all odd paths of equal stars joined at arbitrary specified leaves are super edge-magic**, including two-leaf stars with any pattern of coinciding and distinct attachment leaves. A single star is immediate. More generally an $\alpha$-labeling in the sum form below, with side sizes $t,t+1$, has consecutive sums starting at either $t$ or $t+1$ depending on which side has the lower interval. Hence any such quotient works for all feasible leaf choices.
 
 ## Pieces with more than one center-side vertex
 
@@ -60,7 +55,7 @@ Indeed, at a vertex with local label $j$ use full label $qj+x_v$ in the first pa
 
 ## Independent checks
 
-The constructor takes the actual quotient parents and leaf indices. The checker rebuilds the stars and joins from those inputs, checks every integer label and sum, and separately counts residues. It checks 690 instances across all rooted tree shapes of orders 3, 5, 7 and 9, all 43,690 incidence partitions along odd paths through 17 stars with three leaves per star, and long paths through 255 stars. Lean proves the digit interval, its uniqueness, and the shared-endpoint carry bound for arbitrary parameters. [Constructor](star_joins.py) · [Whole-tree checks](check_star_joins.py) · [Lean arithmetic](StarDigits.lean)
+The constructor takes the actual quotient parents and leaf indices. The checker rebuilds the stars and joins from those inputs, checks every integer label and sum, and separately counts residues. It checks 690 instances across all rooted tree shapes of orders 3, 5, 7 and 9, all 43,690 incidence partitions along odd paths through 17 stars with two leaves per star, the one-leaf specializations, and long paths through 255 stars. Lean proves the digit interval, its uniqueness, and the shared-endpoint carry bound for arbitrary parameters. [Constructor](star_joins.py) · [Whole-tree checks](check_star_joins.py) · [Lean arithmetic](StarDigits.lean)
 
 ~~~sh
 python3 -B -m research.census.check_star_joins
