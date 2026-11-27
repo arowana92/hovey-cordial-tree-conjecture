@@ -82,7 +82,8 @@ struct Assignments {
 
 int main(int argc, char** argv) {
     bool divisible = argc==4 && std::string(argv[3])=="--divisible";
-    if (argc!=3 && !divisible) return 2;
+    bool neutral = argc==4 && std::string(argv[3])=="--neutral";
+    if (argc!=3 && !divisible && !neutral) return 2;
     std::ifstream catalog(argv[1]), proof(argv[2]);
     check(bool(catalog) && bool(proof),"missing input");
     // For any candidate difference, record the two normalized parent
@@ -104,7 +105,7 @@ int main(int argc, char** argv) {
         std::vector<int> candidates;
         for (int i=0; i<g.c; ++i) if (g.possible_mate(i)) candidates.push_back(i);
         ++graphs;
-        if (candidates.empty() && !divisible) continue;
+        if (candidates.empty() && !divisible && !neutral) continue;
         if (!candidates.empty()) ++eligible;
         check(bool(std::getline(proof,line)),"missing record");
         std::istringstream fields(line);
@@ -112,10 +113,10 @@ int main(int argc, char** argv) {
         check(bool(fields>>word) && word==key,"mismatched record");
         std::vector<std::array<Mask,2>> covered(g.c);
         std::vector<Assignments> pending;
-        if (divisible) {
+        if (divisible || neutral) {
             for (int i : candidates) for (int j=0; j<g.c; ++j) if (i!=j) {
                 pending.push_back({i,j});
-                ports+=16;
+                ports+=neutral ? 4 : 16;
             }
         }
         while (fields>>word) {
@@ -130,7 +131,7 @@ int main(int argc, char** argv) {
             for (auto [a,b] : g.edges) ez |= 1U<<((f[a]+f[b])%n);
             check(vz==all && ez==all,"invalid bijection");
             ++rows;
-            if (divisible) {
+            if (divisible || neutral) {
                 size_t left=0;
                 for (auto request : pending) {
                     int j=request.j, i=request.i;
@@ -139,7 +140,7 @@ int main(int argc, char** argv) {
                     int diff=orbit[(u-v-a+b+2*n)%n] | orbit[(v-u-a+b+2*n)%n];
                     int deficit=orbit[(u-a-b+2*n)%n] | orbit[(v-a-b+2*n)%n];
                     for (int d=0; d<4; ++d) {
-                        unsigned supported=(diff & (1<<d)) ? 15 : deficit;
+                        unsigned supported=(diff & (1<<d)) ? 15 : (neutral ? 0 : deficit);
                         request.covered |= supported<<(4*d);
                     }
                     if (request.covered!=65535) pending[left++]=request;
@@ -161,7 +162,7 @@ int main(int argc, char** argv) {
                 }
             }
         }
-        if (divisible) {
+        if (divisible || neutral) {
             check(pending.empty(),"uncovered difference and deficit");
             continue;
         }

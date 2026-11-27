@@ -18,4 +18,23 @@ theorem fourTour (q H j h : Nat) (hq : 2 ≤ q) (hH : 2 ≤ H)
     (hn : j+H+1 = 13*q) (ht : 2*h ≤ j+1) :
     h+14 ≤ 13*q := by omega
 
+/-- Bound all ordinary path positions by groups of thirteen. -/
+theorem arbitraryOrder (d r h groups positions n : Nat) (hd : r+2 ≤ d)
+    (hh : h ≤ 12) (hg : groups ≤ 1)
+    (hp : positions ≤ 12*(d+r-1)+13*groups)
+    (order : n = d+2*(positions+r+h)) : n+26 ≤ 51*d := by omega
+
+/-- Up to three groups suffice at a centroid when there are at most 2H+1 tips. -/
+theorem threeGroups (H d h pairs q : Nat) (hH : 1 ≤ H) (cap : H+h ≤ 12)
+    (tips : d ≤ 2*H+1) (bound : pairs ≤ 3*(12-H-h)+1+h)
+    (order : 2*pairs+d+H = 26*q) : q ≤ 2 := by omega
+
+theorem sixTips (h groups pairs q : Nat) (hh : h ≤ 10)
+    (groups_le : groups ≤ h/7)
+    (bound : pairs ≤ 3*(10-h)+2+12+13*groups+h)
+    (order : 2*pairs+8 = 26*q) : q ≤ 3 := by omega
+
+theorem fiveTips (pairs q : Nat) (bound : pairs < 62)
+    (order : 2*pairs+6 = 26*q) : q ≤ 4 := by omega
+
 end Cordial.ExposureHull

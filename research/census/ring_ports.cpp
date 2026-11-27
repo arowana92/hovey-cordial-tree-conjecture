@@ -14,7 +14,7 @@ struct SelectedEdges {
     int deficits=8, differences=0;
 };
 
-void divisible_rows(const Graph& g,const std::string& key,const std::vector<int>& mate) {
+void boundary_rows(const Graph& g,const std::string& key,const std::vector<int>& mate, bool neutral) {
     int c = g.cycle;
     std::vector<SelectedEdges> needed;
     for (int i=0; i<c; ++i) if (mate[i]) {
@@ -22,7 +22,7 @@ void divisible_rows(const Graph& g,const std::string& key,const std::vector<int>
     }
     Search search(g,key);
     std::cout << key;
-    for (int attempt=0; attempt<1500 && !needed.empty(); ++attempt) {
+    for (int attempt=0; attempt<(neutral ? 2000 : 1500) && !needed.empty(); ++attempt) {
         if (!search.solve()) break;
         size_t kept=0;
         bool used=false;
@@ -32,8 +32,8 @@ void divisible_rows(const Graph& g,const std::string& key,const std::vector<int>
             int a=search.label[j], b=search.label[(j+1)%c];
             int deficits=pair.deficits | orbit_bit(w-a-b);
             int differences=pair.differences | orbit_bit(w-2*a) | orbit_bit(2*b-w);
-            if (deficits!=pair.deficits || differences!=pair.differences) used=true;
-            if (deficits!=15 && differences!=15) {
+            if (differences!=pair.differences || (!neutral && deficits!=pair.deficits)) used=true;
+            if (differences!=15 && (neutral || deficits!=15)) {
                 pair.deficits=deficits;
                 pair.differences=differences;
                 needed[kept++]=pair;
@@ -51,7 +51,8 @@ void divisible_rows(const Graph& g,const std::string& key,const std::vector<int>
 
 int main(int argc,char** argv) {
     bool divisible = argc==2 && std::string(argv[1])=="--divisible";
-    if (argc!=1 && !divisible) return 2;
+    bool neutral = argc==2 && std::string(argv[1])=="--neutral";
+    if (argc!=1 && !divisible && !neutral) return 2;
     std::string key;
     while (std::getline(std::cin,key)) {
         Graph g(key);
@@ -74,8 +75,8 @@ int main(int argc,char** argv) {
                 } else if (odd) return 3;
             }
         }
-        if (divisible) {
-            divisible_rows(g,key,mate);
+        if (divisible || neutral) {
+            boundary_rows(g,key,mate,neutral);
             continue;
         }
         if (std::none_of(mate.begin(),mate.end(),[](int x){return x!=0;})) continue;
