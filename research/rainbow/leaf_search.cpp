@@ -34,7 +34,7 @@ struct Shape {
     }
 };
 
-struct Solver {
+template<bool shifted> struct Solver {
     int k;
     const Shape& shape;
     const int* parents;
@@ -42,13 +42,18 @@ struct Solver {
     Mask all;
     int budget;
     std::uint32_t state;
+    const int* offsets;
     int leaf_at[capacity][capacity], leaf_count[capacity];
 
     Mask right(Mask v, int a) const { return ((v>>a)|(v<<(k-a)))&all; }
     Mask left(Mask v, int a) const { return ((v<<a)|(v>>(k-a)))&all; }
     int add(int x, int y) const { int s = x+y; return s < k ? s : s-k; }
     int neg(int x) const { return x ? k-x : 0; }
-    int parent_label(int i) const { return parents[i] < 0 ? -1-parents[i] : labels[parents[i]]; }
+    int parent_label(int i) const {
+        int value = parents[i] < 0 ? -1-parents[i] : labels[parents[i]];
+        if constexpr (shifted) return add(value,offsets[i]);
+        return value;
+    }
     std::uint32_t random() {
         state ^= state << 13;
         state ^= state >> 17;
@@ -125,7 +130,9 @@ struct Solver {
 }
 
 extern "C" int reference_witness(int, const int*, int*);
-extern "C" int rainbow_witness(int k, const int* parents, int* output) {
+extern "C" int rainbow_offset_witness(int, const int*, const int*, int*);
+template<bool shifted> static int search_forest(int k, const int* parents, int* output,
+                                                const int* offsets) {
     if (k < 2 || k > capacity) return -1;
     for (int i = 0; i < k-1; ++i) if (parents[i] >= i || parents[i] < -k) return -1;
     thread_local Shape shape;
@@ -136,12 +143,26 @@ extern "C" int rainbow_witness(int k, const int* parents, int* output) {
     for (int i = 0; i < k-1; ++i) {
         seed = seed*16777619U+static_cast<std::uint32_t>(parents[i]);
         if (parents[i] < 0) boundary += -1-parents[i];
+        if constexpr (shifted) {
+            if (offsets[i] < 0 || offsets[i] >= k) return -1;
+            boundary += offsets[i];
+            seed = seed*16777619U+static_cast<std::uint32_t>(offsets[i]);
+        }
     }
-    Solver search{k,shape,parents,output,all,0,seed|1U};
+    Solver<shifted> search{k,shape,parents,output,all,0,seed|1U,offsets};
     for (int trial = 0; trial < 40; ++trial) {
         search.budget = trial < 8 ? 80 : trial < 20 ? 500 : 5000;
         if (search.visit(0,all^1,all^1,all,boundary)) return 1;
         if (search.budget >= 0) break;
     }
-    return reference_witness(k,parents,output);
+    if constexpr (shifted) return rainbow_offset_witness(k,parents,offsets,output);
+    else return reference_witness(k,parents,output);
+}
+
+extern "C" int rainbow_witness(int k, const int* parents, int* output) {
+    return search_forest<false>(k,parents,output,nullptr);
+}
+
+extern "C" int fast_offset_witness(int k, const int* parents, const int* offsets, int* output) {
+    return search_forest<true>(k,parents,output,offsets);
 }

@@ -2,7 +2,7 @@
 
 Let $A$ be a nonempty set of residues modulo $k$. Give every edge an independent choice $b_e\in A$, and give it weight $f(u)+f(v)+b_e$. Call $A$ admissible if every finite tree has a cordial labeling for every such assignment. Translating all of $A$ by a constant preserves admissibility because every edge weight translates by that constant.
 
-**Theorem.** The following table characterizes all admissible sets for $1\le k\le15$.
+**Theorem.** The following table characterizes all admissible sets for $1\le k\le16$ and at $k=18,20,21,22$.
 
 | Modulus | Necessary and sufficient condition on $A$ |
 | :--- | :--- |
@@ -10,9 +10,10 @@ Let $A$ be a nonempty set of residues modulo $k$. Give every edge an independent
 | 4 | All elements agree modulo 2 |
 | 8 | All elements agree modulo 4 |
 | 9 | All elements agree modulo 3 |
-| 6, 10, 12, 14, 15 | $A$ has one element |
+| 16 | All elements agree modulo 8 |
+| 6, 10, 12, 14, 15, 18, 20, 21, 22 | $A$ has one element |
 
-In particular, at eight labels a different choice between $0$ and $4$ can be prescribed on **every edge of every tree**. At nine labels the choices are $0,3,6$. Ordinary cordiality is the single-offset case. The nonconstant positive results at prime powers use the finite checks below.
+In particular, at eight labels a different choice between $0$ and $4$ can be prescribed on **every edge of every tree**. At nine labels the choices are $0,3,6$, and at sixteen they are $0,8$. Ordinary cordiality is the single-offset case. The nonconstant positive results at prime powers use the finite checks below.
 
 ## Obstructions at every composite modulus
 
@@ -68,4 +69,39 @@ for k in 4 8 9; do
     python3 -B "$src/power_generate.py" "$out/search" "$k" > "$out/$k.jsonl"
     gzip -dc "$src/power$k.jsonl.gz" | cmp - "$out/$k.jsonl"
 done
+~~~
+
+## A binary certificate for sixteen labels
+
+At $k=16$, every edge of every finite tree may independently receive offset $0$ or $8$. For the finite test above, a forest has 15 free vertices and each external parent has a prescribed low digit modulo 8. Multiplication by an odd unit permutes the low boundary inputs. If the chosen representative for the product changes by 8 on a root edge, absorb this into that edge's independent offset. Thus a full cover at one low input proves the claim on its entire orbit.
+
+| Rooted forests | Low boundary inputs | Unit orbits | Inputs including all high offsets | Low-label witnesses |
+| ---: | ---: | ---: | ---: | ---: |
+| 235,381 | 18,027,946 | 5,773,126 | 590,739,734,528 | 74,646,543 |
+
+Fix a low-label witness on the free vertices. Low digit zero occurs once and must lift to 8. Each other digit occurs twice, so its two possible high digits must occur once each. There are $2^7$ possible vertex permutations above this witness. The low edge weights have seven pairs and one singleton. For a pair of edges $e,e'$ let $z_e,z_{e'}$ denote their prescribed high offset bits. Their final weights differ just when
+$$
+z_e+z_{e'}=1+h_e+h_{e'}\quad\text{in }\mathbb F_2,
+$$
+where the $h$'s are the high bits of the ordinary full endpoint sums before these offsets. Swapping the two high digits at a given vertex fiber changes the seven right-hand sides by a fixed vector regardless of other swaps. This follows because adding 8 to an endpoint toggles the high bit of its sum. The possible right-hand sides form the affine span of the baseline and seven single swaps. Membership is therefore equivalent to all binary linear characters orthogonal to the seven differences taking their baseline values.
+
+The generator finds a full permutation at the first uncovered offset word. It eliminates the vertex flip variables to mark the assignments covered by that permutation's low digits. The independent verifier starts from the packed low digits alone. It constructs a baseline permutation and the seven single swaps, recomputes their actual endpoint sums, and intersects explicit tables of orthogonal characters. It checks the union of the resulting sets against the entire high-offset cube, fixing the last bit by common translation. Separately it parses every canonical forest, checks the permitted runs and unit orbit sizes, and counts the exact sets of change positions. It excludes duplicate shapes and compares the final number with the rooted-tree multiset product. The separate partition recurrence gives the same 18,027,946 low inputs. [Generator](fiber_cover.cpp) · [Full independent verifier](fiber_verify.cpp) · [Partition recurrence](../rainbow/spine_counts.py)
+
+A third check enumerates all $2^7$ actual lifts for each row in 32 sampled low-boundary inputs, with both values of every edge offset. It recomputed 56,704 vertex lifts and checked 1,048,576 offset vectors. At eight labels the same check tested every row and all 604 unit orbits of the binary certificate. Negative controls rejected a repeated low label, an empty cover, a missing low input, a repeated shape and a truncated row. [Direct lift checker](check_fiber_samples.py)
+
+The 64 little-endian streams occupy 634,635,992 bytes. Each starts with the four ASCII bytes FBL1 and a one-byte modulus. For each forest an eight-byte parenthesis word and four-byte profile count precede its profiles. Each profile has a two-byte low-boundary code, a four-byte row count and one eight-byte low labeling per row. The vertex low digits occupy three bits each, first vertex least significant. The low-boundary code uses base eight at the component positions where size exceeds the preceding mass, first such position least significant. [SHA-256 manifest](fiber16.sha256)
+
+~~~bash
+set -e
+src="$PWD/research"
+out=$(mktemp -d)
+c++ -O3 -std=c++17 -c -Drainbow_witness=reference_witness "$src/rainbow/search.cpp" -o "$out/reference.o"
+c++ -O3 -std=c++17 "$src/biased/fiber_cover.cpp" "$src/rainbow/leaf_search.cpp" "$out/reference.o" -o "$out/generate"
+c++ -O3 -std=c++17 "$src/biased/fiber_verify.cpp" -o "$out/verify"
+cd "$out"
+mkdir fiber16
+for i in {0..63}; do ./generate 16 "$i" 64 "fiber16/$i.fbl"; done
+shasum -a 256 -c "$src/biased/fiber16.sha256"
+./verify 16 fiber16/{63..0}.fbl
+python3 -B "$src/biased/check_fiber_samples.py" 16 fiber16/43.fbl --limit 32
 ~~~

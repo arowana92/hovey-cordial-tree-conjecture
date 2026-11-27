@@ -43,17 +43,20 @@ struct Traversal {
     }
 };
 
-struct Search {
+template<bool shifted> struct Search {
     int k;
     const Traversal& traversal;
     const int* parents;
     int* labels;
     Mask all;
+    const int* offsets;
     std::array<int, capacity> leaf_boundary, needed;
     std::array<Mask, capacity> allowed;
 
     int boundary(int i) const {
-        return parents[i] < 0 ? -parents[i] - 1 : labels[parents[i]];
+        int parent = parents[i] < 0 ? -parents[i] - 1 : labels[parents[i]];
+        if constexpr (shifted) return weight(parent,offsets[i]);
+        return parent;
     }
 
     int weight(int a, int b) const {
@@ -116,12 +119,22 @@ struct Search {
 
 // Negative parents encode -1-boundary. Return 1 with a witness, 0 after
 // exhaustive search, or -1 on invalid input. Both arrays have k-1 entries.
-extern "C" int rainbow_witness(int k, const int* parents, int* output) {
+template<bool shifted> static int solve(int k, const int* parents, int* output, const int* offsets) {
     if (k < 2 || k > capacity) return -1;
     // Consecutive boundary colorings usually have the same forest.
     thread_local Traversal traversal;
     if (!traversal.prepare(k, parents)) return -1;
     const Mask all = (Mask(1) << k) - 1;
-    Search search{k, traversal, parents, output, all};
+    Search<shifted> search{k, traversal, parents, output, all, offsets};
     return search.assign(0, all ^ 1, all) ? 1 : 0;
+}
+
+extern "C" int rainbow_witness(int k, const int* parents, int* output) {
+    return solve<false>(k,parents,output,nullptr);
+}
+
+extern "C" int rainbow_offset_witness(int k, const int* parents, const int* offsets, int* output) {
+    if (k < 2 || k > capacity) return -1;
+    for (int i = 0; i < k-1; ++i) if (offsets[i] < 0 || offsets[i] >= k) return -1;
+    return solve<true>(k,parents,output,offsets);
 }

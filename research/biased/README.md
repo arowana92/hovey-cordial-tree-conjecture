@@ -6,7 +6,7 @@ f(v)+f(w)+b_{vw}
 $$
 both have residue counts differing pairwise by at most one. The offsets on adjacent edges may differ. Setting every offset to zero gives ordinary cordiality.
 
-At four, eight and nine labels, every edge can independently receive any multiple of 2, 4 and 3 respectively. Together these results characterize every allowable offset set through modulus 15. [Prime powers and optimality](prime-powers.md)
+At four, eight, nine and sixteen labels, every edge can independently receive any multiple of 2, 4, 3 and 8 respectively. These results characterize every allowable offset set through modulus 16 and at the mixed composite moduli 18, 20, 21 and 22. [Prime powers and optimality](prime-powers.md)
 
 At every prime and every tree order, arbitrary offsets also work with two arbitrary leaf populations attached at the ends of a path of length two or three. At length two the middle vertex may carry one further leaf. A determinant on any fixed two-site core makes the signed test eventually periodic along rational proportions of the two populations. [Exact counts, further families and independent checks](two-sites.md)
 
