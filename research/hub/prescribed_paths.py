@@ -27,7 +27,7 @@ def paths(table, start, end):
     return [linear(a,start,b,end) for a,b in table]
 
 
-def separate(rows, forbidden, signs, modulus):
+def separate(rows, forbidden, signs, modulus, starts=None):
     """Choose each parameter after substituting all earlier ones in its constraints."""
     constraints = [[] for _ in signs]
 
@@ -61,12 +61,20 @@ def separate(rows, forbidden, signs, modulus):
                     bad.update(range(first,modulus,stride))
         if modulus is not None and len(bad) == modulus:
             raise ValueError("there is no available residue for this parameter")
-        x = sign
+        x = sign if starts is None else starts[i]
         while (x if modulus is None else x % modulus) in bad:
             x += sign
         chosen.append(x)
     result = [row[0] + sum(a*x for a,x in zip(row[1:],chosen)) for row in rows]
     return result if modulus is None else [x % modulus for x in result]
+
+
+def join(left, p, right, q, weight, blocked, signs, modulus=None, starts=None):
+    left_pre = paths(left,constant(p),U)
+    right_pre = paths(right,constant(q),V)
+    complement = linear(1,constant(weight),-1,T)
+    final = [*left_pre, *paths(NINE,U,T), *reversed(paths(NINE,V,complement)), *reversed(right_pre)]
+    return separate(final, blocked, signs, modulus, starts)
 
 
 def bridge(p, q, weight, length, forbidden, modulus=None, extreme=None):
@@ -103,12 +111,9 @@ def bridge(p, q, weight, length, forbidden, modulus=None, extreme=None):
         p = block[-1]
 
     # The last two neutral paths end at T and weight-T.
-    left_pre = paths(prefix[-1],constant(p),U)
-    right_pre = paths(right,constant(q),V)
-    complement = linear(1,constant(weight),-1,T)
-    final = [*left_pre, *paths(NINE,U,T), *reversed(paths(NINE,V,complement)), *reversed(right_pre)]
-    signs = [-1 if p==extreme else 1, -1 if q==extreme else 1, 1]
-    result.extend(separate(final, blocked, signs, modulus))
+    last_sign = -1 if modulus is None and weight < 0 else 1
+    signs = [-1 if p==extreme else 1, -1 if q==extreme else 1, last_sign]
+    result.extend(join(prefix[-1],p,right,q,weight,blocked,signs,modulus))
     return result
 
 

@@ -49,3 +49,19 @@ theorem neutral (p t : Int) (xs : List Form) (h : (weights (1,0) xs).Perm xs) :
   simpa [eval] using hm
 
 end Cordial.PrescribedPaths
+
+namespace Cordial.PrescribedPaths
+
+theorem highPreparation (m p u : Int) (hm : 0 < m) (hp : -m ≤ p ∧ p ≤ m)
+    (hu : -60*m ≤ u ∧ u ≤ -59*m) (row : Form) (h : row ∈ eight) :
+    -182*m ≤ eval p u row ∧ eval p u row < 160*m := by
+  simp [eight] at h
+  rcases h with h|h|h|h|h|h|h|h <;> subst row <;> simp only [eval] <;> omega
+
+theorem highFinish (m u t : Int) (hm : 0 < m) (hu : -60*m ≤ u ∧ u ≤ -59*m)
+    (ht : 79*m ≤ t ∧ t ≤ 81*m) (row : Form) (h : row ∈ nine) :
+    -182*m ≤ eval u t row ∧ eval u t row < 160*m := by
+  simp [nine] at h
+  rcases h with h|h|h|h|h|h|h|h|h <;> subst row <;> simp only [eval] <;> omega
+
+end Cordial.PrescribedPaths
