@@ -1,8 +1,10 @@
-# One order remains for matching deficiency two at 26 labels
+# Reducing matching deficiency two at 26 labels to order 52
 
 **Theorem.** If a tree with a matching missing at most two vertices fails to be 26-cordial, a smallest such tree has exactly **52 vertices**. In every maximum matching of that tree, the path between the two exposed vertices meets 13 through 18 matched pairs, with 7 through 12 further pairs off the path. Thus an order-52 test restricted to these trees would settle the entire matching-deficiency-two case. The unrestricted 26-label problem also includes trees of larger deficiency.
 
 The additional finite ingredient is a substitution at a specified edge. Insert a chain of $13-b$ matched pairs between its two ends, and attach $b$ further matched pairs by single edges anywhere in the inserted tree, parent before child. For $1\le b\le6$, **every such insertion preserves the two endpoint labels and adds exactly one to each of the 26 vertex and edge counts**. The zero-branch case, including its pure-path exception, follows from the [paired chain theorem](cycle-pendants.md).
+
+The subsequent [two-block joining theorem](two-exposures.md) settles order 52 and completes the all-orders proof.
 
 ## Dividing the path into complete blocks
 
