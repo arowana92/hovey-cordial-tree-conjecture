@@ -71,11 +71,23 @@ def prefixes(steps):
     if not active:
         return 0, array([]), 1
     rank, step = active[-1]
+    # Prune a failed prefix as soon as it is complete. Keeping the original
+    # sorted-set and lexicographic permutation order preserves witness selection.
+    constraints = {r: catalog(r, d) for r, d in active[:-1]}
     allowed = []
+
+    def extend(prefix, remaining):
+        r = len(prefix)
+        if r in constraints and tuple(sorted(prefix)) not in constraints[r]:
+            return
+        if not remaining:
+            allowed.extend(prefix)
+            return
+        for i, x in enumerate(remaining):
+            extend(prefix+(x,), remaining[:i]+remaining[i+1:])
+
     for p in sorted(catalog(rank, step)):
-        for f in permutations(p):
-            if all(tuple(sorted(f[:r])) in catalog(r, d) for r, d in active[:-1]):
-                allowed.extend(f)
+        extend((), p)
     return rank, array(allowed), len(allowed)//rank
 
 

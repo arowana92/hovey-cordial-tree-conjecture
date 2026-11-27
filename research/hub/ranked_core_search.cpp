@@ -5,7 +5,7 @@
 
 namespace {
 using Mask = std::uint64_t;
-constexpr int max_core = 10;
+constexpr int max_core = 12;
 constexpr int max_order = 62;
 
 struct Search {
@@ -78,12 +78,29 @@ struct Search {
         return true;
     }
 
-    bool place(int i, int lo, int hi, int sum) {
+    std::array<int, max_core> known_weights{};
+    std::array<unsigned, max_core> earlier_neighbors{};
+
+    bool add_weights(int i, int& lo, int& hi, int& used) {
+        for (auto neighbors = earlier_neighbors[i]; neighbors; neighbors &= neighbors-1) {
+            const int w = f[i] + f[__builtin_ctz(neighbors)];
+            if (std::find(known_weights.begin(), known_weights.begin()+used, w)
+                != known_weights.begin()+used) return false;
+            known_weights[used++] = w;
+            lo = std::min(lo, w-1);
+            hi = std::max(hi, w);
+        }
+        return hi-lo < n;
+    }
+
+    bool place(int i, int lo, int hi, int sum, int used) {
         if (i == h) return try_interval(sum);
         for (int x = hi-n+1; x <= lo+n-1; ++x) {
             if (std::find(f.begin(), f.begin()+i, x) != f.begin()+i) continue;
             f[i] = x;
-            if (place(i+1, std::min(lo, x), std::max(hi, x), sum+coefficient[i]*x))
+            int low = std::min(lo, x), high = std::max(hi, x), length = used;
+            if (add_weights(i, low, high, length)
+                && place(i+1, low, high, sum+coefficient[i]*x, length))
                 return true;
         }
         return false;
@@ -106,6 +123,10 @@ extern "C" int solve(int h, const int* edges, const int* counts, int rank,
     }
     if (s.n > max_order) return -1;
     for (int j = 0; j < 2*(h-1); ++j) --s.coefficient[edges[j]];
+    for (int j = 0; j < h-1; ++j) {
+        const int a = edges[2*j], b = edges[2*j+1];
+        s.earlier_neighbors[std::max(a, b)] |= 1U << std::min(a, b);
+    }
     for (int b = 0; b < number; ++b) {
         int lo = 0, hi = 1, sum = 0;
         for (int i = 0; i < rank; ++i) {
@@ -114,7 +135,10 @@ extern "C" int solve(int h, const int* edges, const int* counts, int rank,
             hi = std::max(hi, x);
             sum += s.coefficient[i]*x;
         }
-        if (!s.place(rank, lo, hi, sum)) continue;
+        int used = 0;
+        bool valid = true;
+        for (int i = 0; valid && i < rank; ++i) valid = s.add_weights(i, lo, hi, used);
+        if (!valid || !s.place(rank, lo, hi, sum, used)) continue;
         result[0] = s.lower;
         std::copy_n(s.f.begin(), h, result+1);
         std::copy_n(s.assignment.begin(), s.n, result+1+h);

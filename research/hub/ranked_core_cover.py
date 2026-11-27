@@ -44,10 +44,12 @@ def split(base, steps, i, periodic):
     return ((base, tuple(refined)), (tuple(other), tuple(refined) if periodic else steps))
 
 
-def cover(library, edges):
+def cover(library, edges, sites=None):
     h = len(edges)+1
+    if sites is None:
+        sites = h
     reserved = sum(sum(v in edge for edge in edges) == 1 for v in range(h))
-    priority = [2, 4, *range(5, h), 3, 1, 0]
+    priority = [2, 4, *range(5, sites), 3, 1, 0]
 
     @lru_cache(None)
     def attempt(base, steps):
@@ -88,7 +90,7 @@ def cover(library, edges):
                     return first + second
         return None
 
-    return visit((0,)*h, (1,)*h)
+    return visit((0,)*h, (1,)*sites + (0,)*(h-sites))
 
 
 def main():
