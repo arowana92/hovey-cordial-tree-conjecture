@@ -8,7 +8,7 @@ The bound is sharp as a statement uniform in the modulus for $r\ge2$. At $k=r$, 
 $$
 2s-k\ \ge\ 1+\min(L,6)\ \ge\ 6.
 $$
-In particular $s\ge\lceil(k+6)/2\rceil$. At an even modulus, a minimum counterexample at the first remaining residue $s=k/2+3$ has exactly five leaves. At 26 these restrictions give $s\ge16$, with precisely five leaves required at $s=16$. The [prime residue theorem](pruned-forests.md) gives the stronger condition $s\ge(p+13)/2$ at odd primes.
+In particular $s\ge\lceil(k+6)/2\rceil$. At an even modulus, a minimum counterexample at the first remaining residue $s=k/2+3$ has exactly five leaves. A [parity specialization](twice-prime-power-lists.md) excludes this residue at 26 and more generally at twice any power of a prime $p\ge7$. The [prime residue theorem](pruned-forests.md) gives the stronger condition $s\ge(p+13)/2$ at odd primes.
 
 ## A polynomial certificate valid for all the shifts
 
