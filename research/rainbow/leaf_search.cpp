@@ -24,11 +24,11 @@ struct Shape {
     int n = 0, internal = 0;
     int parents[capacity], order[capacity], children[capacity];
 
-    void prepare(int k, const int* input) {
-        bool same = n == k-1;
-        for (int i = 0; same && i < k-1; ++i) same = parents[i] == std::max(-1,input[i]);
+    void prepare(int count, const int* input) {
+        bool same = n == count;
+        for (int i = 0; same && i < count; ++i) same = parents[i] == std::max(-1,input[i]);
         if (same) return;
-        n = k-1;
+        n = count;
         std::fill_n(children,n,0);
         std::iota(order,order+n,0);
         int size[capacity];
@@ -46,7 +46,7 @@ struct Shape {
     }
 };
 
-template<bool shifted> struct Solver {
+template<bool shifted, bool uniform> struct Solver {
     int k;
     const Shape& shape;
     const int* parents;
@@ -112,8 +112,14 @@ template<bool shifted> struct Solver {
     bool visit(int step, Mask vertices, Mask negatives, Mask weights, int parent_sum) {
         if (--budget < 0) return false;
         if (step == shape.internal) {
-            int absent = neg(parent_sum%k);
-            if (!(weights & (Mask(1)<<absent))) return false;
+            // The parent terms sum to zero when both histograms are permutations.
+            if constexpr (uniform) {
+                if (parent_sum%k != 0) return false;
+            } else {
+                int absent = neg(parent_sum%k);
+                if (!(weights & (Mask(1)<<absent))) return false;
+                weights ^= Mask(1)<<absent;
+            }
             Mask digits = 0;
             std::fill_n(leaf_count,k,0);
             for (int j = shape.internal; j < shape.n; ++j) {
@@ -121,7 +127,7 @@ template<bool shifted> struct Solver {
                 digits |= Mask(1)<<a;
                 leaf_at[a][leaf_count[a]++] = i;
             }
-            return fill(vertices,negatives,weights^(Mask(1)<<absent),digits);
+            return fill(vertices,negatives,weights,digits);
         }
         int i = shape.order[step], a = parent_label(i);
         Mask options = vertices & right(weights,a);
@@ -143,16 +149,17 @@ template<bool shifted> struct Solver {
 
 extern "C" int reference_witness(int, const int*, int*);
 extern "C" int rainbow_offset_witness(int, const int*, const int*, int*);
-template<bool shifted> static int search_forest(int k, const int* parents, int* output,
+template<bool shifted, bool uniform = false> static int search_forest(int k, const int* parents, int* output,
                                                 const int* offsets) {
     if (k < 2 || k > capacity) return -1;
-    for (int i = 0; i < k-1; ++i) if (parents[i] >= i || parents[i] < -k) return -1;
+    int count = uniform ? k : k-1;
+    for (int i = 0; i < count; ++i) if (parents[i] >= i || parents[i] < -k) return -1;
     thread_local Shape shape;
-    shape.prepare(k,parents);
+    shape.prepare(count,parents);
     Mask all = (Mask(1)<<k)-1;
     std::uint32_t seed = 1991;
     int boundary = 0;
-    for (int i = 0; i < k-1; ++i) {
+    for (int i = 0; i < count; ++i) {
         seed = seed*16777619U+static_cast<std::uint32_t>(parents[i]);
         if (parents[i] < 0) boundary += -1-parents[i];
         if constexpr (shifted) {
@@ -161,18 +168,28 @@ template<bool shifted> static int search_forest(int k, const int* parents, int* 
             seed = seed*16777619U+static_cast<std::uint32_t>(offsets[i]);
         }
     }
-    Solver<shifted> search{k,shape,parents,output,all,0,seed|1U,offsets};
+    Solver<shifted,uniform> search{k,shape,parents,output,all,0,seed|1U,offsets};
+    Mask available = uniform ? all : all^1;
     for (int trial = 0; trial < 40; ++trial) {
         search.budget = trial < 8 ? 80 : trial < 20 ? 500 : 5000;
-        if (search.visit(0,all^1,all^1,all,boundary)) return 1;
+        if (search.visit(0,available,available,all,boundary)) return 1;
         if (search.budget >= 0) break;
     }
 #ifdef RAINBOW_WIDE_MASK
     if constexpr (!shifted) {
-        if (k>=31 && swap_search(k,parents,output,seed|1U)) return 1;
+        if ((k>=31 || uniform) && swap_search(k,parents,output,seed|1U,uniform)) return 1;
     }
 #endif
-    if constexpr (shifted) return rainbow_offset_witness(k,parents,offsets,output);
+    if constexpr (uniform) {
+#ifdef RAINBOW_WIDE_MASK
+        for (int retry = 0; retry < 32; ++retry) {
+            seed = seed*1664525U+1013904223U;
+            if (swap_search(k,parents,output,seed|1U,true)) return 1;
+        }
+#endif
+        return 0;
+    }
+    else if constexpr (shifted) return rainbow_offset_witness(k,parents,offsets,output);
     else return reference_witness(k,parents,output);
 }
 
@@ -182,4 +199,8 @@ extern "C" int rainbow_witness(int k, const int* parents, int* output) {
 
 extern "C" int fast_offset_witness(int k, const int* parents, const int* offsets, int* output) {
     return search_forest<true>(k,parents,output,offsets);
+}
+
+extern "C" int uniform_witness(int k, const int* parents, int* output) {
+    return search_forest<false,true>(k,parents,output,nullptr);
 }

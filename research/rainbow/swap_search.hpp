@@ -6,8 +6,8 @@
 #include <numeric>
 
 namespace {
-bool swap_search(int k, const int* parents, int* labels, std::uint32_t seed) {
-    int n = k-1;
+bool swap_search(int k, const int* parents, int* labels, std::uint32_t seed, bool uniform) {
+    int n = uniform ? k : k-1;
     int degree[64]{}, incident[64][64], weight[64], count[64];
     for (int i=0; i<n; ++i) {
         incident[i][degree[i]++] = i;
@@ -25,7 +25,7 @@ bool swap_search(int k, const int* parents, int* labels, std::uint32_t seed) {
         return w<k ? w : w-k;
     };
     for (int trial=0; trial<16; ++trial) {
-        std::iota(labels,labels+n,1);
+        std::iota(labels,labels+n,uniform ? 0 : 1);
         for (int i=n-1; i>0; --i) std::swap(labels[i],labels[random()%(i+1)]);
         std::fill_n(count,k,0);
         int score = 0;
