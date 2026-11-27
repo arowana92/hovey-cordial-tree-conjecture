@@ -1,8 +1,8 @@
 # Trees with few leaves beyond 25 labels
 
-**Theorem (computer-assisted).** Every tree with at most five leaves is $k$-cordial for each $26\le k\le30$, at every tree order. At 26 and 27 labels this holds for every tree with at most seven leaves. Together with the earlier modulus proofs, the five-leaf result applies at every $k\le30$.
+**Theorem (computer-assisted).** Every finite tree with at most eight leaves is $k$-cordial for every $1\le k\le30$. The proof covers arbitrary tree orders. At $26\le k\le30$, it combines five-terminal extension certificates with a separate order-$k$ base. The [unrestricted modulus proofs](../../README.md) supply the smaller moduli.
 
-**Corollary at 26.** A smallest counterexample would have at least eight leaves and order $26m+s$ with $18\le s\le26$. At $s=18$ it must have exactly eight leaves. Indeed, the [parity list theorem](../biased/twice-prime-power-lists.md) permits deleting seven leaves, giving $2s-26\ge10$, and nine leaves would give $2s-26\ge12$.
+A smallest ordinary counterexample at any of these five new moduli must therefore have at least nine leaves. At 26 and 27 labels its order residue $s$ also satisfies $s\ge21$. [Short-forest proof](short-forests.md)
 
 ## The cut with a bound on terminal vertices
 
@@ -12,7 +12,23 @@ Take a tree with at most $L$ leaves, where $\lfloor2L/3\rfloor\le q$. Assume fir
 
 Thus the minimum-counterexample argument applies within the class. Write its order as $mk+1+t>k$. As in the ordered cut, $1\le t<k$. Split at a leaf centroid to retain a connected seed of at most $(n+1)/2\le mk+1$ vertices containing at least $\lceil L'/3\rceil$ of the tree's $L'\le L$ original leaves. Grow it to order $mk+1$ in size-ordered preorder. The exterior has at most $\lfloor2L'/3\rfloor\le q$ terminals. Padding an exterior terminal by a path to reach order $k-1$ preserves the tip count and the allowed boundary runs. The smaller core is cordial, so the extension test restores the original tree.
 
-When $L-1\le q$, the same forest audit supplies the order-$k$ base. Root any such tree at an original leaf and remove that leaf. The single remaining rooted component has $L'-1$ terminals. Its all-zero boundary witness labels the missing leaf zero and supplies the required bijection. At $k=26,27$ the independent [integer census](../census/README.md) supplies every order-$k$ base, so only $\lfloor2L/3\rfloor\le q$ is needed. Taking $q=4$ proves the assertions.
+When $L-1\le q$, the same forest audit supplies the order-$k$ base. Root any such tree at an original leaf and remove that leaf. The single remaining rooted component has $L'-1$ terminals. Its all-zero boundary witness labels the missing leaf zero and supplies the required bijection. At $k=26,27$ the independent [integer census](../census/README.md) supplies every order-$k$ base, so only $\lfloor2L/3\rfloor\le q$ is needed. At 28, 29 and 30 labels the [leaf-bounded modular census](../census/leaf-bases.md) verifies every order-$k$ tree with at most eight leaves. Now $\lfloor2\cdot8/3\rfloor=5$, which proves the theorem.
+
+## A finite reduction for eleven leaves
+
+For each $26\le k\le30$, checking all orders up to $2k$ would suffice for every tree with at most eleven leaves. More generally suppose the $q$-terminal extension test at order $k-1$ holds. A least counterexample among trees with at most $2q+1$ leaves would have order at most $2k$.
+
+Indeed, at a leaf centroid each component contains at most $q$ original leaves. Merge parts whenever their combined leaf count is at most $q$. If four or more parts remained, two disjoint pairs of them would account for at least $2(q+1)$ leaves, a contradiction. If $n=mk+1+t$ with $m\ge2$ and $1\le t<k$, the largest of the at most three groups contains at least $t$ vertices because $n-1=mk+t>3(t-1)$. Keep the centroid and all the other groups as a connected seed. Preorder the chosen group from the centroid, in nondecreasing child-subtree size, growing the seed to $mk+1$ vertices. The exterior has at most $q$ terminals and passes the same extension test. Order $1\bmod k$ is covered by deleting one leaf. This excludes every larger least counterexample in the class.
+
+## Five-terminal certificates
+
+| Modulus | Forests | Witness rows | Boundary assignments before unit symmetry |
+| ---: | ---: | ---: | ---: |
+| 26 | 2,039,320 | 28,003,625 | 1,396,177,120 |
+| 27 | 2,831,426 | 34,972,240 | 2,073,156,930 |
+| 28 | 3,882,235 | 77,989,441 | 3,008,016,256 |
+| 29 | 5,261,441 | 32,237,599 | 4,340,505,081 |
+| 30 | 7,053,721 | 205,966,485 | 6,071,873,340 |
 
 ## Four-terminal certificates
 
@@ -26,11 +42,11 @@ When $L-1\le q$, the same forest audit supplies the order-$k$ base. Root any suc
 
 The [generator](tip_forests.hpp) enumerates multisets of rooted branches by order, canonical word and number of terminals. The [native verifier](spine_verify.cpp) parses every tree, rejects duplicate words, checks its tip count and each label permutation, recomputes the edge sums and verifies coverage of the permitted boundary assignments. It computes the exact number of eligible forests using a separate bivariate multiset product indexed by order and terminal count. A [Python partition count and cross-check](check_tip_forests.py) reproduces both outer columns, compares every selected witness record with the unrestricted generator at moduli 5 through 11, and tests rejection of an omission, duplication and extraneous shape.
 
-At 26 and 30, a further [Python check](check_spine_samples.py) sampled 26 forests across all four possible run counts, verified 7,903 witness rows, and directly checked 1,316,086 boundary assignments. The exhaustive native checks supply the theorem. The unrestricted 26-label audit is a separate calculation. [Deterministic stream digests](tip-streams.sha256)
+At 26 and 30, a further [Python check](check_spine_samples.py) sampled 26 forests across all four possible run counts, verified 7,903 witness rows, and directly checked 1,316,086 boundary assignments. The same Python check sampled 24 forests in the five-terminal streams at 26 and 30, checking 14,647 rows and 1,342,134 boundary assignments. The exhaustive native checks supply the theorem. The unrestricted 26-label audit is a separate calculation. [Deterministic stream digests](tip-streams.sha256)
 
 ## Reproduction
 
-From the repository root, run the following in Bash with Python 3 and a C++17 compiler. The five four-terminal streams occupy about 471 MiB combined.
+From the repository root, run the following in Bash with Python 3 and a C++17 compiler. The five four-terminal streams occupy about 471 MiB combined. The five larger streams occupy about 11 GB combined.
 
 ~~~bash
 set -e
@@ -40,11 +56,16 @@ c++ -O3 -std=c++17 -c -Drainbow_witness=reference_witness "$src/search.cpp" -o "
 c++ -O3 -std=c++17 "$src/spine_generate.cpp" "$src/leaf_search.cpp" "$out/reference.o" -o "$out/generate"
 c++ -O3 -std=c++17 -pthread "$src/spine_verify.cpp" -o "$out/verify"
 python3 -B -m research.rainbow.check_tip_forests --binaries "$out/generate" "$out/verify"
-for k in 26 27 28 29 30; do
-    "$out/generate" "$k" 0 1 "$out/k$k-t4.spn" --tips 4
-    "$out/verify" "$k" --tips 4 "$out/k$k-t4.spn"
+python3 -B -m research.rainbow.check_tip_forests --tips 5
+for t in 4 5; do
+    for k in 26 27 28 29 30; do
+        "$out/generate" "$k" 0 1 "$out/k$k-t$t.spn" --tips "$t"
+        "$out/verify" "$k" --tips "$t" "$out/k$k-t$t.spn"
+    done
 done
 python3 -B "$src/check_spine_samples.py" "$out/k26-t4.spn" --stride 21000
 python3 -B "$src/check_spine_samples.py" "$out/k30-t4.spn" --stride 35000
+python3 -B "$src/check_spine_samples.py" "$out/k26-t5.spn" --stride 350000
+python3 -B "$src/check_spine_samples.py" "$out/k30-t5.spn" --stride 600000
 (cd "$out" && shasum -a 256 -c "$src/tip-streams.sha256")
 ~~~
