@@ -2,6 +2,8 @@
 
 **Theorem (computer-assisted).** Every finite tree admits an 8-cordial labeling. The argument below reduces arbitrary order to a finite lemma about attaching rooted forests. The accompanying certificate supplies the labelings for that lemma. The conjecture with unrestricted modulus remains open.
 
+A second proof uses seven-vertex packets and classifies every obstruction to preserving a core of order one modulo eight. Only 42 colored forests fail, all on seven new vertices. Every larger forest extends. [Classification, independent enumeration and second proof](surplus.md)
+
 ## The extension lemma
 
 Let a connected labeled core have order $8m$, with $m\ge 1$. In a cordial labeling each vertex residue occurs $m$ times. There are $8m-1$ edges, so one residue $d$ occurs $m-1$ times and every other residue occurs $m$ times.
