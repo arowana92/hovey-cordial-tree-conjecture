@@ -4,6 +4,8 @@
 
 Every tree on **at most 26 vertices** is cordial at **every positive modulus**. A census verifies one integer labeling with consecutive endpoint sums for each of the 447,672,595 unrooted trees of orders 2 through 26. This also proves cordiality at modulus $k\le26$ for arbitrary-order trees with at most $k$ nonleaf vertices. [Super edge-magic census and independent verification](research/census/README.md)
 
+At **2, 3, 5, 7, 11 and 13 labels**, every finite tree remains cordial even when each edge has its own prescribed additive offset. The proof reduces arbitrary orders to trees of order exactly the modulus and uses signed counts to cover the possible offsets. Every composite modulus has a double star obstructing this stronger property. [Proof, certificates and independent check](research/biased/README.md)
+
 At eight labels, Lean proves the theorem for finite trees built by joining rooted subtrees. It checks the finite certificate, the induction and the counts on each tree’s actual edges. [Formal proof and replay](research/eight/README.md#the-complete-eight-label-theorem-in-lean)
 
 For **any finite tree and any chosen vertex**, adding at least $C(h+1)^2$ leaves at that vertex gives a super edge-magic tree, where $h$ is the original order and $C$ is absolute. One integer labeling then works at every positive modulus. For each fixed bound on the matching number or on the number of nonleaf vertices, only finitely many trees can fail to be super edge-magic. [Quadratic integer bound and independent checks](research/hub/quadratic-endpoint.md) · [Bounded-nonleaf result](research/hub/endpoint-hub.md)
