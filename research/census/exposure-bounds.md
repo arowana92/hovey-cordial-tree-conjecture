@@ -9,9 +9,9 @@
 | 2 | 6 | 50, 76 |
 | 3 | 7 | 49 |
 | 4 | 8 | 48 |
-| 5 | 9 | 47 |
+| 5 | 9 | None. The reduction gives 47 and the [twenty-vertex extension](../rainbow/twenty-free.md) labels every tree of that order. |
 
-Moreover $d\ge2H+2$ whenever $q\ge3$ and $1\le H\le13$. For example, at orders 73, 99 and every higher order congruent to 21 modulo 26, a smallest counterexample would require **at least thirteen uncovered vertices** in every matching. The parity of $n$ strengthens the lower bound there. Counting the edges with more than $H$ tips on each side gives additional [order bounds for each deficiency](exposure-splits.md). The entries in the table are necessary conditions. No tree at those orders has been shown to fail.
+Moreover $d\ge2H+2$ whenever $q\ge3$ and $1\le H\le13$. For example, at order 74 and every higher order congruent to 22 modulo 26, a smallest counterexample would require **at least ten uncovered vertices** in every matching. The later twenty-vertex extension also excludes residue 21 completely for an unrestricted minimum. Counting the edges with more than $H$ tips on each side gives additional [order bounds for each deficiency](exposure-splits.md). The remaining entries are necessary conditions. No tree at those orders has been shown to fail.
 
 A finite test for the entire class of deficiency at most five now consists of the six orders in the first two rows. Indeed, the [matching-prefix theorem](../near-matching.md) for $d=5$ only leaves orders $-3,-1,1,3$ modulo 26. The [three-exposure theorem](three-exposures.md) also treats $-3$. At residues 1 and 3 remove that many exposed leaves to obtain a smaller divisible tree in the class. Fill its old deficit with the first leaf, then [restore the other leaves](../counterexample-bound.md#removing-leaves) with distinct weights and distinct labels avoiding the first. The first row is the [four-exposure theorem](four-exposures.md).
 

@@ -1,6 +1,6 @@
 # Separating groups of uncovered leaves at 26 labels
 
-Let $T$ be a smallest unrestricted 26-label counterexample, if one exists. At orders congruent to 23, 22 and 21 modulo 26 its order is at most **413, 334 and 203**, respectively. More detailed bounds below retain the matching deficiency. The proof uses the fact that deleting any prescribed group of $H$ exposed leaves from the spanning requirement can free only a small number of matched pairs.
+Let $T$ be a smallest unrestricted 26-label counterexample, if one exists. At orders congruent to 23, 22 and 21 modulo 26 its order is at most **413, 334 and 203**, respectively. More detailed bounds below retain the matching deficiency. The [twenty-vertex extension](../rainbow/twenty-free.md) subsequently excluded residue 21 at every order for an unrestricted minimum. The proof here uses the fact that deleting any prescribed group of $H$ exposed leaves from the spanning requirement can free only a small number of matched pairs.
 
 Use $n=26q-H$, $1\le H\le5$. As in the [exposure bound](exposure-bounds.md#discarding-a-chosen-set-of-tips), fix a maximum matching missing $d$ original leaves. Contract its pairs and span the exposed leaves by a subtree. Let $h$ count the pairs outside this subtree. Then $h\le12-H$. If a collection of branches in the spanning subtree can all be removed while retaining $d-H$ exposed leaves, those branches together contain at most $C=12-H-h$ pair positions. This part of the argument also holds for minimality within any fixed matching-deficiency bound.
 
