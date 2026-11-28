@@ -6,23 +6,42 @@ from math import gcd
 from check import adjacency
 from check_excess import choose_variables, expression
 from multiport import residue_sums
-from partial_gap import build
+from partial_gap import build, build_palettes
 from sparse_offsets import cap_tree, closed, edge, move_pairs
+from tree_palettes import place_copies
 
 
 def construct(edges, opening, anchor, label, omitted, extra, rng, cap=3, offsets=None):
+    result = construct_histograms(edges, opening, anchor, label, omitted, extra, rng,
+                                  cap, offsets)
+    return None if result is None else result[:3]
+
+
+def construct_histograms(edges, opening, anchor, label, omitted, extra, rng, cap=3,
+                         offsets=None, vertex_holes=(), vertex_extra=()):
     ring = opening is not None
-    k = len(edges) if ring else len(edges)+1
-    graph = adjacency(k, edges)
+    n = len(edges) if ring else len(edges)+1
+    k = n+len(vertex_holes)-len(vertex_extra)
+    if ring and (vertex_holes or vertex_extra):
+        raise ValueError("vertex holes require a tree")
+    if len(set(vertex_holes)) != len(vertex_holes) or any(not 0<=x<k for x in vertex_holes):
+        raise ValueError("invalid vertex palette")
+    if (len(vertex_extra)>len(vertex_holes) or set(vertex_extra) & set(vertex_holes)
+            or any(not 0<=x<k for x in vertex_extra)):
+        raise ValueError("invalid repeated vertex residues")
+    graph = adjacency(n, edges)
     offsets = {edge(*pair): b % k for pair,b in (offsets or {}).items() if b % k}
     if not ring and not omitted:
         raise ValueError("a tree must omit at least one edge weight")
     gap = None if ring else omitted[-1]
-    paired = omitted if ring else omitted[:-1]
-    if len(paired) != len(extra) or len(set(omitted)) != len(omitted):
+    paired = omitted[:len(extra)]
+    missing = omitted[len(extra):]
+    if len(omitted)-len(extra) != k-len(edges) or len(set(omitted)) != len(omitted):
         raise ValueError("wrong number of omissions or extras")
     if set(omitted) & set(extra) or any(not 0 <= x < k for x in [*omitted, *extra, label]):
         raise ValueError("invalid residues for the target histogram")
+    if label in vertex_holes:
+        return None
     protected = {anchor}
     if ring:
         opening = edge(*opening)
@@ -31,8 +50,8 @@ def construct(edges, opening, anchor, label, omitted, extra, rng, cap=3, offsets
         protected.update(opening)
     ends = [v for v, ns in enumerate(graph) if len(ns) == 1]
     movable = [v for v in ends if v != anchor]
-    delta = (sum(extra) - sum(omitted) - sum(offsets.values())) % k
-    correction = (k*(k-1)//2 - delta) % k
+    delta = (sum(extra) - sum(omitted) + sum(vertex_holes) - sum(vertex_extra) - sum(offsets.values())) % k
+    correction = (k*(k-1)//2 - sum(vertex_holes) + sum(vertex_extra) - delta) % k
     coefficients = [len(ns)-1 for ns in graph]
     divisor = reduce(gcd, (c for v,c in enumerate(coefficients) if v != anchor), k)
     if (delta - coefficients[anchor]*label) % divisor:
@@ -41,8 +60,13 @@ def construct(edges, opening, anchor, label, omitted, extra, rng, cap=3, offsets
         return None
     if ring and len(ends) == 1 and len(graph[anchor]) != 2:
         raise ValueError("choose a cycle anchor away from the junction")
-    if not ring and len(movable) == 1 and (correction-2*label) % k == 0:
-        return None
+    same_endpoint = None
+    if not ring and len(movable) == 1:
+        far = (correction-label) % k
+        if far in vertex_holes or (far == label and label not in vertex_extra):
+            return None
+        if far == label:
+            same_endpoint = (movable[0], label)
 
     biases = offsets.copy()
     forced = []
@@ -63,7 +87,7 @@ def construct(edges, opening, anchor, label, omitted, extra, rng, cap=3, offsets
             paired, extra = paired[1:], extra[1:]
 
     tree = [pair for pair in edges if edge(*pair) != opening]
-    tree_graph = adjacency(k, tree)
+    tree_graph = adjacency(n, tree)
     tree_bias = {pair:d for pair,d in biases.items() if pair != opening}
     cuts, remaining = cap_tree(tree_graph, tree_bias, cap)
     fixed = protected | {v for pair in cuts for v in pair}
@@ -82,6 +106,14 @@ def construct(edges, opening, anchor, label, omitted, extra, rng, cap=3, offsets
         fixed.update(v for v, ns in enumerate(graph) if len(ns) != 2)
         selected = movable[:2]
         reserved = []
+    switches = {}
+    if vertex_extra:
+        pairs = zip(vertex_holes, vertex_extra)
+        switches = place_copies(graph, fixed, reserved, cuts, remaining, biases, pairs,
+                                same_endpoint, site_degree or 2)
+        vertex_holes = vertex_holes[len(vertex_extra):]
+        delta -= sum(coefficients[v]*(p-q) for v,(q,p) in switches.items())
+        correction += sum((coefficients[v]-1)*(p-q) for v,(q,p) in switches.items())
     blocked = closed(graph, fixed | set(reserved))
     donors = []
     for pair in tree:
@@ -108,12 +140,13 @@ def construct(edges, opening, anchor, label, omitted, extra, rng, cap=3, offsets
     dependent = {b for a, b in donors}
     if forced:
         dependent.add(middle)
-    ordinary = fixed - private - special - dependent - {anchor}
+    ordinary = fixed - private - special - dependent - {anchor} - switches.keys()
     variables = [v for v in order if v in ordinary] + sorted(private)
     if len(special) == 2:
         variables.append(selected[0])
     forms = {v: expression((i, modulus), constant=residues.get(v,0)) for i, v in enumerate(variables)}
     forms[anchor] = expression(constant=label)
+    forms.update({v:expression(constant=q) for v,(q,p) in switches.items() if v not in special})
     for (a, b), value in zip(donors, extra):
         forms[b] = expression(*[(i, -c) for i, c in forms[a].items()], constant=value)
     if forced:
@@ -132,14 +165,17 @@ def construct(edges, opening, anchor, label, omitted, extra, rng, cap=3, offsets
         forms[site] = expression(*weight(pair).items(), *[(i,-c) for i,c in forms[root].items()])
     weights = [weight(pair) for pair in edges if set(pair) <= fixed]
     if not ring:
-        weights.append(expression(constant=gap))
-    evaluate = choose_variables(list(forms.values()), weights, k, rng)
+        weights.extend(expression(constant=x) for x in missing)
+    vertex_forms = list(forms.values()) + [expression(constant=x) for x in vertex_holes]
+    evaluate = choose_variables(vertex_forms, weights, k, rng)
     pins = {v: evaluate(f) for v, f in forms.items()}
     if ring:
         gap = evaluate(weight(opening))
-    labels = build(kept, pins, gap, rng)
+    labels = (build(kept, pins, gap, rng) if ring else
+              build_palettes(k, kept, pins, vertex_holes, missing, rng))
     assert labels is not None
-    return (kept, opening, gap, pins, labels), forced+donors, biases
+    assert all(pins[v]==q for v,(q,p) in switches.items())
+    return (kept, opening, gap, pins, labels), forced+donors, biases, switches
 
 
 def uniform_transfers(k, leaf_counts):

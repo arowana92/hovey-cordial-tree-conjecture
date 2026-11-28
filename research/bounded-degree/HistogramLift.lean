@@ -38,4 +38,24 @@ theorem slotUnique {k x y i j : Nat} (hx : x < k) (hy : y < k)
   have prod : k*i = k*j := Nat.add_left_cancel eq
   exact ⟨rfl, Nat.eq_of_mul_eq_mul_left (by omega) prod⟩
 
+/-- A switch adds its increment to the true vertex label and to the temporary
+offset at each incident edge. This identity applies before modular reduction. -/
+theorem switchedEdge (x y u v bias : Int) :
+    (x+u)+(y+v)+bias = x+y+(bias+u+v) := by omega
+
+/-- The first coordinate is degree, and the second is actual minus temporary label. -/
+def shiftMoment (j : Int) (switches : List (Int × Int)) : Int :=
+  (switches.map (fun (d,e) => (d-j)*e)).sum
+
+theorem shiftedMoment (j : Int) (switches : List (Int × Int)) :
+    shiftMoment j switches =
+      shiftMoment 0 switches - j * (switches.map Prod.snd).sum := by
+  induction switches with
+  | nil => simp [shiftMoment]
+  | cons s tail ih =>
+    obtain ⟨d,e⟩ := s
+    simp only [shiftMoment, List.map_cons, List.sum_cons, Int.sub_zero] at ih ⊢
+    rw [ih, Int.sub_mul, Int.mul_add]
+    omega
+
 end Cordial.HistogramLift

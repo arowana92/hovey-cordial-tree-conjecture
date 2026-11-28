@@ -23,9 +23,17 @@ def groups(forms,edges,gap):
     return list(forms.values()),weights
 
 
-def dense(k,edges,adj,pins,gap,leaves,rng):
+def palette_groups(forms,edges,vertex_holes,edge_holes):
+    vertices = list(forms.values()) + [expression(constant=x) for x in vertex_holes]
+    weights = [expression(constant=x) for x in edge_holes]
+    weights.extend(expression(*forms[u].items(),*forms[v].items())
+                   for u,v in edges if u in forms and v in forms)
+    return vertices,weights
+
+
+def dense(k,edges,adj,pins,vertex_holes,edge_holes,leaves,rng):
     c = [len(row)-1 for row in adj]
-    target = -gap-sum(c[v]*x for v,x in pins.items())
+    target = sum(vertex_holes)-sum(edge_holes)-sum(c[v]*x for v,x in pins.items())
     h = reduce(gcd,(a for v,a in enumerate(c) if v not in pins),k)
     if target%h: return None
     d = Counter(len(row) for row in adj if len(row)>1).most_common(1)[0][0]
@@ -34,8 +42,9 @@ def dense(k,edges,adj,pins,gap,leaves,rng):
     residues = residue_sums(g,reps,target)
     forms = {v:expression(constant=x) for v,x in pins.items()}
     forms.update({v:expression((v,1),constant=x) for v,x in zip(reps.values(),residues)})
-    labels = lift_marks(k,g,reps.values(),forms,groups(forms,edges,gap),rng)
-    return core(k,edges,None,labels,leaves[:2],d,holes=[gap])
+    labels = lift_marks(k,g,reps.values(),forms,palette_groups(forms,edges,vertex_holes,edge_holes),rng)
+    return core(k,edges,None,labels,leaves[:2],d,holes=edge_holes,
+                vertex_holes=vertex_holes,order=len(adj))
 
 
 def forced_collision(group,k):
@@ -47,9 +56,11 @@ def forced_collision(group,k):
     return False
 
 
-def sparse(k,edges,adj,pins,gap,rng):
+def sparse(k,edges,adj,pins,vertex_holes,edge_holes,rng):
     terms = {v:len(row)-2 for v,row in enumerate(adj) if len(row)!=2 and v not in pins}
-    target = (-sum(range(k))-gap-sum((len(adj[v])-2)*x for v,x in pins.items()))%k
+    vertex_sum = k*(k-1)//2-sum(vertex_holes)
+    edge_sum = k*(k-1)//2-sum(edge_holes)
+    target = (edge_sum-2*vertex_sum-sum((len(adj[v])-2)*x for v,x in pins.items()))%k
     integer_gcd = reduce(gcd,terms.values(),0)
     if integer_gcd==0:
         if target: return None
@@ -65,7 +76,7 @@ def sparse(k,edges,adj,pins,gap,rng):
             forms = {v:expression(constant=x) for v,x in pins.items()}
             forms.update({v:expression((v,d),constant=sol[v]) for v in primitive if v!=j})
             forms[j] = expression(*[(v,-n) for v,n in primitive.items() if v!=j],constant=sol[j])
-            vertices,weights = groups(forms,edges,gap)
+            vertices,weights = palette_groups(forms,edges,vertex_holes,edge_holes)
             if forced_collision(vertices,k) or forced_collision(weights,k): continue
             evaluate = choose_variables(vertices,weights,k,rng)
             labels = {v:evaluate(form) for v,form in forms.items()}
@@ -73,25 +84,42 @@ def sparse(k,edges,adj,pins,gap,rng):
         else: return None
     blocked = neighborhood(adj,labels,1)
     spare = []
-    for v in range(k):
+    for v in range(len(adj)):
         if len(adj[v])==2 and v not in blocked:
             spare.append(v)
             blocked.update(adj[v])
             if len(spare)==6: break
     assert len(spare)==6
-    used = set(labels.values())
+    used = set(labels.values()) | set(vertex_holes)
     for v in spare[:4]:
         labels[v] = next(x for x in range(k) if x not in used)
         used.add(labels[v])
-    total = sum(range(k))-sum(labels.values())
+    total = vertex_sum-sum(labels.values())
     x = next(x for x in range(k) if x not in used and (total-x)%k not in used and (total-x)%k!=x)
     labels[spare[4]],labels[spare[5]] = x,(total-x)%k
     return labels
 
 
-def build(edges,pins,gap,rng):
-    k = len(edges)+1
-    if not valid(pins,edges,k,gap): return None
-    adj = adjacency(k,edges)
+def build_palettes(k,edges,pins,vertex_holes,edge_holes,rng):
+    """Produce a degree core for a near-spanning prescribed pair of palettes."""
+    n = len(edges)+1
+    if (len(vertex_holes)!=k-n or len(edge_holes)!=k-n+1
+            or len(set(vertex_holes))!=len(vertex_holes) or len(set(edge_holes))!=len(edge_holes)
+            or any(x<0 or x>=k for x in (*vertex_holes,*edge_holes))):
+        raise ValueError("inconsistent palette complements")
+    if any(v<0 or v>=n for v in pins):
+        raise ValueError("pinned vertex outside the tree")
+    weights = [(pins[u]+pins[v])%k for u,v in edges if u in pins and v in pins]
+    if (len(set(pins.values()))!=len(pins) or any(x<0 or x>=k for x in pins.values())
+            or not set(pins.values()).isdisjoint(vertex_holes) or len(set(weights))!=len(weights)
+            or not set(weights).isdisjoint(edge_holes)):
+        return None
+    adj = adjacency(n,edges)
     leaves = [v for v,row in enumerate(adj) if len(row)==1 and v not in pins]
-    return dense(k,edges,adj,pins,gap,leaves,rng) if len(leaves)>=2 else sparse(k,edges,adj,pins,gap,rng)
+    if len(leaves)>=2:
+        return dense(k,edges,adj,pins,vertex_holes,edge_holes,leaves,rng)
+    return sparse(k,edges,adj,pins,vertex_holes,edge_holes,rng)
+
+
+def build(edges,pins,gap,rng):
+    return build_palettes(len(edges)+1,edges,pins,(),(gap,),rng)
