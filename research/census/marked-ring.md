@@ -2,6 +2,8 @@
 
 **Theorem.** For any tree with at most eleven leaves and any specified leaf, there is a 27-cordial labeling in which its residue has maximum vertex frequency. Consequently every tree with at most eleven leaves and a matching missing at most one vertex is **54-cordial**, at every order.
 
+The [fourteen-leaf prefix and marking theorem](leaf-profile-cuts.md) gives both conclusions through fourteen leaves at every order.
+
 The new point in passing from the [eleven-leaf theorem](eleven-leaves.md) to the marked version is retaining a mark inside a 27-vertex piece inserted in place of an edge. The following sharp elementary bound works at all moduli.
 
 ## A unit orbit meets a prescribed interval

@@ -1,4 +1,5 @@
 """Check the sharp interval bound and complete marked 27- and 54-label trees."""
+from collections import Counter
 from math import gcd
 from random import Random
 
@@ -22,7 +23,7 @@ def orbit_checks():
     return tests
 
 
-def matching_check(labels, edges, mark, rng):
+def matching_check(labels, edges, mark, rng=None):
     graph = [[] for _ in labels]
     for a,b in edges:
         graph[a].append(b)
@@ -39,7 +40,12 @@ def matching_check(labels, edges, mark, rng):
                 order.append(u)
     assert len(order) == len(labels)
     colors = [labels[v] for v in order]
-    joins = [(rng.randrange(2),rng.randrange(2)) for _ in parents[1:]]
+    if rng is None:
+        # Use both ports at each nonleaf. Each original leaf yields exactly one new leaf.
+        joins = [(int(graph[order[p]][0]!=order[i]),int(graph[order[i]][0]!=order[p]))
+                 for i,p in enumerate(parents[1:],1)]
+    else:
+        joins = [(rng.randrange(2),rng.randrange(2)) for _ in parents[1:]]
     lifted = matching_labels(parents,colors,joins,27)
     pair_edges = [(2*i,2*i+1) for i in range(len(labels))]
     external = [(2*parents[i]+a,2*i+b) for i,(a,b) in enumerate(joins,1)]
@@ -50,6 +56,10 @@ def matching_check(labels, edges, mark, rng):
     edges_after = [(a-(a>temporary), b-(b>temporary))
                    for a,b in pair_edges+external if temporary not in (a,b)]
     check(lifted[:temporary]+lifted[temporary+1:],edges_after,54)
+    if rng is None:
+        leaves = sum(len(adj)==1 for adj in graph)
+        for tree in (pair_edges+external,edges_after):
+            assert sum(d==1 for d in Counter(v for e in tree for v in e).values())==leaves
 
 
 def joins():

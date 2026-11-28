@@ -6,6 +6,7 @@ from struct import iter_unpack
 
 from research.rainbow.check_short_forests import colorings
 from .check_typed_leaf_streams import records
+from .check_marked_ring import matching_check
 
 
 def core(run):
@@ -36,7 +37,7 @@ def check(path, order=50, limit=None):
     runs = (2,3,4) if order>=53 else (4,5,6)
     cores = [core(r) for r in runs]
     leaves = Counter()
-    shapes = 0
+    shapes = matches = 0
     for _, _, payload, (parents, roots, sizes, _) in records(path):
         if limit is not None and shapes>=limit:
             break
@@ -78,11 +79,19 @@ def check(path, order=50, limit=None):
                         for bins in (vertex_bins,edge_bins):
                             assert max(bins)-min(bins)<=1
                 degree = Counter(x for pair in joined for x in pair)
-                leaves[sum(n==1 for n in degree.values())] += 1
+                leaf_count = sum(n==1 for n in degree.values())
+                leaves[leaf_count] += 1
+                if order>=53 and leaf_count=={53:15,54:14}[order] and matches<24:
+                    mark = next(v for v,d in degree.items()
+                                if d==1 and vertex[coloring[v]]==max(vertex.values()))
+                    matching_check(coloring,joined,mark)
+                    matches += 1
         shapes += 1
     assert shapes > 0
     print('sampled rooted forests', shapes, f'order-{order} joins', sum(leaves.values()),
           'by leaf count', dict(sorted(leaves.items())))
+    if order>=53:
+        print('perfect and near-perfect matching lifts at 54 labels',matches, 'each')
 
 
 if __name__ == '__main__':
