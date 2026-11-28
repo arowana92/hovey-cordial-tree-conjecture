@@ -72,4 +72,22 @@ theorem group_bound (groups : Groups) (h : separated groups) :
       simp only [occupied, Nat.pow_succ, mass, List.sum_cons]
       omega
 
+/-- A nonempty initial interval of the remaining preorder finishes partway
+    through an outer group after exhausting every deeper group it reaches. -/
+inductive Interval : Groups → Nat → Nat → Prop where
+  | finish (s : Nat) (g : List Nat) (inner : Groups) (z : Nat)
+      (positive : 0 < z) (fits : z ≤ (s :: g).sum) :
+      Interval ((s :: g) :: inner) (mass inner + z) (occupied inner + 1)
+  | inside {gs : Groups} {t parents : Nat} (g : List Nat)
+      (earlier : Interval gs t parents) : Interval (g :: gs) t parents
+
+theorem interval_bound {gs : Groups} {t parents : Nat}
+    (interval : Interval gs t parents) (sep : separated gs) :
+    2 ^ (parents - 1) ≤ t := by
+  induction interval with
+  | finish s g inner z positive fits =>
+    have h := group_bound inner sep.2
+    simpa using (show 2 ^ occupied inner ≤ mass inner + z by omega)
+  | inside g earlier ih => exact ih sep.2
+
 end Cordial.OrderedCut
