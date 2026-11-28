@@ -1,5 +1,5 @@
 // Cover every marked vertex and every prescribed difference to an unused residue.
-#include "ranked_forest.hpp"
+#include "marked_tree_ranks.hpp"
 #include <algorithm>
 #include <array>
 #include <cstdint>
@@ -182,6 +182,70 @@ struct Cover {
         return false;
     }
 
+    bool certify_pair() {
+        static const PairOrbits pairs;
+        std::array<Word,k> need_path, need_siblings;
+        need_path.fill(pairs.full);
+        need_siblings.fill(pairs.full);
+        for (int trial=0; trial<5000; ++trial) {
+            budget = trial<300 ? 180 : 800;
+            label[0]=0;
+            if (!place(1,all^1,all)) continue;
+            Mask holes=all, shifted[k];
+            for (int i=1; i<n; ++i) holes ^= Mask(1)<<((label[i]+label[parent[i]])%k);
+            for (int x=0; x<k; ++x) shifted[x]=rotate(holes,(k-x)%k);
+
+            // Before translating away the surplus, collect all second-parent
+            // colors for an unordered pair of labels x,y. Either can start a path.
+            auto add_pair = [&](int x,int y,Mask& path,Mask& siblings) {
+                siblings |= shifted[x]&shifted[y];
+                Mask internal = Mask(1)<<((x+y)%k);
+                if (holes&internal) {
+                    Mask other = holes^internal;
+                    path |= rotate(other,(k-x)%k)|rotate(other,(k-y)%k);
+                }
+            };
+            Mask all_paths=0, all_siblings=0, paths_without[k]{}, siblings_without[k]{};
+            for (Mask low=missing; low; low&=low-1) {
+                int x=__builtin_ctz(low);
+                for (Mask high=low&(low-1); high; high&=high-1) {
+                    int y=__builtin_ctz(high);
+                    Mask path=0, siblings=0;
+                    add_pair(x,y,path,siblings);
+                    all_paths |= path;
+                    all_siblings |= siblings;
+                    for (Mask rest=missing^(Mask(1)<<x)^(Mask(1)<<y); rest; rest&=rest-1) {
+                        int z=__builtin_ctz(rest);
+                        paths_without[z] |= path;
+                        siblings_without[z] |= siblings;
+                    }
+                }
+            }
+
+            bool changed=false, unfinished=false;
+            for (int v=0; v<n; ++v) if (need_path[v]|need_siblings[v]) {
+                int r=label[v];
+                Word paths=pairs.covered(0,rotate(all_paths,(k-r)%k));
+                Word siblings=pairs.covered(0,rotate(all_siblings,(k-r)%k));
+                for (Mask spare=missing; spare; spare&=spare-1) {
+                    int z=__builtin_ctz(spare), joint=(k+r-z)%k;
+                    Mask path=paths_without[z], leaves=siblings_without[z];
+                    for (Mask other=missing^(Mask(1)<<z); other; other&=other-1)
+                        add_pair(r,__builtin_ctz(other),path,leaves);
+                    paths |= pairs.covered(joint,rotate(path,(k-z)%k));
+                    siblings |= pairs.covered(joint,rotate(leaves,(k-z)%k));
+                }
+                changed |= (paths&need_path[v])!=0 || (siblings&need_siblings[v])!=0;
+                need_path[v] &= ~paths;
+                need_siblings[v] &= ~siblings;
+                unfinished |= (need_path[v]|need_siblings[v])!=0;
+            }
+            if (changed) for (int i=0; i<n; ++i) std::putc(label[i],stdout);
+            if (!unfinished) return true;
+        }
+        return false;
+    }
+
     bool certify_leaf() {
         static const PairOrbits pairs;
         std::array<Word,k> open;
@@ -261,15 +325,17 @@ struct Cover {
 int main(int argc,char** argv) {
     bool edge=argc==5 && std::string(argv[4])=="--edge";
     bool leaf=argc==5 && std::string(argv[4])=="--leaf";
-    if (argc!=4 && !edge && !leaf) return 2;
+    bool pair=argc==5 && std::string(argv[4])=="--pair";
+    if (argc!=4 && !edge && !leaf && !pair) return 2;
     int n=std::stoi(argv[1]), shard=std::stoi(argv[2]), stride=std::stoi(argv[3]);
-    if (n<3 || n>((edge || leaf) ? 23 : 25) || n%2==0 || stride<1 || shard<0 || shard>=stride) return 2;
-    RankedForests forests(n-1,true);
+    if (n<3 || n>((edge || leaf || pair) ? 23 : 25) || (n%2==0 && !pair) || stride<1 || shard<0 || shard>=stride) return 2;
+    MarkedTreeRanks forests(n);
     for (Word rank=shard; rank<forests.count(); rank+=stride) {
-        Word word=(Word(1)<<(2*n-1))|(forests[rank]<<1);
+        Word word=forests.word(rank);
         for (int j=0; j<8; ++j) std::putc((word>>(8*j))&255,stdout);
         Cover cover(n,word,edge);
-        if (!(leaf ? cover.certify_leaf() : cover.certify()))
+        bool done = pair ? cover.certify_pair() : leaf ? cover.certify_leaf() : cover.certify();
+        if (!done)
             throw std::runtime_error("unresolved marked tree at rank "+std::to_string(rank));
         std::putc(255,stdout);
     }

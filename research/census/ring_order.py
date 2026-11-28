@@ -7,6 +7,8 @@ def largest(k, s, threshold, paths=6, rings=6):
     mass = s-2
     run = k-7
     prune = 7 if k == 27 else 6
+    two_site = (k, s) == (27, 24)
+    excluded_unions = {21, 22} if two_site else set()
     first_half = prune+1
     max_tips = mass-first_half
     budget = mass-paths*threshold
@@ -16,10 +18,12 @@ def largest(k, s, threshold, paths=6, rings=6):
     stride = 2*(limit+1)
     repeat = sum(1 << (cost*stride) for cost in range(budget+1))
     full = (1 << ((budget+1)*stride))-1
+    excluded_mask = repeat * sum(1 << w for w in excluded_unions)
     safe = []
     for corridor in range(run+1):
         allowed = sum(1 << n for n in range(1, limit+1)
-                      if all((n+i) % k not in (0, s%k) for i in range(corridor+1)))
+                      if all((n+i) % k not in (0, s%k) and not (two_site and 21 <= n+i <= 27)
+                             for i in range(corridor+1)))
         safe.append(repeat*allowed)
 
     @lru_cache(4096)
@@ -31,7 +35,7 @@ def largest(k, s, threshold, paths=6, rings=6):
             second -= low
         return result & full
 
-    def branches(cap):
+    def branches(cap, four_cap):
         rows = [[0]*(run+1) for _ in range(max_tips+1)]
         single = [0]*(max_tips+1)
         arm_cap = min(run+1, cap)
@@ -49,9 +53,10 @@ def largest(k, s, threshold, paths=6, rings=6):
                     cost = max(0, w-leaves*threshold)
                     if cost <= budget:
                         result |= 1 << (w+stride*cost)
-                return result
+                return result & ~excluded_mask
             result = side_forest(leaves, largest-1)
             result |= combine(single[largest], side_forest(leaves-largest, largest))
+            result &= ~excluded_mask
             return result & group_limit if leaves <= prune else result
 
         profile = [[None]*(run+1) for _ in range(max_tips+1)]
@@ -70,6 +75,8 @@ def largest(k, s, threshold, paths=6, rings=6):
                     # longest arm and every possible total of the other arms.
                     for d in range(1, arm_cap+1):
                         for w in range(side_tips, min(mass-d, side_tips*d)+1):
+                            if w in excluded_unions:
+                                continue
                             cost = max(0, w+d-tips*threshold)
                             last = k-1-w-d if can_open and w <= k-3 else run
                             if last >= 0 and cost <= budget:
@@ -113,7 +120,7 @@ def largest(k, s, threshold, paths=6, rings=6):
                     allowed |= by_end[e]
                     states = ((allowed & safe[e]) << e) & full
                     if tips <= prune:
-                        side_cap = cap if tips <= 3 else mass
+                        side_cap = cap if tips <= 3 else four_cap if tips == 4 else mass
                         states &= repeat*((1 << (side_cap+1))-1)
                     if not states:
                         continue
@@ -135,13 +142,15 @@ def largest(k, s, threshold, paths=6, rings=6):
     first_large = s+1-k//2
     pairs = [(first_large-1, first_large-1)]
     pairs.extend((a, mass-a) for a in range(first_large, mass+1))
-    tables = {cap: branches(cap) for cap in {v for pair in pairs for v in pair}}
+    caps = {(cap, a if two_site else mass) for a, b in pairs for cap in (a, b)}
+    tables = {key: branches(*key) for key in caps}
     orders = 0
     for a, b in pairs:
+        four_cap = a if two_site else mass
         for left in range(first_half, mass-first_half+1):
             for right in range(first_half, mass-left+1):
                 for e in range(run+1):
-                    orders |= combine(tables[a][left][e] >> e, tables[b][right][e])
+                    orders |= combine(tables[a,four_cap][left][e] >> e, tables[b,four_cap][right][e])
     groups = mass//4 if prune == 7 else 6
     return max(n for n in range(s, limit+1, k) if n <= 1+groups*mass or (orders >> n) & repeat)
 

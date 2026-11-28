@@ -10,7 +10,7 @@ from tempfile import TemporaryFile
 from research.biased.verify import free_count
 
 
-def summary(lines,n,edge=False,leaf=False):
+def summary(lines,n,edge=False,leaf=False,pair=False):
     total = free_count(n)
     shards = len(lines)
     trees = rows = 0
@@ -22,16 +22,23 @@ def summary(lines,n,edge=False,leaf=False):
         trees += shapes
         rows += witnesses
     assert trees == total
-    print('order',n,'unrooted trees',trees,'rows',rows,'marked inputs',trees*(n-int(edge))*27*(27 if leaf else 1))
+    inputs = trees*(n-int(edge))*27
+    if leaf or pair:
+        inputs *= 27
+    if pair:
+        inputs *= 2
+    print('order',n,'unrooted trees',trees,'rows',rows,'marked inputs',inputs)
 
 
-def run(n,shards,workers,make,check,output,edge,leaf=False):
+def run(n,shards,workers,make,check,output,edge,leaf=False,pair=False):
     if min(shards,workers)<1:
         raise ValueError('positive shard and worker counts required')
     output.mkdir()
     def worker(j):
         args = [str(n),str(j),str(shards)]
-        if leaf:
+        if pair:
+            args.append('--pair')
+        elif leaf:
             args.append('--leaf')
         elif edge:
             args.append('--edge')
@@ -49,7 +56,7 @@ def run(n,shards,workers,make,check,output,edge,leaf=False):
         return row
     with ThreadPoolExecutor(max_workers=workers) as pool:
         lines = list(pool.map(worker,range(shards)))
-    summary(lines,n,edge,leaf)
+    summary(lines,n,edge,leaf,pair)
     (output/'manifest.txt').write_text(''.join(lines))
 
 
@@ -160,7 +167,24 @@ def replay_edges(stream,n,limit):
     print('one-offset joins expanded on whole trees',expansions)
 
 
-def replay_leaves(stream,n,limit):
+def extra_attachments(available,holes,pair):
+    if not pair:
+        for x in available:
+            for w in holes:
+                yield 'leaf',(w-x)%27,(x,)
+        return
+    for x in available:
+        for y in available-{x}:
+            for w in holes:
+                parent = (w-x)%27
+                if (parent+y)%27 in holes:
+                    yield 'siblings',parent,(x,y)
+                inner = (x+y)%27
+                if inner in holes and inner!=w:
+                    yield 'path',parent,(x,y)
+
+
+def replay_leaves(stream,n,limit,pair=False):
     from collections import Counter
 
     units = [u for u in range(1,27) if u%3]
@@ -173,6 +197,7 @@ def replay_leaves(stream,n,limit):
         edges = [(a,b) for a in range(n) for b in adj[a] if a<b]
         for root in range(n):
             witnesses = {}
+            required = (2 if pair else 1)*27**2
             for row in rows:
                 available = sorted(residues-set(row) | {row[root]})
                 for z in available:
@@ -184,23 +209,26 @@ def replay_leaves(stream,n,limit):
                         occupied = set(labels[:root]+labels[root+1:])
                         if 0 in occupied:
                             continue
-                        for leaf in residues-occupied-{0}:
-                            for weight in residues-weights:
-                                pair = joint,(weight-leaf)%27
-                                witnesses.setdefault(pair,(labels,leaf))
-                if len(witnesses)==27**2:
+                        for shape,parent,extra in extra_attachments(residues-occupied-{0},residues-weights,pair):
+                            witnesses.setdefault((joint,parent,shape),(labels,extra))
+                if len(witnesses)==required:
                     break
-            assert len(witnesses)==27**2
+            assert len(witnesses)==required
             ids = {v:28+i for i,v in enumerate(v for v in range(n) if v!=root)}
-            for (joint,leaf_parent),(labels,leaf) in witnesses.items():
-                coloring = core + [labels[v] for v in range(n) if v!=root] + [leaf]
+            for (joint,leaf_parent,shape),(labels,extra) in witnesses.items():
+                coloring = core + [labels[v] for v in range(n) if v!=root] + list(extra)
                 actual = list(core_edges)
                 for a,b in edges:
                     if root in (a,b):
                         actual.append((core.index(joint),ids[b if a==root else a]))
                     else:
                         actual.append((ids[a],ids[b]))
-                actual.append((core.index(leaf_parent),len(coloring)-1))
+                first_extra = len(coloring)-len(extra)
+                actual.append((core.index(leaf_parent),first_extra))
+                if shape=='siblings':
+                    actual.append((core.index(leaf_parent),first_extra+1))
+                elif shape=='path':
+                    actual.append((first_extra,first_extra+1))
                 assert len(actual)==len(coloring)-1
                 vertex = Counter(coloring)
                 edge = Counter((coloring[a]+coloring[b])%27 for a,b in actual)
@@ -208,7 +236,7 @@ def replay_leaves(stream,n,limit):
                     bins = [histogram[x] for x in range(27)]
                     assert max(bins)-min(bins)<=1
                 joins += 1
-    print('whole-tree joins with an independent leaf',joins)
+    print('whole-tree joins with an independent attachment',joins)
 
 
 if __name__ == '__main__':
@@ -226,13 +254,17 @@ if __name__ == '__main__':
     marked = cli.add_mutually_exclusive_group()
     marked.add_argument('--edge',action='store_true')
     marked.add_argument('--leaf',action='store_true')
+    marked.add_argument('--pair',action='store_true')
     args = cli.parse_args()
     if args.manifest:
-        summary(args.manifest.read_text().splitlines(True),args.order,args.edge,args.leaf)
+        summary(args.manifest.read_text().splitlines(True),args.order,args.edge,args.leaf,args.pair)
     elif args.replay:
-        checker = replay_leaves if args.leaf else replay_edges if args.edge else replay
-        checker(args.replay,args.order,args.sample)
+        if args.leaf or args.pair:
+            replay_leaves(args.replay,args.order,args.sample,args.pair)
+        else:
+            checker = replay_edges if args.edge else replay
+            checker(args.replay,args.order,args.sample)
     else:
         if not args.generator or not args.verifier:
             cli.error('--run requires --generator and --verifier')
-        run(args.order,args.shards,args.workers,args.generator.resolve(),args.verifier.resolve(),args.run,args.edge,args.leaf)
+        run(args.order,args.shards,args.workers,args.generator.resolve(),args.verifier.resolve(),args.run,args.edge,args.leaf,args.pair)
