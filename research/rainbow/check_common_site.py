@@ -10,7 +10,7 @@ from tempfile import TemporaryFile
 from research.biased.verify import free_count
 
 
-def summary(lines,n,edge=False):
+def summary(lines,n,edge=False,leaf=False):
     total = free_count(n)
     shards = len(lines)
     trees = rows = 0
@@ -22,15 +22,19 @@ def summary(lines,n,edge=False):
         trees += shapes
         rows += witnesses
     assert trees == total
-    print('order',n,'unrooted trees',trees,'rows',rows,'marked inputs',trees*(n-int(edge))*27)
+    print('order',n,'unrooted trees',trees,'rows',rows,'marked inputs',trees*(n-int(edge))*27*(27 if leaf else 1))
 
 
-def run(n,shards,workers,make,check,output,edge):
+def run(n,shards,workers,make,check,output,edge,leaf=False):
     if min(shards,workers)<1:
         raise ValueError('positive shard and worker counts required')
     output.mkdir()
     def worker(j):
-        args = [str(n),str(j),str(shards)]+(['--edge'] if edge else [])
+        args = [str(n),str(j),str(shards)]
+        if leaf:
+            args.append('--leaf')
+        elif edge:
+            args.append('--edge')
         with TemporaryFile(dir=output) as stream:
             subprocess.run([make,*args],stdout=stream,check=True)
             stream.seek(0)
@@ -45,7 +49,7 @@ def run(n,shards,workers,make,check,output,edge):
         return row
     with ThreadPoolExecutor(max_workers=workers) as pool:
         lines = list(pool.map(worker,range(shards)))
-    summary(lines,n,edge)
+    summary(lines,n,edge,leaf)
     (output/'manifest.txt').write_text(''.join(lines))
 
 
@@ -156,6 +160,57 @@ def replay_edges(stream,n,limit):
     print('one-offset joins expanded on whole trees',expansions)
 
 
+def replay_leaves(stream,n,limit):
+    from collections import Counter
+
+    units = [u for u in range(1,27) if u%3]
+    residues = set(range(27))
+    # A 28-vertex path with surplus zero and uniform edge counts.
+    core = [(i//2+14*(i%2))%27 for i in range(28)]
+    core_edges = [(i-1,i) for i in range(1,28)]
+    joins = 0
+    for adj,rows in samples(stream,n,limit):
+        edges = [(a,b) for a in range(n) for b in adj[a] if a<b]
+        for root in range(n):
+            witnesses = {}
+            for row in rows:
+                available = sorted(residues-set(row) | {row[root]})
+                for z in available:
+                    for unit in units:
+                        labels = tuple(unit*(x-z)%27 for x in row)
+                        joint = labels[root]
+                        weights = {(labels[a]+labels[b])%27 for a,b in edges}
+                        assert len(weights)==n-1
+                        occupied = set(labels[:root]+labels[root+1:])
+                        if 0 in occupied:
+                            continue
+                        for leaf in residues-occupied-{0}:
+                            for weight in residues-weights:
+                                pair = joint,(weight-leaf)%27
+                                witnesses.setdefault(pair,(labels,leaf))
+                if len(witnesses)==27**2:
+                    break
+            assert len(witnesses)==27**2
+            ids = {v:28+i for i,v in enumerate(v for v in range(n) if v!=root)}
+            for (joint,leaf_parent),(labels,leaf) in witnesses.items():
+                coloring = core + [labels[v] for v in range(n) if v!=root] + [leaf]
+                actual = list(core_edges)
+                for a,b in edges:
+                    if root in (a,b):
+                        actual.append((core.index(joint),ids[b if a==root else a]))
+                    else:
+                        actual.append((ids[a],ids[b]))
+                actual.append((core.index(leaf_parent),len(coloring)-1))
+                assert len(actual)==len(coloring)-1
+                vertex = Counter(coloring)
+                edge = Counter((coloring[a]+coloring[b])%27 for a,b in actual)
+                for histogram in (vertex,edge):
+                    bins = [histogram[x] for x in range(27)]
+                    assert max(bins)-min(bins)<=1
+                joins += 1
+    print('whole-tree joins with an independent leaf',joins)
+
+
 if __name__ == '__main__':
     cli = argparse.ArgumentParser(description=__doc__)
     cli.add_argument('order',type=int)
@@ -168,13 +223,16 @@ if __name__ == '__main__':
     cli.add_argument('--shards',type=int,default=128)
     cli.add_argument('--workers',type=int,default=1)
     cli.add_argument('--sample',type=int,default=4)
-    cli.add_argument('--edge',action='store_true')
+    marked = cli.add_mutually_exclusive_group()
+    marked.add_argument('--edge',action='store_true')
+    marked.add_argument('--leaf',action='store_true')
     args = cli.parse_args()
     if args.manifest:
-        summary(args.manifest.read_text().splitlines(True),args.order,args.edge)
+        summary(args.manifest.read_text().splitlines(True),args.order,args.edge,args.leaf)
     elif args.replay:
-        (replay_edges if args.edge else replay)(args.replay,args.order,args.sample)
+        checker = replay_leaves if args.leaf else replay_edges if args.edge else replay
+        checker(args.replay,args.order,args.sample)
     else:
         if not args.generator or not args.verifier:
             cli.error('--run requires --generator and --verifier')
-        run(args.order,args.shards,args.workers,args.generator.resolve(),args.verifier.resolve(),args.run,args.edge)
+        run(args.order,args.shards,args.workers,args.generator.resolve(),args.verifier.resolve(),args.run,args.edge,args.leaf)

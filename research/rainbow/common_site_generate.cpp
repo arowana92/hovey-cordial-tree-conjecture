@@ -19,6 +19,36 @@ Mask rotate(Mask values, int shift) {
     return ((values<<shift)|(values>>(k-shift)))&all;
 }
 
+// The pair (old joint color, independent leaf-parent color) is defined up
+// to simultaneous multiplication by a unit. Its 53 orbits fit in one word.
+struct PairOrbits {
+    Word subset[k][3][512]{};
+    Word full = 0;
+
+    PairOrbits() {
+        Word orbit[k][k]{};
+        int count = 0;
+        for (int a=0; a<k; ++a) for (int b=0; b<k; ++b) {
+            if (orbit[a][b]) continue;
+            if (count >= 64) throw std::runtime_error("too many color-pair orbits");
+            Word flag = Word(1)<<count++;
+            for (int u=1; u<k; ++u) if (std::gcd(u,k)==1)
+                orbit[u*a%k][u*b%k] = flag;
+            full |= flag;
+        }
+        for (int a=0; a<k; ++a) for (int block=0; block<3; ++block)
+            for (int set=1; set<512; ++set)
+                subset[a][block][set] = subset[a][block][set&(set-1)]
+                                      | orbit[a][9*block+__builtin_ctz(set)];
+    }
+
+    Word covered(int joint, Mask leaf_parents) const {
+        return subset[joint][0][leaf_parents&511]
+             | subset[joint][1][(leaf_parents>>9)&511]
+             | subset[joint][2][leaf_parents>>18];
+    }
+};
+
 struct Cover {
     int n, budget;
     bool edge_mode;
@@ -152,6 +182,49 @@ struct Cover {
         return false;
     }
 
+    bool certify_leaf() {
+        static const PairOrbits pairs;
+        std::array<Word,k> open;
+        open.fill(pairs.full);
+        for (int trial=0; trial<3500; ++trial) {
+            budget = trial<500 ? 150 : 1200;
+            label[0] = 0;
+            if (!place(1,all^1,all)) continue;
+            Mask edge_holes = all;
+            for (int i=1; i<n; ++i)
+                edge_holes ^= Mask(1)<<((label[i]+label[parent[i]])%k);
+
+            Mask shifted[k], from_unused = 0, different[k]{};
+            for (int t=0; t<k; ++t) shifted[t] = rotate(edge_holes,(k-t)%k);
+            for (Mask spare=missing; spare; spare&=spare-1) {
+                int z = __builtin_ctz(spare);
+                from_unused |= shifted[z];
+                // z will translate to the old surplus. The extra leaf can
+                // use any different missing vertex color x.
+                for (Mask choices=missing^(Mask(1)<<z); choices; choices&=choices-1)
+                    different[z] |= shifted[(z+__builtin_ctz(choices))%k];
+            }
+            bool changed = false, unfinished = false;
+            for (int v=0; v<n; ++v) if (open[v]) {
+                int r = label[v];
+                // When z=r the joint is the surplus and x must be missing.
+                Word hits = pairs.covered(0,rotate(from_unused,(k-r)%k));
+                for (Mask spare=missing; spare; spare&=spare-1) {
+                    int z = __builtin_ctz(spare);
+                    // Removing the dummy root makes x=r available as well.
+                    Mask leaf_parents = different[z] | shifted[(z+r)%k];
+                    hits |= pairs.covered((k+r-z)%k,leaf_parents);
+                }
+                changed |= (open[v]&hits)!=0;
+                open[v] &= ~hits;
+                unfinished |= open[v]!=0;
+            }
+            if (changed) for (int i=0; i<n; ++i) std::putc(label[i],stdout);
+            if (!unfinished) return true;
+        }
+        return false;
+    }
+
     bool certify() {
         const Mask every=((Mask(1)<<n)-1)^Mask(edge_mode);
         int broad_trials=n<=23 ? 2000 : 60;
@@ -187,14 +260,16 @@ struct Cover {
 
 int main(int argc,char** argv) {
     bool edge=argc==5 && std::string(argv[4])=="--edge";
-    if (argc!=4 && !edge) return 2;
+    bool leaf=argc==5 && std::string(argv[4])=="--leaf";
+    if (argc!=4 && !edge && !leaf) return 2;
     int n=std::stoi(argv[1]), shard=std::stoi(argv[2]), stride=std::stoi(argv[3]);
-    if (n<3 || n>(edge ? 23 : 25) || n%2==0 || stride<1 || shard<0 || shard>=stride) return 2;
+    if (n<3 || n>((edge || leaf) ? 23 : 25) || n%2==0 || stride<1 || shard<0 || shard>=stride) return 2;
     RankedForests forests(n-1,true);
     for (Word rank=shard; rank<forests.count(); rank+=stride) {
         Word word=(Word(1)<<(2*n-1))|(forests[rank]<<1);
         for (int j=0; j<8; ++j) std::putc((word>>(8*j))&255,stdout);
-        if (!Cover(n,word,edge).certify())
+        Cover cover(n,word,edge);
+        if (!(leaf ? cover.certify_leaf() : cover.certify()))
             throw std::runtime_error("unresolved marked tree at rank "+std::to_string(rank));
         std::putc(255,stdout);
     }
