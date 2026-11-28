@@ -1,6 +1,6 @@
 # Forcing overlaps for two leaf parents
 
-**Theorem at 27 labels.** Suppose a smallest 27-cordiality counterexample has order $27m+s$. At $s=23,24,25$ the combined leaf count at its two busiest leaf parents is at most **16, 18, 20**, respectively. At $s=26,27$ the [unit-label argument](two-shift-holes.md#choosing-the-high-bins-on-the-smaller-tree) gives 23 and 25. All bounds concern freely chosen labelings of ordinary trees.
+**Theorem at 27 labels.** Suppose a smallest 27-cordiality counterexample has order $27m+s$. At $s=23,24,25$ the combined leaf count at its two busiest leaf parents is at most **16, 18, 20**, respectively. At $s=26,27$ the [unit-label argument](two-shift-holes.md#choosing-the-high-bins-on-the-smaller-tree) gives 23 and 25. The [finite strategy below](#a-stronger-finite-result-at-27-labels) further lowers the first four bounds. All bounds concern freely chosen labelings of ordinary trees.
 
 The first three bounds use a general construction. Fix $k$, write $h=k+2-s$, and suppose $h\ge4$ and $r=2s-k-2=k-2h+2>0$. In a proposed smallest counterexample select $r$ original leaves at two parents $P,Q$. If their distance is at most $mk$, the retained tree has a connected subtree of order $mk+1$ containing both. Start with the path between them and grow it to that order. Label this subtree by minimality and translate its surplus to zero. Write $a,b$ for the two parent colors. If $h\ge5$, if $a=b$, or if $a-b$ has additive order different from five, the entire tree has a cordial labeling. Thus the distance test always applies when $5\nmid k$.
 
@@ -38,4 +38,47 @@ The [checker](check_two_parent_overlaps.py) enumerates all three-element vertex 
 
 ~~~bash
 python3 -B -m research.biased.check_two_parent_overlaps
+~~~
+
+## A stronger finite result at 27 labels
+
+**Computer-assisted theorem.** At residues 23 through 27, the combined leaf count at the two busiest parents of a smallest counterexample is at most **14, 16, 19, 22 and 25**, respectively. In the first four columns a finite strategy labels the additional high bins on a core containing the two parents. The long-path argument above covers all other positions of the parents.
+
+| Order residue $s$ | Leaves $r$ to restore | Core additions $H$ after order one | Required overlap $t$ | Verified states across four differences | Off-path vertices besides the $r$ leaves, in the long-distance case |
+|---:|---:|---:|---:|---:|---:|
+| 23 | 15 | 7 | 3 | 6,277,872 | at most 6 |
+| 24 | 17 | 6 | 3 | 4,363,274 | at most 5 |
+| 25 | 20 | 4 | 2 | 32,320 | at most 3 |
+| 26 | 23 | 2 | 1 | 85 | at most 1 |
+
+In each row $s=1+H+r$. Remove exactly $r$ leaves at the two parents. When their distance is at most $27m$, choose the initial labeled subtree of order $27m+1$ containing both, as above. Normalize the surplus to zero. Subtract the first parent color $a$ from all edge weights and scale vertex labels and the resulting edge weights by the same unit. The two shifts for the final leaves become zero and $\delta\in\{0,1,3,9\}$. Every effective parent of a new core vertex can have any of 27 values in these coordinates. Indeed, with scale $u$, parent label $P$ and new label $y$ in original coordinates, the scaled weight is $uy+u(P-a)$. Such parents can be among the vertices just added.
+
+At the end of the $H$ additions, $|X|=H+1$, $|W|=H$, and $r=27-2H-1+t$. If the two overlaps reach $t$, each pure shift gives a matching of size $r$. If one reaches $t+1$, the exchange lemma supplies every multiplicity. Equal shifts only require the one overlap of size $t$. These sufficient overlaps persist if achieved early, so any unused labels and weights may complete the remaining steps. There are always available labels since $H\le7$.
+
+There is one further accepting case **at the last step** for distinct shifts when both pure matchings have size exactly $r$. Look at the surviving edges of the two shifts. If the maximum matching has more than $r$ edges, use the exchange lemma. Otherwise both pure matchings are maximum. Every path component with an edge has odd order, since an even-order path would have a unique perfect matching and both pure matchings must attain that component's maximum. If $q$ intact cycles of length $2d$ remain, these cycles each supply either zero or $d$ shifted edges. All path components together supply any count between zero and $r-qd$. Thus every multiplicity works exactly when $q=0$ or $r-qd\ge d-1$.
+
+In the long-distance case, each row leaves at most six off-path vertices beyond the removed leaves. The same prefix-sum proof gives a 27-vertex piece with at least 21 consecutive path vertices and at most six side leaves. The one-leaf period theorem and the ring census cited above restore every such piece. For residue 27, the earlier bound of 25 also follows from the total leaf count bound.
+
+### Reproducing the strategy checks
+
+The [generator](overlap_strategy.cpp) chooses one label for each next parent value. A binary record consists of two four-byte little-endian masks for $X,W$, followed by the 27 choices. Records are in increasing order of $X+2^{27}W$ with masks interpreted as integers. The [separate verifier](check_overlap_strategy.cpp) starts at $(\{0\},\varnothing)$, follows all 27 choices at every reachable state, and checks the two new residues and overlaps from their actual values. For the final matching test the generator sums maximum matching sizes of paths and cycles. The verifier starts with the full pure-zero matching and searches for an augmenting path by alternating shifted and identity edges. It counts intact cycles independently. It requires the next expected state at every record and exhausts the stream.
+
+The [sixteen digests](overlap-strategies.sha256) cover **10,673,551** states and **288,185,877** parent choices. A separate [whole-tree replay](check_overlap_joins.py) reads the strategy at actual old vertices, using unit scalings and different first-parent colors. After the core is grown it computes the forbidden sets from the full histograms. It finds the leaf labels by a direct search along the residue cycles and checks all leaf multiplicities, recounting **3,792** complete trees. The verifier also rejects a corrupted label and an omitted state.
+
+~~~bash
+set -euo pipefail
+out=$(mktemp -d)
+b=research/biased
+c++ -std=c++17 -O3 "$b/overlap_strategy.cpp" -o "$out/generate"
+c++ -std=c++17 -O3 "$b/check_overlap_strategy.cpp" -o "$out/verify"
+for H in 2 4 6 7; do
+  t=$((H/2))
+  for delta in 0 1 3 9; do
+    stream="$out/overlap-$H-$t-$delta"
+    "$out/generate" "$H" "$delta" "$t" "$stream"
+    "$out/verify" "$H" "$delta" "$t" "$stream"
+  done
+done
+(cd "$out" && shasum -a 256 -c "$OLDPWD/$b/overlap-strategies.sha256")
+python3 -B -m research.biased.check_overlap_joins "$out"
 ~~~

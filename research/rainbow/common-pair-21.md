@@ -25,7 +25,7 @@ The [generator](common_site_generate.cpp) covers the 53 simultaneous unit orbits
 
 The [192-shard manifest](common-pair-21.sha256) covers **5,623,756** unrooted 22-vertex trees, **135,481,675** witness rows and **180,387,597,456** literal choices of marked vertex, two colors and attachment shape. Independently forgetting the root and minimizing the rooted encoding over every possible root found exactly 2, 6, 23, 106, 551 and 3,159 distinct shapes at orders 4, 6, 8, 10, 12 and 14.
 
-The [whole-tree replay](check_common_site.py) fits each attachment to a cordial path of order 28, builds every edge by its actual endpoints and recounts both frequency lists. At four sampled main trees it checked **128,304** trees on 51 vertices, including both shapes, every marked vertex and all 729 color pairs. A separate replay of the final rank, a tree with two centroids, gave 32,076 further whole trees. The native checker rejected a duplicate label, a missing witness family and a truncated stream.
+The [whole-tree replay](check_common_site.py) fits each attachment to a cordial path of order 28, builds every edge by its actual endpoints and recounts both frequency lists. At four sampled main trees it checked **128,304** trees on 51 vertices, including both shapes, every marked vertex and all 729 color pairs. A separate replay of the final rank, a tree with two centroids, gave 32,076 further whole trees. The native checker rejected a duplicate label, a missing witness family and a truncated stream. A fresh SSH checkout rebuilt the generator and verifier, regenerated every one of the 192 streams, and reproduced all digests and counts.
 
 ~~~bash
 set -euo pipefail
