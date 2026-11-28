@@ -9,7 +9,7 @@ def numerical(n, leaves):
     return numerical_branches(n-1, leaves, leaves//2, n-28, 7 if leaves >= 14 else 6)
 
 
-def numerical_branches(order, tips, cap, limit, budget=6):
+def numerical_branches(order, tips, cap, limit, budget=6, *, allow_sizes=None):
 
     def visit(mass, left, previous, attainable, parts):
         if not mass:
@@ -21,6 +21,8 @@ def numerical_branches(order, tips, cap, limit, budget=6):
         largest, tie = previous
         # Order branches by decreasing size. At most 'left' can still be added.
         for s in range((mass+left-1)//left, min(largest, mass)+1):
+            if allow_sizes is not None and not allow_sizes((s,)+tuple(a for a,_ in reversed(parts))):
+                continue
             lower = max(1, left-(mass-s))
             upper = min(cap, left, max(1, s-1), tie if s == largest else cap)
             for h in range(lower, upper+1):

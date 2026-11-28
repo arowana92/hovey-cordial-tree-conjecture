@@ -58,3 +58,33 @@ cmp "$out/eighteen/manifest.txt" "$cert"
 "$out/generate" 27 0 1 "$out/sample18" --typed-restarts 1,1 3,1 5,1 5,1 5,2 5,2
 python3 -B -m research.census.check_order_fifty_samples "$out/sample18" --order 52
 ~~~
+
+## A finite checklist for all remaining leaf counts
+
+**Conditional reduction.** If the [2,568 listed forest profiles](order-52-frontier.profiles.gz) pass the ordered boundary test at 27 labels, every tree on 52 vertices is 27-cordial. The list contains only 24-vertex exteriors. Its profiles cover **360,580,312 distinct rooted forests** and **4,846,812,725,340 literal boundary assignments**. The geometry calculation is complete. The witness census for this list is in progress.
+
+For each remaining leaf count $L$, enumerate the branches at the unique centroid by order and number of rooted tips. The restrictions proved above continue to apply. Every branch has at most 21 vertices. No subcollection has total order 22 or 24, and two disjoint descendant subtrees in different branches cannot total 25. A subcollection with at most seven tips has total order at most 23. A single branch has at most $L-8$ tips, since otherwise the other branches could supply a 24-vertex ordered suffix with at most seven tips. The six longest guaranteed terminal paths total at most 23. These conditions are necessary for a counterexample. A profile surviving them may still have every represented tree cordial.
+
+Two enumerations give the same numerical inventories. One first partitions 51 by branch orders. The other grows order-and-tip pairs in descending order and tracks subset sums for each tip budget. It can discard a partial list as soon as it contains a forbidden order sum. Next enumerate the inclusion-minimal sets of descendant orders within each branch, as in the eighteen-leaf calculation. At least one choice of a set per branch must avoid complementary orders summing to 25 in different branches.
+
+| Leaves | Numerical profiles | Survive descendant-order test | Outside earlier cut catalog | Additional forest profiles | Additional forests |
+|---:|---:|---:|---:|---:|---:|
+| 19 | 28,781 | 23,366 | 246 | 335 | 54,036,955 |
+| 20 | 42,714 | 35,046 | 1,478 | 627 | 102,632,172 |
+| 21 | 59,150 | 49,124 | 4,563 | 396 | 57,101,507 |
+| 22 | 77,866 | 65,496 | 10,166 | 776 | 94,095,197 |
+| 23 | 97,391 | 82,864 | 18,901 | 434 | 52,714,481 |
+
+The last two columns are incremental. A row can use all forest types from earlier rows. The [checker](check_order_fifty_two_frontier.py) starts from the published cut catalogs, including the eighteen-leaf certificates. For each profile still outside those catalogs it exhibits the existence of a cut by trying subcollections of whole branches, with an optional size-ordered suffix of one further branch. For that cut it requires coverage of **every** possible exterior order-and-tip profile and of all permitted parent colors. The 28-vertex connected core is already known to be 27-cordial. Verifying the proposed additional rows would therefore complete the proof at this order. The unconditional result above still covers at most eighteen leaves.
+
+As a check on the restoration, one forest from each of five proposed profiles was joined to three explicit 28-vertex trees. Recounting all labels and sums directly verified 10,935 52-vertex joins. These examples test the construction on actual trees.
+
+Run the geometry separately from the potentially much longer witness census. The generator and verifier build commands are given above. Each line in the compressed list begins with the leaf count that first uses the profile.
+
+~~~bash
+set -euo pipefail
+python3 -B -m research.census.check_order_fifty_two_frontier
+gzip -dc research/census/order-52-frontier.profiles.gz | cut -d' ' -f2- > "$out/frontier.profiles"
+python3 -B research/census/stream_leaf_profiles.py 27 "$out/frontier.profiles" "$out/generate" "$out/verify" "$out/frontier" --restarts --workers 2
+python3 -B -m research.census.check_order_fifty_two_frontier --receipts "$out/frontier/manifest.txt"
+~~~
