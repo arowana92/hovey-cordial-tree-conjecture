@@ -18,6 +18,8 @@ For each shape, regard its allowed boundary colorings modulo multiplication by $
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | Number of shapes | 28 | 43 | 2 | 21 | 11 | 7 | 3 |
 
+The three shapes requiring seven permutations are a singleton with three two-vertex paths, and a singleton with a two-vertex path and one of two four-vertex components. The latter component is either an endpoint-rooted path or a root whose only child has two leaf children. For a single endpoint-rooted path, the minimum across parent choices has a [divisor-count formula](../bounded-degree/path-parent-pairs.md).
+
 A separate C++ program generates all color tuples, tests the cut inequalities, evaluates all $7!$ literal vertex permutations and collects unit-equivalent permutations. It verifies that the stored rows cover the required set, then branches on inclusion or exclusion to rule out one fewer row on each shape. The minimum concerns the number of stored rows in this reduction. Other inductions and other encodings have their own size measures.
 
 ## Reproduce the proof
