@@ -33,9 +33,17 @@ def check(generator, verifier, temp, mass):
         subprocess.run([generator, str(k), "0", "1", path, *flags], check=True, stdout=subprocess.DEVNULL)
     generate(origin, mode)
     expected = defaultdict(dict)
+    stems = defaultdict(dict)
     for parts, word, data, shape in records(origin):
         if shape[-1]:
             expected[parts][word] = data
+            parents, roots, _, _ = shape
+            if len(roots) == 1 and parts[0][1] >= 2:
+                branch = next(v for v in range(mass) if parents.count(v)>1)
+                roots = [v for v,p in enumerate(parents) if p == branch]
+                children = tuple(sorted((b-a, sum(v not in parents for v in range(a,b)))
+                                        for a,b in zip(roots, roots[1:]+[mass])))
+                stems[branch+1,children][word] = data
     cases = trees = assignments = 0
     for parts, group in expected.items():
         file = temp / "slice"
@@ -67,7 +75,17 @@ def check(generator, verifier, temp, mass):
             assert subprocess.run(cmd, capture_output=True).returncode != 0
         cases += 1
         trees += len(group)
-    return cases, trees, assignments
+    for (stem, children), group in stems.items():
+        file = temp / "rooted"
+        spec = [f"stem={stem}", *(f"{s},{h}" for s,h in children)]
+        generate(file, ["--typed", *spec])
+        subprocess.run([verifier, str(k), "--typed", file, *spec], check=True, stdout=subprocess.DEVNULL)
+        found = {word:data for _,word,data,_ in records(file)}
+        assert found == group
+        # The whole-tree description has a different component decomposition.
+        wrong = [f"{mass},1"]
+        assert subprocess.run([verifier,str(k),"--typed",file,*wrong], capture_output=True).returncode != 0
+    return cases, trees, assignments, sum(map(len,stems.values()))
 
 
 def main():
@@ -78,7 +96,7 @@ def main():
     with TemporaryDirectory() as temp:
         for mass in (6, 7):
             counts = check(args.generator.resolve(), args.verifier.resolve(), Path(temp), mass)
-            print(f"k=8 free={mass} profiles={counts[0]} forests={counts[1]} inputs={counts[2]} corruptions rejected={4*counts[0]}")
+            print(f"k=8 free={mass} profiles={counts[0]} forests={counts[1]} inputs={counts[2]} corruptions rejected={4*counts[0]} rooted stem records={counts[3]}")
 
 
 if __name__ == "__main__":

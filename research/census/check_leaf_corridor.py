@@ -110,7 +110,7 @@ def inspect_tree(parents):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--manifests", type=Path, default=Path(__file__).with_name("leaf-profile-audits"))
-    parser.add_argument("--through", type=int, choices=range(49,55), default=52)
+    parser.add_argument("--through", type=int, choices=range(49,55), default=53)
     args=parser.parse_args()
     rng = Random(1427)
     fixtures = list(rooted_shapes(11).values())

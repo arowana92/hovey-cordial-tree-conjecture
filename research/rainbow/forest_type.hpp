@@ -8,11 +8,22 @@
 
 struct ForestType {
     std::vector<std::pair<int,int>> parts;
+    int stem = 0; // vertices on the path ending at the first branching vertex
     int mass = 0;
     int tips = 0;
     ForestType(int k, int count, char** names) {
         if (!count) throw std::invalid_argument("empty forest type");
-        for (int i = 0; i < count; ++i) {
+        std::string first(names[0]);
+        int start = 0;
+        if (first.rfind("stem=",0) == 0) {
+            std::size_t end = 0;
+            stem = std::stoi(first.substr(5),&end);
+            if (end+5 != first.size() || stem < 1 || stem >= k-1 || count < 3)
+                throw std::invalid_argument("expected a positive stem and at least two branches");
+            mass = stem;
+            start = 1;
+        }
+        for (int i = start; i < count; ++i) {
             std::string name(names[i]);
             std::size_t at = 0, end = 0;
             int size = std::stoi(name,&at);

@@ -279,6 +279,8 @@ class Generator {
                 std::sort(sorted.begin(), sorted.end());
                 Code code = 0;
                 for (auto [size,word] : sorted) code = (code << (2*size)) | word;
+                for (int s = type.mass-type.stem+1; s <= type.mass; ++s)
+                    code = (Code(1) << (2*s-1)) | (code << 1);
                 ++shapes;
                 forest(code);
                 return;

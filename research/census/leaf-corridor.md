@@ -2,7 +2,7 @@
 
 **Finite reduction.** Suppose the order-$k$ base and the ordered-cut forest certificate with at most $q$ tips are valid, where $q\ge2$ and $k\ge5$. Within trees with at most $2q+2$ leaves, a least counterexample has order at most $4k$ for odd $k$ and at most $5k$ for even $k$. If $q$ is even, a least counterexample above $2k$ in this class has exactly $2q+2$ leaves and a path of edges, each of which splits its leaves equally.
 
-At 27 labels this gives 108 as an initial upper bound for fourteen leaves. With the [six-tip and numerical profile certificates](leaf-profile-cuts.md), a least failure among trees with at most fourteen leaves can occur only at orders **50–54, 80 or 81**. This is a necessary condition. The proof below separately excludes 104–108 using the six-tip certificate alone.
+At 27 labels this gives 108 as an initial upper bound for fourteen leaves. With the [six-tip and numerical profile certificates](leaf-profile-cuts.md), a least failure among trees with at most fourteen leaves can occur only at orders **50–54 or 81**. This is a necessary condition. The proof below separately excludes 104–108 using the six-tip certificate alone.
 
 ## The edges splitting $2q+2$ leaves equally
 
@@ -35,11 +35,11 @@ One more test uses the actual unicyclic certificates. At an endpoint of mass $S$
 | 22 | 12,252 | 11,098 | 0 | 10,535 | 0 |
 | 23 | 15,393 | 14,036 | 0 | 13,161 | 0 |
 | 24 | 19,120 | 17,533 | 0 | 16,240 | 0 |
-| 25 | 23,572 | 21,727 | 0 | pending | pending |
+| 25 | 23,572 | 21,727 | 0 | 20,013 | 0 |
 | 26 | 28,782 | 26,649 | 0 | pending | pending |
 
 The [checker](check_leaf_corridor.py) first generates the endpoint profiles in increasing tip counts. It independently regenerates the same complete sets by exact order and decreasing branch size with subset-mass masks. It tests each possible pair of masses and possible corridor length after all local reductions. On 800 actual trees with the relevant even leaf counts it also verifies the structure of the balanced path or the group count at a centroid. The published profile manifests can be regenerated and their label coverage verified by the [stream reproduction](leaf-profile-cuts.md#reproduction).
 
 ~~~sh
-python3 -B -m research.census.check_leaf_corridor --through 52
+python3 -B -m research.census.check_leaf_corridor --through 53
 ~~~

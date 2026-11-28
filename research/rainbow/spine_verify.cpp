@@ -262,10 +262,18 @@ struct Audit {
                 std::array<bool,32> parent{};
                 for (int v : s.parents) if (v >= 0) parent[v] = true;
                 std::vector<std::pair<int,int>> actual;
-                for (std::size_t j = 0; j < s.roots.size(); ++j) {
-                    int first = s.roots[j], size = s.sizes[j];
-                    int tips = std::count(parent.begin()+first,parent.begin()+first+size,false);
-                    actual.emplace_back(size,tips);
+                int mass = static_cast<int>(s.parents.size());
+                for (int i = 0; i < type->stem; ++i)
+                    check(s.parents[i] == i-1, "broken initial stem");
+                int parent_index = type->stem-1;
+                int end = mass;
+                for (int v = mass-1; v >= type->stem; --v) {
+                    check(s.parents[v] >= parent_index, "branch attached above stem end");
+                    if (s.parents[v] == parent_index) {
+                        int tips = std::count(parent.begin()+v,parent.begin()+end,false);
+                        actual.emplace_back(end-v,tips);
+                        end = v;
+                    }
                 }
                 std::sort(actual.begin(),actual.end());
                 check(actual == type->parts, "wrong component order or tip count");
