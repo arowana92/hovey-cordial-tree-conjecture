@@ -79,6 +79,8 @@ The last two columns are incremental. A row can use all forest types from earlie
 
 As a check on the restoration, one forest from each of five proposed profiles was joined to three explicit 28-vertex trees. Recounting all labels and sums directly verified 10,935 52-vertex joins. These examples test the construction on actual trees.
 
+A three-edge cut also gives unconditional labelings when the 27-vertex middle closes to a unicyclic graph with zero or two through six leaves. Explicit examples cover each remaining leaf count and avoid the two-side and whole-branch size tests. [Three-side theorem and original-tree witnesses](three-side-cuts.md)
+
 Run the geometry separately from the potentially much longer witness census. The generator and verifier build commands are given above. Each line in the compressed list begins with the leaf count that first uses the profile.
 
 ~~~bash
