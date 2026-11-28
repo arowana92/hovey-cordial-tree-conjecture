@@ -6,6 +6,8 @@ m+2\le L\le s-2,\qquad n\le k(L-1)\le k(k-3).
 $$
 The same bound holds if each edge carries an arbitrary additive offset, when minimality is taken among trees with such offsets. In particular, an exhaustive test through order 598 would suffice at $k=26$.
 
+At a prime $p\ge7$, the [repeated-cut theorem](biased/period-chains.md) bounds the diameter by at most $2p-4$ and improves the order ceiling to $p(p-4)$.
+
 ## Cutting and rejoining
 
 Suppose an edge of the tree separates a component of order $qk$. By minimality both components have cordial labelings with their original offsets. In the divisible component every vertex residue occurs $q$ times and there is a unique edge residue $w$ occurring $q-1$ times. Let $c$ be the label at the other component's port, $a$ the port label on the divisible side, and $b$ the edge offset. Add $d=c+a+b-w$ to every label in the divisible component. Its edge deficit moves to $w+2d$ and the joining edge now has residue $c+a+b+d=w+2d$. The divisible component and the bridge together add $q$ copies to every vertex and edge bin. The two components thus give a cordial labeling of the entire tree. Consequently both sides of **every** edge cut of a minimum counterexample have order nonzero modulo $k$. [Divisible-block extension](binary-fibers.md)
