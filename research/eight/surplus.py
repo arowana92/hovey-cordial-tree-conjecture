@@ -10,8 +10,8 @@ def shape(parents,k=8):
     return key(components(parents),0,k)
 
 
-def mask_solver(r,k=8):
-    assignments = list(permutations(range(1,k),r))
+def assignment_filter(r, k, palette):
+    assignments = list(permutations(palette,r))
     all_bits = (1<<len(assignments))-1
 
     @lru_cache(None)
@@ -26,11 +26,20 @@ def mask_solver(r,k=8):
     def collision(i,p,j,q):
         return sum(x&y for x,y in zip(weights(i,p),weights(j,q)))
 
-    def solve(ps):
+    def surviving(ps):
         allow = all_bits
         for j,p in enumerate(ps):
             for i in range(j):
                 allow &= ~collision(i,ps[i],j,p)
+        return allow
+    return assignments, surviving
+
+
+def mask_solver(r,k=8):
+    assignments, surviving = assignment_filter(r,k,range(1,k))
+
+    def solve(ps):
+        allow = surviving(ps)
         if not allow:
             return None
         return assignments[(allow & -allow).bit_length()-1]
