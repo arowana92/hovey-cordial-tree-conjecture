@@ -22,6 +22,8 @@ The threshold $2M-1$ is sharp as a guarantee with a fixed core labeling. For $M=
 
 **Small core at any modulus.** Start with any injectively rainbow-labeled tree on $n'\le k$ vertices. At each chosen edge insert a chain of cordially labeled trees of orders divisible by $k$, with any choice of ports. If each chain can realize zero or at least $n'-1$ different offsets under independent unit scalings, the resulting ordinary tree is $k$-cordial. Retain every old vertex label. First keep the old weights at untouched edges and edges permitting zero. Assign distinct destinations to the remaining edges one by one. Fewer than $n'-1$ weights have been used at every assignment. In particular this works for arbitrary chains if $n'$ is at most the least prime divisor of $k$. A chain containing a nonzero coefficient has at least as many possible sums as that coefficient's unit orbit, which has size $\varphi(k/\gcd(k,c))$. This is at least one less than the least prime divisor of $k$. At a prime $p$ the result permits arbitrary chains on every edge of any such core through order $p$.
 
+The [prime-power interval test](prime-power-insertions.md) handles arbitrary mixtures of coefficient valuations and whole chains on different edges.
+
 ## Exact criterion for unit offsets at a prime power
 
 Let $k=p^a$. Fix a cordial labeling of a core of any order. Mark $m$ of its edges, each carrying a piece whose given effective offset is a unit. Its new weight can therefore be any residue in a different class modulo $p$ from its old weight. Unmarked edges keep their weights. Write $q$ for the floor of the number of core edges divided by $k$. An old bin is high if it contains $q+1$ edges and low if it contains $q$.
