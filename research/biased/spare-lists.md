@@ -12,6 +12,8 @@ L < 2s-p-1 .
 $$
 In particular a smallest counterexample at an odd prime can only occur at remainders $s\ge(p+5)/2$. The convention $s=p$ denotes order divisible by $p$. For actual forbidden vertex and weight bins the [exact two-shift criterion](two-shift-holes.md) tests the next smaller leaf count as well.
 
+At 27 labels, one extra entry works for up to seven arbitrary shifts. This bounds the combined leaf count at the seven busiest parents in a least counterexample. [Seven-shift proof](seven-shift-lists-27.md)
+
 ## An extra row in the coefficient calculation
 
 Represent residues by complex $k$th roots of unity. Subtract a common shift and write the two multiplicative shifts as $1,z$, with $z$ a primitive $d$th root. Let their multiplicities be $a,b$, and put $r=a+b$. If $b\bmod d\le r\bmod d$, lists of size $r$ already suffice. A single shift can also be handled directly by choosing distinct representatives greedily.
