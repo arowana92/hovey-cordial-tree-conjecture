@@ -61,7 +61,7 @@ In the long-distance case, each row leaves at most six off-path vertices beyond 
 
 We can also exclude 24 leaves at two parents in residue 27. Remove those leaves. At parent distance at most $27m$, choose a connected labeled subtree of order $27m+1$ containing both parents. Exactly two additional vertices of the retained tree lie outside it. If both attach directly to it, the entire exterior consists of 26 independent leaves, restored by Hall's theorem. Otherwise they form a path on two new vertices attached by an end. Apply the [two-vertex path and 24-leaf certificate](../rainbow/pinned-star.md#a-two-vertex-path-and-24-leaves-at-modulus-27). At distance at least $27m+1$ there is at most $27-2-24=1$ off-path vertex besides the 24 leaves. The same 27-position window and zero- or one-side-leaf period arguments apply. This gives the bound of 23 in the final residue.
 
-When the tree has exactly $s-2$ leaves, choosing which permutation row receives a new center gives stronger restrictions. The sum at the two busiest leaf parents is at most 11 at $s=23$ and 12 at $s=24$. At $s=25$ the busiest parent has at most 10 leaves. [Independent-parent proof](../rainbow/pinned-star.md#an-independently-chosen-leaf-parent)
+When the tree has exactly $s-2$ leaves, choosing which permutation row receives a new center gives stronger restrictions. The sum at the two busiest leaf parents is at most 11, 12 and 14 at $s=23,24,25$, respectively. The busiest parent has at most 10 leaves at $s=25$ and 11 at $s=26$. [Independent-parent proof](../rainbow/pinned-star.md#an-independently-chosen-leaf-parent)
 
 ### Reproducing the strategy checks
 

@@ -128,8 +128,25 @@ def check(leaves,accepts):
     print('leaves', leaves, 'centroid profiles covered', len(cases))
 
 
+def fits_parent_capacities(groups, first, second, other):
+    # Each group has 'sites' slots of capacity 'other'. Two slots can take more.
+    excess = [(leaves-other*sites,sites) for leaves,sites in groups if leaves>other*sites]
+    if not excess:
+        return True
+    if len(excess) == 1:
+        extra, sites = excess[0]
+        return extra <= first-other + (second-other if sites >= 2 else 0)
+    if len(excess) == 2:
+        low, high = sorted(value for value,_ in excess)
+        return low <= second-other and high <= first-other
+    return False
+
+
 def check_parent_bound():
-    cases = excluded = 0
+    cases = excluded = further = 0
+    pairs = [(b,min(b,19-2*b),min(b,19-2*b)) for b in range(1,10)]
+    triples = [(b,c,min(c,20-2*b-c)) for b in range(1,10) for c in range(1,b+1)
+               if 2*b+c <= 20]
     for parts in centroid_profiles(22):
         # Each branch has h leaves distributed among at most s-h potential parents.
         groups = [(sum(s == 1 for s,h in parts), 1)]
@@ -138,21 +155,18 @@ def check_parent_bound():
         for leaves, sites in groups:
             q, r = divmod(leaves,sites)
             counts.extend([q+1]*r + [q]*(sites-r))
-        first, second = sorted(counts,reverse=True)[:2]
+        first, second, third = sorted(counts,reverse=True)[:3]
         fits = 2*first+second <= 19
-
-        # Independently permit one exceptional site of capacity b, all others of capacity c.
-        possible = False
-        for b in range(1,10):
-            c = min(b,19-2*b)
-            needs = [(leaves,sites) for leaves,sites in groups if leaves > c*sites]
-            if not needs or (len(needs)==1 and needs[0][0] <= b+c*(needs[0][1]-1)):
-                possible = True
-                break
-        assert fits == possible
+        assert fits == any(fits_parent_capacities(groups,*caps) for caps in pairs)
         cases += 1
         excluded += not fits
-    print('22-leaf centroid profiles',cases,'excluded by individual parent counts',excluded)
+        # Four branches of order greater than one give four distinct leaves of the stripped tree.
+        if fits and len(groups) >= 5:
+            fits_three = 2*first+second+third <= 20
+            assert fits_three == any(fits_parent_capacities(groups,*caps) for caps in triples)
+            further += not fits_three
+    print('22-leaf centroid profiles',cases,'excluded by individual parent counts',excluded,
+          'further exclusions at three parents',further)
 
 
 if __name__ == '__main__':

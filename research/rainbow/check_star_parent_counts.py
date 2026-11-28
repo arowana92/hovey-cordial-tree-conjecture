@@ -107,7 +107,28 @@ def test_independent_parent():
     return checked, moved
 
 
+def test_unreserved_children():
+    checked = Counter()
+    for t, counts, children in ((23,[6,5,4],3), (24,[8,6],3), (25,[12],4)):
+        for entering, *colors in product(range(27), repeat=1+min(2,len(counts))):
+            if len(counts) == 3:
+                colors.append((entering+colors[0]-colors[1])%27)
+            b = colors[0]
+            moved = entering != b
+            x = (b-entering)%27 if moved else 1
+            singles = [v for v,n in zip(colors,counts) for _ in range(n)]
+            singles.extend((entering+i)%27 for i in range(t-1-len(singles)-children))
+            shifts = [entering]+[x]*children+singles
+            reserve = sorted(set(colors))
+            reserve += [b]*(27-t-1-len(reserve))
+            labels = label(27,shifts,x,reserve,moved)
+            replay(27,labels,children,entering,singles,[0]*children)
+            checked[28+t] += 1
+    return dict(checked)
+
+
 if __name__ == '__main__':
     print('permutation cases, cardinality and orbit', *test_permutations(), flush=True)
     print('ordinary trees, beyond distinct-shift bound, orbit attachments', *test_attachments())
     print('order-51 independent-parent attachments, moved centers', *test_independent_parent())
+    print('without reserving the child shift, by tree order',test_unreserved_children())
