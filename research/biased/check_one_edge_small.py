@@ -54,7 +54,7 @@ def finite(program,k,n):
 
 def sample_growth(k):
     rng=Random(81+k)
-    prefixes=trees=0
+    prefixes=trees=pieces=0
     for n in range(1,5*k+1):
         for _ in range(12):
             parents=[-1]+[rng.randrange(v) for v in range(1,n)]
@@ -76,9 +76,26 @@ def sample_growth(k):
                 assert max(ec)-min(ec)<=1 and max(vc)-min(vc)<=1
                 known[v]=x
             assert len(known)==n
+            labels=[known[i] for i in range(n)]
+            edges=[]
+            for v,p in enumerate(parents[1:],1):
+                if p!=0:
+                    edges.append((p,v))
+                    continue
+                start=len(labels)
+                labels.extend(range(k))
+                edges.extend((start,start+i) for i in range(1,k))
+                edges.extend(((0,start),(start+offsets[v],v)))
+                pieces+=1
+            vc,ec=[0]*k,[0]*k
+            for x in labels:
+                vc[x]+=1
+            for u,v in edges:
+                ec[(labels[u]+labels[v])%k]+=1
+            assert len(edges)==len(labels)-1 and max(ec)-min(ec)<=1 and max(vc)-min(vc)<=1
             trees+=1
             prefixes+=n
-    print('modulus',k,'star-supported growth trees',trees,'connected prefixes',prefixes)
+    print('modulus',k,'star-supported growth trees',trees,'connected prefixes',prefixes,'ordinary star insertions',pieces)
 
 
 if __name__=='__main__':

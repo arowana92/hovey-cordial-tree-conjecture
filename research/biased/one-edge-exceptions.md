@@ -16,6 +16,8 @@ To apply a fixed-core theorem stated for actual parent vertices, take a surrogat
 
 Consequently **every** assignment of offsets on the edges at $u$ works at eight and nine at all orders except possibly $k$. At order $k$ the complete exceptions are exactly the 42 boundary-colored forests at eight and the 12 at nine. At ten, only orders ten and eleven admit exceptions, with 34 and eight boundary-colored forests respectively when the hub label is normalized. At eight and nine the fixed-core prefix theorem lets growth start at $u$ for every successful input. [Eight-label exceptions](../eight/surplus.md) · [Nine-label exceptions](../rainbow/surplus-nine.md) · [Fixed-core prefix theorem](../eight/growth-orders.md) · [Ten-label exceptions](../rainbow/ten-prescribed.md)
 
+An ordinary consequence holds for **any number of edges meeting one vertex**. Replace each selected edge by a chain of cordially labeled trees of positive orders divisible by $k$, with arbitrary ports. Prescribe the sum of each chain's effective offsets at the corresponding edge of the core. At eight and nine every core order other than $k$ works, and at ten every core order other than ten and eleven works. At the remaining orders the preceding boundary-colored lists decide whether the chosen effective offsets work. The expanded tree may have many vertices of high degree.
+
 For one marked edge only one component boundary color can be nonzero. At eight and nine the only possible failing shape is a double star with a central mark. The gcd criterion follows by the pinned-star theorem. At ten the nine-vertex exceptional forest list also has the two connector shapes displayed above after identifying the two orientations of the mark. The ten-vertex exceptional forest list gives the eleven-vertex double star and its unit offsets. [Pinned-star criterion](../rainbow/pinned-star.md) · [Ten-label obstruction representatives](../rainbow/ten-surplus-obstructions.json)
 
 ## Independent enumeration on the original trees
@@ -29,7 +31,7 @@ The [enumerator](check_one_edge_small.py) builds each edge-marked tree as an uno
 | 10 | 10 | 622 | 6,220 | 20 |
 | 10 | 11 | 1,607 | 16,070 | 4 |
 
-The same checker applied the surrogate-star construction and recounted 22,260 actual connected prefixes in 1,020 trees with independent offsets at one vertex. All failures above require a nonzero assigned offset. The ordinary cases of Hovey's conjecture at these three moduli already follow from their all-tree proofs.
+The same checker applied the surrogate-star construction and recounted 22,260 actual connected prefixes in 1,020 trees with independent offsets at one vertex. It then replaced the incident edges by 3,437 ordinary star pieces and checked both final histograms on all 1,020 expanded trees. All failures above require a nonzero assigned offset. The ordinary cases of Hovey's conjecture at these three moduli already follow from their all-tree proofs.
 
 ~~~bash
 out=$(mktemp -d)
