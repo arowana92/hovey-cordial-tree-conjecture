@@ -3,7 +3,7 @@
 from functools import lru_cache
 
 
-def largest(k, s, threshold, paths=5):
+def largest(k, s, threshold, paths=6, rings=6):
     mass = s-2
     run = k-7
     max_tips = mass-7
@@ -62,7 +62,7 @@ def largest(k, s, threshold, paths=5):
                 return pending[tag]
             for largest in range(1, tips):
                 side_tips = tips-largest
-                can_open = side_tips <= 4
+                can_open = side_tips <= rings
                 if largest == 1:
                     # The continuation goes to an original leaf. Enumerate the
                     # longest arm and every possible total of the other arms.
@@ -71,7 +71,8 @@ def largest(k, s, threshold, paths=5):
                             cost = max(0, w+d-tips*threshold)
                             last = k-1-w-d if can_open and w <= k-3 else run
                             if last >= 0 and cost <= budget:
-                                bins((side_tips,w,d-1) if side_tips<=3 else (4,0,0))[min(last,run)] |= 1 << (1+w+d+stride*cost)
+                                tag = (side_tips,w,d-1) if side_tips < rings else (rings,0,0)
+                                bins(tag)[min(last,run)] |= 1 << (1+w+d+stride*cost)
                     continue
 
                 choices = side_forest(side_tips, largest)
@@ -85,8 +86,8 @@ def largest(k, s, threshold, paths=5):
                             continue
                         last = min(last,run)
                         shift = 1+w+stride*cost
-                        if side_tips >= 4:
-                            bins((4,0,0))[last] |= child << shift
+                        if side_tips >= rings:
+                            bins((rings,0,0))[last] |= child << shift
                             continue
                         regular, high, short = profile[largest][g][side_tips-1]
                         t = k-2-g-w
@@ -103,7 +104,7 @@ def largest(k, s, threshold, paths=5):
                                 previous = choice
 
             for e in range(run+1):
-                profile[tips][e] = [[0,[0]*(k+1),[0]*(2*k+1)] for _ in range(3)]
+                profile[tips][e] = [[0,[0]*(k+1),[0]*(2*k+1)] for _ in range(rings-1)]
             for (q,w,g), by_end in pending.items():
                 allowed = 0
                 for e in reversed(range(run+1)):
@@ -116,7 +117,7 @@ def largest(k, s, threshold, paths=5):
                         continue
                     rows[tips][e] |= states
                     for r,filters in enumerate(profile[tips][e],1):
-                        if r+q>4 or w>k-3:
+                        if r+q>rings or w>k-3:
                             filters[0] |= states
                         else:
                             filters[1][w] |= states
@@ -146,4 +147,4 @@ if __name__ == "__main__":
     for modulus in (26,27):
         for residue in range(23,modulus+1):
             print(modulus, residue, max(largest(modulus, residue, z)
-                  for z in range(1,(residue-2)//5+1)), flush=True)
+                  for z in range(1,(residue-2)//6+1)), flush=True)

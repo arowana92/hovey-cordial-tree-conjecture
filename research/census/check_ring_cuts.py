@@ -55,7 +55,7 @@ def check(parents):
                     assert len(piece) == 1+w+i+j
                     if a[i] != b[j] and b[j] not in neighbors[a[i]]:
                         attainable.add(len(piece))
-                        if len(piece) in targets and q in (2,3,4):
+                        if len(piece) in targets and 2 <= q <= 6:
                             targets[len(piece)] += 1
                     tests += 1
             predicted = {s for s in range(1+w, 1+w+len(a)-2+len(b)-2+1) if s-w >= 3}

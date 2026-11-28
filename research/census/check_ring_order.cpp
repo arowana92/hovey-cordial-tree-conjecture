@@ -24,7 +24,7 @@ void merge(Costs& out,const Costs& in) {
 using Tag=std::tuple<int,int,int>;
 using Types=std::map<Tag,Costs>;
 struct Bound {
-    int k, s, z, paths;
+    int k, s, z, paths, ring_leaves;
     int mass() const { return s-2; }
     int budget() const { return mass()-paths*z; }
     int run() const { return k-7; }
@@ -70,11 +70,11 @@ struct Bound {
                 int q=tips-largest;
                 const auto& bush=bushes[largest][q];
                 for (int m=0; m<int(bush.size()); ++m) if (bush[m]<=budget()) {
-                    bool ring=q<=4 && k-m>=3;
+                    bool ring=q<=ring_leaves && k-m>=3;
                     if (largest==1) {
                         for (int d=1; d<=limb && m+d<=mass(); ++d) if (m<=q*d) {
                             int cost=std::max(0,m+d-tips*z);
-                            Tag tag=q<=3 ? Tag{q,m,d-1} : Tag{4,0,0};
+                            Tag tag=q<ring_leaves ? Tag{q,m,d-1} : Tag{ring_leaves,0,0};
                             if (cost<=budget()) put(1+m+d,cost,ring ? k-1-m-d : run(),tag);
                         }
                     } else for (int g=0; g<=run(); ++g) {
@@ -86,8 +86,8 @@ struct Bound {
                                 if (cost<=budget()) put(1+m+n,cost,emax,tag);
                             }
                         };
-                        if (q>=4) {
-                            use(joined[largest][g],last,{4,0,0});
+                        if (q>=ring_leaves) {
+                            use(joined[largest][g],last,{ring_leaves,0,0});
                             continue;
                         }
                         auto tag=Tag{q,m,g};
@@ -96,7 +96,7 @@ struct Bound {
                             auto [other,f,h]=item.first;
                             int end=std::min(last,run());
                             int low=2+m+g+f;
-                            if (q+other<=4 && low<=k && k-m-f>=3) end=std::min(end,k-1-low-h);
+                            if (q+other<=ring_leaves && low<=k && k-m-f>=3) end=std::min(end,k-1-low-h);
                             if (end>=0) merge(choices[end],item.second);
                         }
                         for (int end=0;end<=run();++end) use(choices[end],end,tag);
@@ -132,11 +132,12 @@ struct Bound {
 };
 
 int main(int argc,char** argv) {
-    int paths=argc==2 ? std::stoi(argv[1]) : 5;
-    if (argc>2 || (paths!=4 && paths!=5)) return 2;
+    int paths=argc>=2 ? std::stoi(argv[1]) : 6;
+    int rings=argc==3 ? std::stoi(argv[2]) : 6;
+    if (argc>3 || paths<4 || paths>6 || rings<4 || rings>6) return 2;
     for (int k : {26,27}) for (int s=23; s<=k; ++s) {
         int best=0;
-        for (int z=1; paths*z<=s-2; ++z) best=std::max(best,Bound{k,s,z,paths}.maximum());
+        for (int z=1; paths*z<=s-2; ++z) best=std::max(best,Bound{k,s,z,paths,rings}.maximum());
         std::cout<<k<<' '<<s<<' '<<best<<std::endl;
     }
 }
