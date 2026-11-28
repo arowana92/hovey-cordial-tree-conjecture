@@ -1,4 +1,4 @@
-"""Expand a small certificate on 28-vertex caterpillars and count all 50 vertices."""
+"""Expand a small certificate on 28-vertex caterpillars and count all vertices and weights."""
 from argparse import ArgumentParser
 from collections import Counter
 from pathlib import Path
@@ -31,25 +31,26 @@ def core(run):
     return labels, edges
 
 
-def check(path):
+def check(path, order=50):
+    mass = order-28
     cores = [core(r) for r in (4,5,6)]
     leaves = Counter()
     shapes = 0
     for _, _, payload, (parents, roots, sizes, _) in records(path):
-        assert len(parents) == 22
+        assert len(parents) == mass
         options = []
-        for row in iter_unpack('22B', payload):
-            assert len(set(row)) == 22 and all(0 < x < 27 for x in row)
+        for row in iter_unpack(f'{mass}B', payload):
+            assert len(set(row)) == mass and all(0 < x < 27 for x in row)
             for u in range(1,27):
                 if u % 3:
                     labels = tuple(u*x % 27 for x in row)
                     inside = {(labels[v]+labels[w]) % 27 for v,w in enumerate(parents) if w >= 0}
-                    assert len(inside) == 22-len(roots)
+                    assert len(inside) == mass-len(roots)
                     options.append((labels, inside))
         for boundary in colorings(27,sizes):
             for labels, inside in options:
                 entering = {(labels[v]+b) % 27 for v,b in zip(roots,boundary)}
-                if len(inside | entering) == 22:
+                if len(inside | entering) == mass:
                     break
             else:
                 raise AssertionError(('uncovered boundary', boundary))
@@ -58,7 +59,7 @@ def check(path):
                 joined = edges + [(ports[v] if w < 0 else 28+w, 28+v)
                                   for v,w in enumerate(parents)]
                 coloring = old + list(labels)
-                assert len(coloring) == 50 and len(joined) == 49
+                assert len(coloring) == order and len(joined) == order-1
                 vertex = Counter(coloring)
                 edge = Counter((coloring[a]+coloring[b]) % 27 for a,b in joined)
                 for histogram in (vertex,edge):
@@ -68,11 +69,13 @@ def check(path):
                 leaves[sum(n==1 for n in degree.values())] += 1
         shapes += 1
     assert shapes > 0
-    print('sampled rooted forests', shapes, 'order-50 joins', sum(leaves.values()),
+    print('sampled rooted forests', shapes, f'order-{order} joins', sum(leaves.values()),
           'by leaf count', dict(sorted(leaves.items())))
 
 
 if __name__ == '__main__':
     parser = ArgumentParser(description=__doc__)
     parser.add_argument('stream', type=Path)
-    check(parser.parse_args().stream)
+    parser.add_argument('--order', type=int, choices=(50,51), default=50)
+    args = parser.parse_args()
+    check(args.stream,args.order)
