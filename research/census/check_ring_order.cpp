@@ -27,10 +27,11 @@ struct Bound {
     int k, s, z, paths, ring_leaves;
     int mass() const { return s-2; }
     int budget() const { return mass()-paths*z; }
+    int pruning_limit() const { return k==27 ? 7 : 6; }
     int run() const { return k-7; }
 
     Branches branches(int cap) const {
-        int limit=mass()-7;
+        int limit=mass()-pruning_limit()-1;
         Branches joined(limit+1, Corridors(run()+1));
         std::vector<Costs> single(limit+1);
         std::vector<std::vector<Types>> types(limit+1,std::vector<Types>(run()+1));
@@ -51,13 +52,13 @@ struct Bound {
                     for (int i=0; i<int(single[new_size].size()); ++i) if (single[new_size][i]<=budget())
                         for (int j=0; j<int(rows[q-new_size].size()); ++j) {
                             int cost=single[new_size][i]+rows[q-new_size][j];
-                            if (cost<=budget() && (q>6 || i+j<=mass())) add(rows[q],i+j,cost);
+                            if (cost<=budget() && (q>pruning_limit() || i+j<=mass())) add(rows[q],i+j,cost);
                         }
             }
             auto put=[&](int base,int used,int last,Tag tag) {
                 for (int e=0; e<=std::min(run(),last); ++e) {
                     int n=base+e;
-                    if (n%k==0 || n%k==s%k || (tips<=6 && n>mass()) ||
+                    if (n%k==0 || n%k==s%k || (tips<=pruning_limit() && n>mass()) ||
                         (tips<=3 && n>cap)) break;
                     add(joined[tips][e],n,used);
                     add(single[tips],n,used);
@@ -110,11 +111,13 @@ struct Bound {
     int maximum() const {
         int first=s+1-k/2;
         std::map<int,Branches> tables;
-        int best=s+k*((1+6*mass()-s)/k);
+        int groups=pruning_limit()==7 ? mass()/4 : 6;
+        int best=s+k*((1+groups*mass()-s)/k);
+        int min_half=pruning_limit()+1;
         for (int a=first-1; a<=mass(); ++a) {
             int b=a<first ? a : mass()-a;
             for (int cap : {a,b}) if (!tables.count(cap)) tables.emplace(cap,branches(cap));
-            for (int l=7; l+7<=mass(); ++l) for (int r=7; l+r<=mass(); ++r) {
+            for (int l=min_half; l+min_half<=mass(); ++l) for (int r=min_half; l+r<=mass(); ++r) {
                 for (int e=0; e<=run(); ++e) {
                     const Costs& left=tables.at(a)[l][e];
                     const Costs& right=tables.at(b)[r][e];

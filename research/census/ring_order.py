@@ -1,4 +1,4 @@
-"""Upper bounds from six-tip pruning, terminal arm lengths, and edge substitution."""
+"""Upper bounds from bounded-tip pruning, terminal arm lengths, and edge substitution."""
 
 from functools import lru_cache
 
@@ -6,7 +6,9 @@ from functools import lru_cache
 def largest(k, s, threshold, paths=6, rings=6):
     mass = s-2
     run = k-7
-    max_tips = mass-7
+    prune = 7 if k == 27 else 6
+    first_half = prune+1
+    max_tips = mass-first_half
     budget = mass-paths*threshold
     limit = k*(k-3)  # the divisible-cut theorem
     # Keep one bit per exact order and cost. Two legitimate intermediate orders
@@ -50,7 +52,7 @@ def largest(k, s, threshold, paths=6, rings=6):
                 return result
             result = side_forest(leaves, largest-1)
             result |= combine(single[largest], side_forest(leaves-largest, largest))
-            return result & group_limit if leaves <= 6 else result
+            return result & group_limit if leaves <= prune else result
 
         profile = [[None]*(run+1) for _ in range(max_tips+1)]
         for tips in range(2, max_tips+1):
@@ -110,7 +112,7 @@ def largest(k, s, threshold, paths=6, rings=6):
                 for e in reversed(range(run+1)):
                     allowed |= by_end[e]
                     states = ((allowed & safe[e]) << e) & full
-                    if tips <= 6:
+                    if tips <= prune:
                         side_cap = cap if tips <= 3 else mass
                         states &= repeat*((1 << (side_cap+1))-1)
                     if not states:
@@ -136,11 +138,12 @@ def largest(k, s, threshold, paths=6, rings=6):
     tables = {cap: branches(cap) for cap in {v for pair in pairs for v in pair}}
     orders = 0
     for a, b in pairs:
-        for left in range(7, mass-6):
-            for right in range(7, mass-left+1):
+        for left in range(first_half, mass-first_half+1):
+            for right in range(first_half, mass-left+1):
                 for e in range(run+1):
                     orders |= combine(tables[a][left][e] >> e, tables[b][right][e])
-    return max(n for n in range(s, limit+1, k) if n <= 1+6*mass or (orders >> n) & repeat)
+    groups = mass//4 if prune == 7 else 6
+    return max(n for n in range(s, limit+1, k) if n <= 1+groups*mass or (orders >> n) & repeat)
 
 
 if __name__ == "__main__":

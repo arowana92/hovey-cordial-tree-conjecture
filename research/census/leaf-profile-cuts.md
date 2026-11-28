@@ -1,6 +1,6 @@
 # Cordial growth for trees with at most thirteen leaves at 27 labels
 
-**Theorem (computer-assisted).** Every finite tree with at most thirteen leaves has one labeling that is 27-cordial on every prefix of a connected vertex order. Any specified leaf can be placed in the last block of 27 vertices (or the final shorter block) and receive a most-frequent vertex residue. Every tree with fourteen leaves and at most 51 vertices also satisfies these assertions. A least failure within fourteen leaves must have order 52, 53 or 54. Within fifteen leaves it must have order 50 through 54.
+**Theorem (computer-assisted).** Every finite tree with at most thirteen leaves has one labeling that is 27-cordial on every prefix of a connected vertex order. Any specified leaf can be placed in the last block of 27 vertices (or the final shorter block) and receive a most-frequent vertex residue. Every tree with at most fifteen leaves and at most 51 vertices also satisfies these assertions. A least failure within fifteen leaves must have order 52, 53 or 54.
 
 The earlier results cover [every tree through 49 vertices](../rainbow/twenty-one-free.md) and [at most eleven leaves at every order](eleven-leaves.md). The [three-group reduction](../rainbow/few-leaves.md#a-finite-reduction-for-eleven-leaves) puts the least counterexample within thirteen leaves at order at most 54 using six tips. The [seven-tip certificate](../rainbow/seven-tip-27.md) gives the same bound within fifteen leaves. This leaves five orders to verify for an all-orders theorem.
 
@@ -23,7 +23,7 @@ Enumerate every possible multiset of pairs $(s,h)$ for the suffix within $B$, wi
 
 Use the existing [prefix induction](../rainbow/cut-growth.md) for at most ten leaves. For eleven through fifteen leaves, the integer base gives distinct labels and edge weights through order 27. At order one modulo 27, delete the marked leaf, or any leaf if unmarked, apply induction, then append it with the label that fills the deficient edge bin. For the remaining orders through 49 use the [21-vertex exterior certificate](../rainbow/twenty-one-free.md) on the size-ordered cut, which has at most thirteen tips. At orders 50 through 54, each completed row below certifies a cut to a 28-vertex core. For exactly eleven leaves they accept all 64, 81, 100, 120 and 140 exceptional numerical cases, respectively, using the twelve-leaf manifests. Above 54 the [three-group argument](../rainbow/few-leaves.md#a-finite-reduction-for-eleven-leaves) supplies a cut with at most $q$ tips.
 
-Each core is connected, has order one modulo 27 and has at most as many leaves as the original tree. Apply induction to the core, retaining the mark if it lies there. Its final block is a singleton, so a retained mark has the unique surplus color. The exterior receives distinct colors avoiding this surplus, with distinct new edge weights. Append its vertices in any parent-first order. Every prefix increments only distinct low vertex bins and distinct initially equal edge bins. The final block consists of the last core vertex and the exterior. Its residues are all most frequent. All five finite orders are covered through thirteen leaves. For fourteen leaves the same proof applies through the last consecutive order in the table below.
+Each core is connected, has order one modulo 27 and has at most as many leaves as the original tree. Apply induction to the core, retaining the mark if it lies there. Its final block is a singleton, so a retained mark has the unique surplus color. The exterior receives distinct colors avoiding this surplus, with distinct new edge weights. Append its vertices in any parent-first order. Every prefix increments only distinct low vertex bins and distinct initially equal edge bins. The final block consists of the last core vertex and the exterior. Its residues are all most frequent. All five finite orders are covered through thirteen leaves. For fourteen and fifteen leaves the same proof applies through the last consecutive order in the table below.
 
 The [matching lift and marked-leaf deletion](marked-ring.md#matching-consequence-and-verification) now prove 54-cordiality for any tree with at most thirteen leaves and a perfect or near-perfect matching. Matching contraction and the temporary-leaf construction in that argument preserve the required leaf bound.
 
@@ -35,7 +35,7 @@ A certificate profile lists the order and tip count of every component. The [gen
 
 The [manifest checker](check_leaf_profile_manifests.py) uses integer partitions to count rooted components independently. If a type has $N$ rooted trees and occurs $c$ times, its factor in the shape count is $\binom{N+c-1}{c}$. A separate recurrence counts literal boundary assignments by whether the next component starts a new run. The [small-modulus regression](check_typed_leaf_streams.py) compares whole component-type dictionaries against full catalogs at eight labels and directly checks their literal boundary inputs. It also injects 184 truncated, repeated, empty or invalid-label streams.
 
-At each order the profile dictionaries are cumulative in leaf count. Each manifest records the additional profiles first used at that leaf count. The fourteen-leaf rows use the seven-tip theorem for the freely permitted shapes.
+At each order the profile dictionaries are cumulative in leaf count. Each manifest records the additional profiles first used at that leaf count. The fourteen- and fifteen-leaf rows use the seven-tip theorem for the freely permitted shapes.
 
 | Leaves | Order | Numerical cases requiring a cut | Profiles | Rooted forests | Witness rows | Boundary assignments |
 |---:|---:|---:|---:|---:|---:|---:|
@@ -51,6 +51,8 @@ At each order the profile dictionaries are cumulative in leaf count. Each manife
 | 13 | 54 | 11,655 | 822 | 60,001,367 | 4,824,484,964 | 496,958,855,715 |
 | 14 | 50 | 780 | 237 | 7,233,287 | 144,783,375 | 37,597,824,351 |
 | 14 | 51 | 1,186 | 388 | 15,878,970 | 459,395,255 | 103,700,019,582 |
+| 15 | 50 | 2,186 | 329 | 16,019,357 | 274,022,699 | 71,146,816,965 |
+| 15 | 51 | 3,768 | 554 | 35,862,672 | 930,592,083 | 209,257,110,180 |
 
 ## Reproduction
 
