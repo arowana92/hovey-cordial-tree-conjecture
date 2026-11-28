@@ -84,6 +84,18 @@ def cores(h):
         yield labels, edges
 
 
+def match_shores(generator, shores_list):
+    prepared = [prepare(shores) for shores in shores_list]
+    keys = sorted({data[0] for data in prepared})
+    query = ''.join('%d %d %d\n' % key for key in keys)
+    raw = subprocess.run([str(generator.resolve()), '--keys'], input=query.encode(),
+                         stdout=subprocess.PIPE, check=True).stdout
+    records = {key: row for key, row in zip(keys, RECORD.iter_unpack(raw))}
+    assert len(raw) == RECORD.size*len(keys)
+    return len(keys), [interpret(data, records[data[0]], shores)
+                       for data, shores in zip(prepared, shores_list)]
+
+
 def checks(generator):
     rng = Random(231627)
     cases = []
@@ -225,15 +237,8 @@ def checks(generator):
                 if sum(m-len(set(col)) for col in shores) <= extras:
                     break
             cases.append((shores, None))
-    prepared = [prepare(shores) for shores, _ in cases]
-    keys = sorted({data[0] for data in prepared})
-    query = ''.join('%d %d %d\n' % key for key in keys)
-    raw = subprocess.run([str(generator.resolve()), '--keys'], input=query.encode(),
-                         stdout=subprocess.PIPE, check=True).stdout
-    records = {key: row for key, row in zip(keys, RECORD.iter_unpack(raw))}
-    assert len(raw) == RECORD.size*len(keys)
-    for (shores, tree), data in zip(cases, prepared):
-        rows = interpret(data, records[data[0]], shores)
+    key_count, solutions = match_shores(generator, [shores for shores, _ in cases])
+    for (_, tree), rows in zip(cases, solutions):
         if tree:
             f, edges, parents, shifts, offsets = tree
             by_shift = defaultdict(list)
@@ -244,7 +249,7 @@ def checks(generator):
             balanced(g, edges+joins, [0]*len(edges)+offsets)
             trees += 1
     assert blocked and actual
-    print(f'{len(keys)} orbit witnesses, {trees} whole trees, including {actual} with '
+    print(f'{key_count} orbit witnesses, {trees} whole trees, including {actual} with '
           f'23 different leaf parents at order 52, {controlled} with controlled core labels at order 52, '
           f'{divisible} tuned at order 54, {blocked} forced collisions, '
           f'{len(cases)-trees} multiset checks')
