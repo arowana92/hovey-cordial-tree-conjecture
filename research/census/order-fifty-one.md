@@ -1,6 +1,6 @@
 # Trees of order 51 with at most 21 leaves at 27 labels
 
-**Computer-assisted theorem.** Every tree of order 51 with at most twenty-one leaves is 27-cordial. A counterexample of this order would have **exactly 22 leaves**. The [order-50 theorem](order-fifty.md) labels every smaller tree, the [sixteen-leaf theorem](sixteen-leaf-corridor.md) covers the smaller leaf counts at 51, and deleting 23 original leaves when available gives a Hall extension on a 28-vertex core. With exactly 22 leaves a counterexample would need at least five different leaf parents. [Short star theorem](../rainbow/pinned-star.md#several-singleton-parent-colors)
+**Computer-assisted theorem.** Every tree of order 51 with at most twenty-one leaves is 27-cordial. A counterexample of this order would have **exactly 22 leaves**. The [order-50 theorem](order-fifty.md) labels every smaller tree, the [sixteen-leaf theorem](sixteen-leaf-corridor.md) covers the smaller leaf counts at 51, and deleting 23 original leaves when available gives a Hall extension on a 28-vertex core. With exactly 22 leaves a counterexample would need at least five different leaf parents. If it has exactly five, choose a leaf of the tree remaining after all original leaves are removed. If its neighbor supports $r>0$ original leaves, each of the three other leaf parents must support at least $r+2$. [Short star theorem](../rainbow/pinned-star.md#leaf-counts-at-individual-old-parents)
 
 ## Necessary centroid data
 
