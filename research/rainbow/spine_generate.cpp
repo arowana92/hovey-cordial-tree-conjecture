@@ -229,11 +229,25 @@ public:
         if (!out) throw std::runtime_error("cannot open output");
     }
 
-    void run(bool ranked, int tip_limit) {
+    void run(bool ranked, int tip_limit, bool listed = false) {
         out.write(mass < k-1 ? "SPN3" : cover ? "SPN2" : "SPN1", 4);
         out.put(static_cast<char>(k));
         if (mass < k-1) out.put(static_cast<char>(mass));
-        if (tip_limit) {
+        if (listed) {
+            Code word;
+            while (std::cin >> word) {
+                if ((word >> (2*mass)) != 0) throw std::runtime_error("oversized forest word");
+                int depth = 0;
+                for (int bit = 2*mass-1; bit >= 0; --bit) {
+                    depth += ((word >> bit) & 1) ? 1 : -1;
+                    if (depth < 0) throw std::runtime_error("invalid forest brackets");
+                }
+                if (depth != 0) throw std::runtime_error("unclosed forest brackets");
+                ++shapes;
+                forest(word);
+            }
+            if (!std::cin.eof() || !shapes) throw std::runtime_error("invalid forest list");
+        } else if (tip_limit) {
             TipForests limited(mass, tip_limit);
             limited.each(mass, [&](Code word) {
                 if (shapes++ % shards == static_cast<unsigned>(shard)) forest(word);
@@ -260,7 +274,7 @@ public:
         if (!out) throw std::runtime_error("write failed");
         auto& report = &out==&file ? std::cout : std::cerr;
         report << "shard " << shard << ": " << selected << " shapes, " << cases
-                  << " witnesses, " << (tip_limit ? "tip-limited catalog " : "full catalog ") << shapes << '\n';
+                  << " witnesses, " << (listed ? "listed catalog " : tip_limit ? "tip-limited catalog " : "full catalog ") << shapes << '\n';
     }
 };
 }
@@ -271,13 +285,15 @@ int main(int argc, char** argv) {
     std::string mode = argc >= 6 ? argv[5] : "";
     bool partial = mode == "--short", limited = partial || mode == "--tips";
     if (partial ? argc != 8 : limited ? argc != 7 : argc > 6) return 2;
-    if (!limited && !mode.empty() && mode != "--cover" && mode != "--ranked-cover") return 2;
+    bool listed = mode == "--listed-cover";
+    if (!listed && !limited && !mode.empty() && mode != "--cover" && mode != "--ranked-cover") return 2;
     int k = std::stoi(argv[1]), shard = std::stoi(argv[2]), total = std::stoi(argv[3]);
     int max_modulus = partial ? 40 : limited ? 30 : 27;
     if (k < 5 || k > max_modulus || shard < 0 || shard >= total) return 2;
+    if (listed && (shard != 0 || total != 1)) return 2;
     int mass = partial ? std::stoi(argv[6]) : k-1;
     int tips = limited ? std::stoi(argv[argc-1]) : 0;
     if (partial && (mass < 1 || mass > 30 || mass >= k-1)) return 2;
     if (limited && (tips < 1 || tips > mass || tips > 2*(k-2)/3)) return 2;
-    Generator(k, mass, shard, total, argv[4], argc >= 6).run(mode == "--ranked-cover", tips);
+    Generator(k, mass, shard, total, argv[4], argc >= 6).run(mode == "--ranked-cover", tips, listed);
 }

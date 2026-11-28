@@ -7,6 +7,7 @@
 #include <cstdint>
 #include <cstdio>
 #include <cstdlib>
+#include <fstream>
 #include <iostream>
 #include <map>
 #include <memory>
@@ -373,6 +374,23 @@ int main(int argc, char** argv) {
     int max_modulus = partial ? 40 : limited ? 30 : 27;
     if (k < 5 || k > max_modulus) return 2;
     try {
+        if (std::string(argv[2]) == "--listed") {
+            if (argc < 5) return 2;
+            std::ifstream expected(argv[3]);
+            check(expected.is_open(), "cannot open required forest list");
+            std::unordered_set<Count> required;
+            Count word;
+            while (expected >> word)
+                check(required.insert(word).second, "duplicate in required forest list");
+            check(expected.eof() && !required.empty(), "invalid required forest list");
+            Audit audit(k);
+            for (int i = 4; i < argc; ++i) audit.verify(argv[i]);
+            check(audit.seen == required, "forest list and stream disagree");
+            check(audit.eligible == required.size(), "listed forest is base-only");
+            std::cout << "k=" << k << " listed forests=" << audit.eligible
+                      << " witness rows=" << audit.rows << " boundary assignments=" << audit.colorings << '\n';
+            return 0;
+        }
         if (limited) {
             if (argc < (partial ? 6 : 5)) return 2;
             int mass = partial ? std::stoi(argv[3]) : k-1;
