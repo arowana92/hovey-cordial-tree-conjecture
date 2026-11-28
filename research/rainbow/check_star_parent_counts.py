@@ -1,6 +1,6 @@
 """Verify the prescribed-center Hall argument and rebuild ordinary star attachments."""
 from collections import Counter, defaultdict
-from itertools import permutations
+from itertools import permutations, product
 from math import gcd
 from random import Random
 
@@ -27,10 +27,13 @@ def test_permutations():
                         else:
                             continue
                         assert any((s-x) % k not in unsafe for s in centers)
+                        assert any((s+x) % k not in unsafe for s in centers)
     return strict, cycles
 
 
-def label(k, shifts, x, reserve):
+def label(k, shifts, x, reserve, move=False):
+    pin, forbidden = (0,x) if move else (x,0)
+    shifts = [(shifts[0]+x-pin) % k]+shifts[1:]
     padding = list(reserve) + [0]*(k-1-len(shifts)-len(reserve))
     assert len(shifts)+len(padding) == k-1
     padding.append(-sum(shifts+padding) % k)
@@ -38,11 +41,11 @@ def label(k, shifts, x, reserve):
     sources = pinned_sources(full,0,0)
     spare = set(padding)
     at = {v:b for v,b in zip(sources,full)}
-    s = next(v for v,b in at.items() if b == shifts[0] and at[(v-x)%k] in spare)
+    s = next(v for v,b in at.items() if b == shifts[0] and at[(v+forbidden-pin)%k] in spare)
     available = defaultdict(list)
     for v,b in at.items():
-        y = (v-s+x) % k
-        if v != s and y:
+        y = (v-s+pin) % k
+        if v != s and y != forbidden:
             available[b].append(y)
     return [x] + [available[b].pop() for b in shifts[1:]]
 
@@ -86,6 +89,25 @@ def test_attachments():
     return checked, varied, orbit
 
 
+def test_independent_parent():
+    # Four children, seven and three singles at the chosen parents, eight elsewhere.
+    # Try all colors of the entering parent and both independently chosen parents.
+    checked = moved = 0
+    for entering, busiest, second in product(range(27), repeat=3):
+        move = busiest != entering
+        x = (busiest-entering)%27 if move else (busiest or second or 1)
+        reserve = sorted({busiest, second, x})
+        singles = [busiest]*7+[second]*3+[(entering+i)%27 for i in range(8)]
+        shifts = [entering]+[x]*4+singles
+        labels = label(27,shifts,x,reserve,move)
+        assert labels[0] == x
+        replay(27,labels,4,entering,singles,[0]*4)
+        checked += 1
+        moved += move
+    return checked, moved
+
+
 if __name__ == '__main__':
     print('permutation cases, cardinality and orbit', *test_permutations(), flush=True)
     print('ordinary trees, beyond distinct-shift bound, orbit attachments', *test_attachments())
+    print('order-51 independent-parent attachments, moved centers', *test_independent_parent())

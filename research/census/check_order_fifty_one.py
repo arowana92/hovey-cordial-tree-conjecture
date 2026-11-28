@@ -128,9 +128,37 @@ def check(leaves,accepts):
     print('leaves', leaves, 'centroid profiles covered', len(cases))
 
 
+def check_parent_bound():
+    cases = excluded = 0
+    for parts in centroid_profiles(22):
+        # Each branch has h leaves distributed among at most s-h potential parents.
+        groups = [(sum(s == 1 for s,h in parts), 1)]
+        groups.extend((h,s-h) for s,h in parts if s > 1)
+        counts = []
+        for leaves, sites in groups:
+            q, r = divmod(leaves,sites)
+            counts.extend([q+1]*r + [q]*(sites-r))
+        first, second = sorted(counts,reverse=True)[:2]
+        fits = 2*first+second <= 19
+
+        # Independently permit one exceptional site of capacity b, all others of capacity c.
+        possible = False
+        for b in range(1,10):
+            c = min(b,19-2*b)
+            needs = [(leaves,sites) for leaves,sites in groups if leaves > c*sites]
+            if not needs or (len(needs)==1 and needs[0][0] <= b+c*(needs[0][1]-1)):
+                possible = True
+                break
+        assert fits == possible
+        cases += 1
+        excluded += not fits
+    print('22-leaf centroid profiles',cases,'excluded by individual parent counts',excluded)
+
+
 if __name__ == '__main__':
     catalog, totals = certificates()
     accepts = cut_checker(catalog)
     for h in range(17,22):
         check(h,accepts)
     print(dict(totals))
+    check_parent_bound()

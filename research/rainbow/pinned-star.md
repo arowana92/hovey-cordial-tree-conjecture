@@ -65,6 +65,22 @@ Indeed, reserve a dummy for each distinct color of the chosen vertices. Choose a
 
 In a least counterexample of order $mk+1+t$ with exactly $t-1$ leaves, remove all its leaves, choose any leaf $u$ of the remaining tree and let $v$ be its neighbor. Deleting $u$ gives a connected smaller core. Restore $u$ as the center. For every set of at most $d-1$ core vertices containing $v$, there must be at least $r+2$ original leaves whose parents lie outside both the set and $u$, where $r$ is the original leaf count at $v$. In particular, at order 51 and modulus 27, suppose there are 22 leaves and exactly five leaf parents, including $v$. The three parents other than $u$ and $v$ must **each** support at least $r+2$ leaves. Choose $v$ and the other two to test each one.
 
+### An independently chosen leaf parent
+
+The same permutation permits a second placement of the center. Use the formal shift $a+x$ for its row, translate its source to zero, discard source $x$, and then give the center its actual vertex label $x$. Its actual edge still has weight $a+x$. The two candidate source sets in the proof now differ by $+x$. Both the cardinality and the coset arguments apply unchanged.
+
+**Theorem.** Let $d=k-t\ge3$. Select $h$ old vertices, $1\le h\le d-2$. Suppose one of them supports $r$ new singleton leaves. If at most $r+d-h-1$ singleton leaves attach outside these $h$ vertices, the star and all singleton leaves extend the prescribed core. The center may enter at any old vertex.
+
+Let $b$ be the color at the selected parent supporting $r$ leaves, and $a$ the center's entering color. When $b\ne a$, put $x=b-a$ on the center and use the second placement. Its formal shift is exactly $b$. When $b=a$, use the original placement with any nonzero $x$. In both cases reserve one dummy for each of the selected colors and for $x$. This takes at most $h+1$ dummies. Of the $d$ available, keep one for the sum correction and allocate all other spare rows to $b$. There are at least $1+(d-1)-(h+1)=d-h-1$ dummies at $b$, counting the one already reserved. The class of shift $b$ contains at least $1+r+(d-h-1)=r+d-h$ possible center sources. Only the singleton leaves outside the chosen sites can have an unprotected shift. Their number is smaller than this class, proving the assertion.
+
+**Restriction on ordinary counterexamples.** Let a least counterexample have order $mk+1+t$, exactly $t-1$ leaves and $d=k-t\ge3$. Denote the largest leaf-parent counts by $r_1\ge r_2\ge\cdots$. Pick $h\le d-2$ of these busiest parents, including the first. If a leaf $u$ of the tree obtained by stripping the original leaves lies outside the chosen parents, it supports $j\ge1$ original leaves. On deleting $u$ as well, apply the theorem to those $h$ old sites. The outside singleton leaves number $t-1-j-\sum_{i=1}^h r_i$. This must be at least $r_1+d-h$. Hence
+$$
+             j+r_1+\sum_{i=1}^h r_i\ \le\ t-d+h-1.
+$$
+The earlier distinct-parent bound supplies enough parents to select. The stripped tree has at least three leaves, since if it were a path the original tree would be a caterpillar. Every caterpillar is cordial at every modulus. Consequently one may always choose $u$ outside the busiest parent, and outside the busiest two when $d\ge4$. This gives $2r_1\le t-d-1$ and, for $d\ge4$, $2r_1+r_2\le t-d$. [Hovey's caterpillar theorem](https://doi.org/10.1016/0012-365X(91)90254-Y)
+
+At modulus 27 with the maximum possible leaf count $t-1$, the two busiest parents together support at most **11** original leaves at residue 23 and **12** at residue 24, since $3(r_1+r_2)\le2(2r_1+r_2)$. At residue 25 the busiest parent supports at most **10**. In particular a 51-vertex counterexample has exactly 22 leaves and $2r_1+r_2\le19$. The checker built 19,683 complete trees of order 51 with four center children, seven and three leaves at the two chosen old colors, and eight further singleton leaves. It tested every triple of entering and chosen colors and used the second placement in 18,954 cases.
+
 The [independent checks](check_star_parent_counts.py) enumerate every permutation and every proper nonempty choice of spare rows through modulus six. They verify 160,120 instances of the cardinality criterion and 82,862 further instances of the coset criterion by trying the center sources directly. Constructing and recounting whole trees through modulus 60 checked 7,980 ordinary attachments, including 788 beyond the earlier bound on the number of shifts, and 8,346 attachments using the coset criterion with prescribed shifts.
 
 ~~~sh
