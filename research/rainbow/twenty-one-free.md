@@ -10,7 +10,7 @@ The whole-tree checker replayed 300 joins to explicit path and star cores. A sep
 
 ## Twenty-one exterior vertices at 27 labels
 
-At modulus 27 the same cut and certificate argument excludes order $27m+22$ for a smallest counterexample. The order-27 base is known and the previous residue bounds exclude residues 1 through 21. Consequently this argument gives 27-cordiality through order **49**. The subsequent [order-50 theorem](../census/order-fifty.md) covers the next order as well. A smallest counterexample would have order at least **51**, with residue 23 through 26 or zero. The separate [leaf-profile induction](../census/leaf-profile-cuts.md) covers every order through thirteen leaves.
+At modulus 27 the same cut and certificate argument excludes order $27m+22$ for a smallest counterexample. The order-27 base is known and the previous residue bounds exclude residues 1 through 21. Consequently this argument gives 27-cordiality through order **49**. The subsequent [order-50](../census/order-fifty.md) and [order-51](../census/order-fifty-one.md) theorems cover the next two orders. A smallest counterexample would have order at least **52**, with residue 23 through 26 or zero. The separate [leaf-profile induction](../census/leaf-profile-cuts.md) covers every order through thirteen leaves.
 
 The native checker verified **94,524,403** exterior forests, **1,048,158,293** witness rows and **390,696,056,451** boundary assignments. The partition recurrence independently recovered the forest and boundary totals, and the whole-tree checker replayed 150 joins to explicit cores from the two streams.
 

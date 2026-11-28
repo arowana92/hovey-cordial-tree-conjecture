@@ -1,6 +1,6 @@
 # Ordinary 27-cordiality at order 50
 
-**Computer-assisted theorem.** Every tree on 50 vertices is 27-cordial. Together with the [short-forest theorem](../rainbow/twenty-one-free.md), this proves 27-cordiality for every tree through order 50. A smallest counterexample would have **51 through 216 vertices** by the [upper bound](ring-order.md). The unrestricted 27-label question remains open.
+**Computer-assisted theorem.** Every tree on 50 vertices is 27-cordial. Together with the [short-forest theorem](../rainbow/twenty-one-free.md), this proves 27-cordiality for every tree through order 50. The [order-51 theorem](order-fifty-one.md) covers the next order, so a smallest counterexample would have **52 through 216 vertices** by the [upper bound](ring-order.md). The unrestricted 27-label question remains open.
 
 ## Restrictions at a vertex centroid
 

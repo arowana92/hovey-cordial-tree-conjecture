@@ -172,7 +172,7 @@ def check_parent_bound():
 if __name__ == '__main__':
     catalog, totals = certificates()
     accepts = cut_checker(catalog)
-    for h in range(17,22):
+    for h in range(17,23):
         check(h,accepts)
     print(dict(totals))
     check_parent_bound()
