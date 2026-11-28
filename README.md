@@ -10,6 +10,8 @@ At 27 labels, **every prescribed connected order** of a tree with at most five l
 
 At 27 labels, **every depth-first preorder** works when every terminal arm has at least five edges, or when the four shortest total at least 24. The number of leaves is unrestricted. At sufficiently large moduli the same conclusion holds when all but at most $k^{1-\beta}$ terminal arms have length at least $k^\alpha$, for fixed $0<\alpha,\beta<1$. [Interval bound, proof and checks](research/rainbow/terminal-arm-orders.md)
 
+At **every composite modulus** some cordial tree has a depth-first order for which no labeling is cordial on every prefix. At eight labels the example has 32 vertices. At even moduli with an odd factor a caterpillar on $2k$ vertices suffices. The maximum number of one-edge terminal arms guaranteeing every depth-first extension of a fixed core is two at eight labels and four at nine. [Constructions, sharp bounds and independent checks](research/eight/depth-first-obstructions.md)
+
 At 27 labels, two rooted trees with at most seven tips between them can be added at independently chosen vertices of any fixed cordial core of order zero or one modulo 27. Either root can start, and every prefix of the growth order stays cordial, even with prescribed offsets on both entering edges. [Two-tree extension theorem and certificates](research/rainbow/two-rooted-trees.md)
 
 At 27 labels, every tree with at most seven leaves admits a labeling cordial on every connected prefix of a suitable order even when one edge has a prescribed offset. A 27-vertex piece with at most seven leaves can also be inserted on any edge of a rainbow core through order 27, simultaneously on several edges. [Two-port certificate and growth theorem](research/biased/period-ports-27.md)
