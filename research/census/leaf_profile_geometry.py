@@ -6,7 +6,10 @@ from research.rainbow.spine_counts import partitions, rooted
 
 
 def numerical(n, leaves):
-    limit = n-28
+    return numerical_branches(n-1, leaves, leaves//2, n-28)
+
+
+def numerical_branches(order, tips, cap, limit):
 
     def visit(mass, left, previous, attainable, parts):
         if not mass:
@@ -19,7 +22,7 @@ def numerical(n, leaves):
         # Order branches by decreasing size. At most 'left' can still be added.
         for s in range((mass+left-1)//left, min(largest, mass)+1):
             lower = max(1, left-(mass-s))
-            upper = min(leaves//2, left, max(1, s-1), tie if s == largest else leaves)
+            upper = min(cap, left, max(1, s-1), tie if s == largest else cap)
             for h in range(lower, upper+1):
                 # Bit j of a mask means a subcollection has exactly j vertices.
                 masks = attainable[:h] + tuple(attainable[a] | (attainable[a-h]<<s)
@@ -28,7 +31,7 @@ def numerical(n, leaves):
                     continue
                 yield from visit(mass-s, left-h, (s, h), masks, parts+[(s, h)])
 
-    return visit(n-1, leaves, (limit-1, leaves), (1, 0, 0, 0, 0, 0, 0), [])
+    return visit(order, tips, (limit-1, cap), (1, 0, 0, 0, 0, 0, 0), [])
 
 
 @lru_cache(None)
@@ -50,8 +53,7 @@ def suffix_shapes(mass, cap):
     return found
 
 
-def check_geometry(n, leaves, proved):
-    target = n-28
+def cut_test(target, proved):
 
     @lru_cache(None)
     def covers(whole, z, cap):
@@ -74,6 +76,11 @@ def check_geometry(n, leaves, proved):
                             return True
         return False
 
+    return found
+
+
+def check_geometry(n, leaves, proved):
+    found = cut_test(n-28, proved)
     hard = set(numerical(n, leaves))
     for p in hard:
         assert found(p), f"uncovered case at order {n}: {p}"

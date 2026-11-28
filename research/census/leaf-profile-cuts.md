@@ -1,6 +1,6 @@
 # Centroid cuts for twelve and thirteen leaves at 27 labels
 
-**Verified orders.** Every tree with at most twelve leaves and at most 52 vertices is 27-cordial. For at most thirteen leaves the verified range reaches 51 vertices. A designated leaf may receive a most-frequent vertex residue in both statements. Orders 53 and 54 for twelve leaves, and orders 52 through 54 for thirteen leaves, are under audit.
+**Verified orders.** Every tree with at most twelve leaves and at most 53 vertices is 27-cordial. For at most thirteen leaves the verified range reaches 52 vertices. A designated leaf may receive a most-frequent vertex residue in both statements. Order 54 for twelve leaves and orders 53 and 54 for thirteen leaves are under audit.
 
 The earlier results cover [every tree through 49 vertices](../rainbow/twenty-one-free.md) and [at most eleven leaves at every order](eleven-leaves.md). By the [six-terminal theorem](../rainbow/few-leaves.md#a-finite-reduction-for-eleven-leaves), a smallest counterexample within either new class must have order at most 54. This leaves five orders to verify for an all-orders theorem.
 
@@ -34,8 +34,10 @@ Each **13** row below includes the corresponding twelve-leaf streams. A thirteen
 | 12 | 50 | 388 | 81 | 941,848 | 24,453,837 | 7,557,356,376 |
 | 12 | 51 | 559 | 168 | 1,872,577 | 70,755,366 | 17,300,096,559 |
 | 12 | 52 | 778 | 223 | 4,360,159 | 248,375,882 | 43,615,436,499 |
+| 12 | 53 | 1,058 | 244 | 8,482,500 | 462,878,824 | 81,174,030,444 |
 | 13 | 50 | 1,394 | 180 | 4,547,618 | 77,339,210 | 18,767,082,942 |
 | 13 | 51 | 2,355 | 335 | 9,020,220 | 225,561,628 | 55,271,031,804 |
+| 13 | 52 | 3,921 | 460 | 16,539,837 | 634,532,366 | 108,112,875,093 |
 
 ## Reproduction
 
