@@ -6,6 +6,8 @@ On any path in a smallest counterexample at modulus $k$, each residue of the cut
 
 At 27 labels, every 52-vertex tree with at most nineteen leaves is cordial. An order-52 counterexample must have 20 through 23 leaves. The remaining order-52 question reduces to 1,792 outstanding forest tests. Of those, 267 suffice for twenty leaves. [Conditional reduction and reproducible checklist](research/census/order-fifty-two.md#a-shorter-checklist)
 
+At 27 labels, every 52-vertex tree with 23 leaves at distinct parents is cordial. A counterexample with 23 leaves would need eight through twenty-two different parents. The proof classifies zero-sum matchings with four missing residues on each side. [Leaf extension and certificates](research/biased/four-hole-matchings.md)
+
 At every odd modulus, a harmonious cycle can contain any prescribed full arithmetic progression as consecutive vertices. This lets branches move between corresponding vertices on two copies of a path while preserving the original cordial labeling. [Construction, tree operation and Lean arithmetic check](research/census/cycle-progressions.md)
 
 At 27 labels, **every prescribed connected order** of a tree with at most six leaves admits one labeling cordial on every prefix. With seven leaves any order starting at a leaf works. A matching lift gives 54-cordiality for trees with at most seven leaves under an explicit deficiency and order condition. [Prescribed-order theorem, certificates and lift](research/rainbow/prescribed-five-tips-27.md)
