@@ -24,7 +24,7 @@ $$
 L < (n-1)\bmod k \le k-1.
 $$
 
-At any modulus, writing $n=mk+s$ with $1\le s\le k$, the total leaf count at the two busiest parents must be less than $2s-k$. At primes $p$ the entire leaf count must be less than $2s-p-1$. [Leaf-list extension on a prescribed core](biased/spare-lists.md#restoring-leaves-on-a-cordial-core-of-arbitrary-order)
+At any modulus, writing $n=mk+s$ with $1\le s\le k$, the total leaf count at the two busiest parents must be less than $2s-k$. For $k\ge3$ and $s\ge k-\varphi(k)/2$, when $2s-k-1>0$ their total is at most $2s-k-2$. [Choosing the high bins on the smaller tree](biased/two-shift-holes.md#choosing-the-high-bins-on-the-smaller-tree) At primes $p$ the entire leaf count must be less than $2s-p-1$. [Leaf-list extension on a prescribed core](biased/spare-lists.md#restoring-leaves-on-a-cordial-core-of-arbitrary-order)
 
 More generally, at every modulus $2s-k\ge1+\min(L,6)\ge6$. At an even modulus the first permitted residue requires precisely five leaves. [Six-row list identities and proof](biased/six-spare-leaves.md)
 

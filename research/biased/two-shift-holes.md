@@ -38,8 +38,23 @@ There is a separate bound on the two parents with the most leaf neighbors. Write
 
 At $k=27$ this gives $B\le17,19,23$ at residues $s=23,24,26$, respectively. At $s=25$ and $B=22$, every cordial labeling of that core must give the two parents colors differing by 9 or 18. Both leaf multiplicities must equal two modulo three. The three high vertex labels must constitute one coset of the order-three subgroup, and the two high weights, after subtracting the first parent color, must lie together in a different coset. Indeed these are precisely the disjoint placements with $D<d-1$ at this residue. Equal parent colors always work. These are necessary conditions on a smallest failure.
 
+## Choosing the high bins on the smaller tree
+
+**Theorem.** Let $k\ge3$ and $mk+s$ be the order of a smallest counterexample. Put $h=k+1-s$. If $2s-k-1>0$ and $\varphi(k)>2(h-2)$, then the two parents with the most leaf neighbors have combined leaf count
+$$
+                             B\le 2s-k-2 .
+$$
+For $k\ge3$ the totient condition is equivalently $s\ge k-\varphi(k)/2$. Thus at 27 labels the bounds for the five possible residues 23 through 27 are respectively **17, 19, 21, 23 and 25**. In particular the exceptional high-bin profiles for residue 25 described above can always be avoided by choosing a labeling of the retained tree.
+
+Suppose $B\ge2s-k-1$. Delete exactly $r=2s-k-1$ leaves from these two parents. The remaining tree has order $mk+h$. Prune a further $h-1$ leaves successively, keeping a connected tree of order $mk+1$. Label this smaller tree by minimality and translate its surplus to zero. Restore the last $h-1$ vertices in reverse deletion order. Use a different unit modulo $k$ at each restored vertex and require a different edge sum at each step. With $i$ vertices already restored, the used units exclude $i$ choices, and the used new edge weights exclude at most $i$ more since the next parent is known. The totient inequality gives a choice even at the last step, when $i=h-2$. For $h=1$ there is no restoration.
+
+The resulting core has high vertex set $U$ consisting of zero and $h-1$ units. Its high edge weights form a set $W$ of size $h-1$. For two distinct parent colors with shift difference of order $d<k$, the subgroup of order $d$ contains no unit: its elements are multiples of $k/d>1$. Its input coset through zero therefore has exactly one deleted source. If this coset or any other also meets the shifted forbidden outputs, the mixed-coset argument applies. Otherwise the coset through zero contributes $d-1$ to $D$, enough to realize every count. If $d=k$, both kinds of deletion meet in the unique cycle when $W$ is nonempty. When $W$ is empty, $U=\{0\}$ and the single deletion also suffices. Equal parent colors require only distinct choices from at least $k-h-(h-1)=r$ pairs. In every case the deleted leaves can be restored, proving the bound.
+
+A [whole-tree check](check_two_parent_pruning.py) grows the high bins by unit labels, finds the leaves' actual labels by a separate search around the shift cycles, and reconstructs every vertex and edge bin. It checks 3,430 trees through modulus 45. At modulus 27 it tests every possible leaf multiplicity for every additive order of a nonzero shift difference.
+
 The [independent checker](check_two_shift_holes.py) enumerates matchings directly by trying to skip each available source or send it to either of its allowed destinations. At orders 2 through 8 it compares all 349,555 choices of nonzero normalized shift and forbidden sets with $h+e\le k$ against the exact formula. Intersecting the answers at fixed sizes checks the size-only criterion separately. At 27 it also checks every eligible shift order and multiplicity in the five surviving order residues, and constructs the full matching-count spectrum at the cut with $U=\{0,9,18\}$, $W=\{1,10\}$ and shifts 0 and 9 by exhaustive matching in each three-residue coset.
 
 ~~~bash
 python3 -B -m research.biased.check_two_shift_holes
+python3 -B -m research.biased.check_two_parent_pruning
 ~~~
