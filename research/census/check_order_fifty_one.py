@@ -122,5 +122,6 @@ def check(leaves,catalog):
 
 if __name__ == '__main__':
     catalog, totals = certificates()
-    check(17,catalog)
+    for h in (17,18):
+        check(h,catalog)
     print(dict(totals))
