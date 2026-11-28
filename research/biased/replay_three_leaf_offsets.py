@@ -8,30 +8,27 @@ from random import Random
 
 from .check_sparse_path_offsets import random_block
 
-K = 27
-UNITS = tuple(u for u in range(1,K) if gcd(u,K)==1)
-
-
-def lookup(directory):
+def lookup(directory, k):
+    units = tuple(u for u in range(1,k) if gcd(u,k)==1)
     @lru_cache(None)
     def stream(name):
         return b'\n'+(directory/f'{name}.txt').read_bytes()
 
     def row(name, offsets):
-        marks = [(i,b%K) for i,b in enumerate(offsets,1) if b%K]
+        marks = [(i,b%k) for i,b in enumerate(offsets,1) if b%k]
         assert len(marks) <= 2
         (i,a),(j,b) = [(0,0)]*(2-len(marks))+marks
-        x,y,u = min((a*u%K,b*u%K,u) for u in UNITS)
+        x,y,u = min((a*u%k,b*u%k,u) for u in units)
         head = f'\n{i} {j} {x} {y} '.encode()
         data = stream(name)
         start = data.index(head)+len(head)
         end = data.index(b'\n',start)
-        inv = pow(u,-1,K)
-        return [int(v)*inv%K for v in data[start:end].split()]
+        inv = pow(u,-1,k)
+        return [int(v)*inv%k for v in data[start:end].split()]
     return row
 
 
-def construct(lengths, offsets, row, visits):
+def construct(lengths, offsets, row, visits, k):
     """Use original vertex IDs throughout, with 0 at the center."""
     arms = []
     next_id = 1
@@ -55,24 +52,24 @@ def construct(lengths, offsets, row, visits):
             return short_path(path,[weight(u,v) for u,v in zip(path,path[1:])])
         ids = [0]+[v for side in sides for v in side]
         lengths = [len(side) for side in sides]
-        lengths[-1] += K-len(ids)
+        lengths[-1] += k-len(ids)
         name = '-'.join(map(str,lengths))
         shifts = [weight(u,v) for side in sides for u,v in zip([0]+side,side)]
         return dict(zip(ids,row(name,shifts)))
 
     def hole(labels, links):
-        weights = {(labels[u]+labels[v]+c)%K for u,v,c in links}
-        assert len(labels)==K and len(weights)==K-1
-        missing, = set(range(K))-weights
+        weights = {(labels[u]+labels[v]+c)%k for u,v,c in links}
+        assert len(labels)==k and len(weights)==k-1
+        missing, = set(range(k))-weights
         return missing
 
     def add_block(labels, block, u, v, boundary, missing):
         shift = labels[u]+block[v]+boundary-missing
         assert labels.keys().isdisjoint(block)
-        labels.update((x,(y+shift)%K) for x,y in block.items())
+        labels.update((x,(y+shift)%k) for x,y in block.items())
 
     def path_blocks(path, shifts):
-        sizes = [(len(path)-1)%K+1]+[K]*((len(path)-1)//K)
+        sizes = [(len(path)-1)%k+1]+[k]*((len(path)-1)//k)
         used = sizes[0]
         labels = short_path(path[:used],shifts[:used-1])
         for size in sizes[1:]:
@@ -86,9 +83,9 @@ def construct(lengths, offsets, row, visits):
 
     removed = []
     for side in arms:
-        while len(side)>=K:
-            segment = side[-K:]
-            del side[-K:]
+        while len(side)>=k:
+            segment = side[-k:]
+            del side[-k:]
             removed.append((side[-1] if side else 0,segment))
     n = 1+sum(map(len,arms))
     if sum(bool(side) for side in arms)<3:
@@ -96,24 +93,25 @@ def construct(lengths, offsets, row, visits):
         directions = [s for s in arms if s]+[[],[]]
         path = directions[0][::-1]+[0]+directions[1]
         labels = path_blocks(path,[weight(u,v) for u,v in zip(path,path[1:])])
-    elif n<=K:
+    elif n<=k:
         visits['short claw'] += 1
         labels = base(arms)
-    elif n==K+1:
+    elif n==k+1:
         visits['one extra vertex'] += 1
         side = max(arms,key=len)
         leaf = side.pop()
         labels = base(arms)
         links = [(u,v,weight(u,v)) for s in arms for u,v in zip([0]+s,s)]
         missing = hole(labels,links)
-        labels[leaf] = (missing-labels[side[-1]]-weight(side[-1],leaf))%K
+        parent = side[-1] if side else 0
+        labels[leaf] = (missing-labels[parent]-weight(parent,leaf))%k
     else:
         visits['two ports'] += 1
-        keep = next((i for i,side in enumerate(arms) if any(offsets.get(v,0)%K for v in side)),0)
+        keep = next((i for i,side in enumerate(arms) if any(offsets.get(v,0)%k for v in side)),0)
         a = arms[keep]
         b,c = [side for i,side in enumerate(arms) if i!=keep]
-        x = min(len(b)-1,K-1-len(a))
-        y = K-1-len(a)-x
+        x = min(len(b)-1,k-1-len(a))
+        y = k-1-len(a)-x
         assert 0<=y<len(c)
         piece = [a,b[:x],c[:y]]
         block = base(piece)
@@ -121,7 +119,7 @@ def construct(lengths, offsets, row, visits):
         missing = hole(block,links)
         p,r = (b[x-1] if x else 0),(c[y-1] if y else 0)
         left,right = b[x],c[y]
-        offset = (block[p]+block[r]-missing+weight(p,left)+weight(r,right))%K
+        offset = (block[p]+block[r]-missing+weight(p,left)+weight(r,right))%k
         path = b[x:][::-1]+c[y:]
         shifts = [offset if (u,v)==(left,right) else weight(u,v)
                   for u,v in zip(path,path[1:])]
@@ -138,7 +136,7 @@ def construct(lengths, offsets, row, visits):
     return labels
 
 
-def check_expansions(row, rng):
+def check_expansions(row, rng, k):
     totals = Counter()
     for trial in range(120):
         sides = tuple(rng.randint(1,45) for _ in range(3))
@@ -148,33 +146,33 @@ def check_expansions(row, rng):
             graph.extend(zip([0]+list(range(start,start+s-1)),range(start,start+s)))
             start += s
         first,second = rng.sample(graph,2)
-        chains = {first:[random_block(K,rng) for _ in range(1+trial%3)],
-                  second:[random_block(K,rng)]}
-        effective = {v:sum(p+r-h for _,h,p,r in blocks)%K
+        chains = {first:[random_block(k,rng) for _ in range(1+trial%3)],
+                  second:[random_block(k,rng)]}
+        effective = {v:sum(p+r-h for _,h,p,r in blocks)%k
                      for (u,v),blocks in chains.items()}
-        labels = construct(sides,effective,row,Counter())
+        labels = construct(sides,effective,row,Counter(),k)
         expanded = []
         for u,v in graph:
             for internal,hole,p,r in chains.get((u,v),()):
                 base = len(labels)
                 shift = labels[u]+p-hole
-                labels.update((base+j,(j+shift)%K) for j in range(K))
+                labels.update((base+j,(j+shift)%k) for j in range(k))
                 expanded.extend((base+x,base+y) for x,y in internal)
                 expanded.append((u,base+p))
                 u = base+r
                 totals['pieces'] += 1
             expanded.append((u,v))
         assert len(expanded)==len(labels)-1
-        hist = Counter((labels[u]+labels[v])%K for u,v in expanded)
+        hist = Counter((labels[u]+labels[v])%k for u,v in expanded)
         for counts in (Counter(labels.values()),hist):
-            bins = [counts[j] for j in range(K)]
+            bins = [counts[j] for j in range(k)]
             assert max(bins)-min(bins)<=1
         totals['ordinary trees'] += 1
     print('expansions',dict(totals))
 
 
-def replay(directory):
-    row = lookup(directory)
+def replay(directory,k=27):
+    row = lookup(directory,k)
     rng = Random(199127)
     visits = Counter()
     trials = 0
@@ -191,22 +189,25 @@ def replay(directory):
             start += s
         for j in range(12):
             exceptional = rng.sample(range(1,n),j%3)
-            offsets = {v:rng.randrange(1,K) for v in exceptional}
-            labels = construct(sides,offsets,row,visits)
+            offsets = {v:rng.randrange(1,k) for v in exceptional}
+            labels = construct(sides,offsets,row,visits,k)
             assert set(labels)==set(range(n))
             vertices = Counter(labels.values())
-            sums = Counter((labels[u]+labels[v]+offsets.get(v,0))%K for u,v in edges)
+            sums = Counter((labels[u]+labels[v]+offsets.get(v,0))%k for u,v in edges)
             for hist in (vertices,sums):
-                bins = [hist[c] for c in range(K)]
+                bins = [hist[c] for c in range(k)]
                 assert max(bins)-min(bins)<=1
             trials += 1
-    assert all(visits[key] for key in ('path','short claw','one extra vertex','two ports',
-                                      'coincident ports','pendant period'))
+    if k==27:
+        assert all(visits[key] for key in ('path','short claw','one extra vertex','two ports',
+                                          'coincident ports','pendant period'))
     print('whole trees',trials,'construction cases',dict(visits))
-    check_expansions(row,rng)
+    check_expansions(row,rng,k)
 
 
 if __name__=='__main__':
     cli = argparse.ArgumentParser(description=__doc__)
     cli.add_argument('directory',type=Path)
-    replay(cli.parse_args().directory)
+    cli.add_argument('--modulus',type=int,default=27)
+    args = cli.parse_args()
+    replay(args.directory,args.modulus)

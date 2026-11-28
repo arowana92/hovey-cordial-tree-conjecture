@@ -73,18 +73,44 @@ def census(k, generator, directory, workers):
     return ''.join(lines)
 
 
+def modulus_record(k, manifest):
+    entries = [line.split() for line in manifest.splitlines()]
+    rows = sum(int(line[-2]) for line in entries)
+    inputs = sum(int(line[-1]) for line in entries)
+    digest = sha256(manifest.encode()).hexdigest()
+    return f'{k} {len(entries)} {rows} {inputs} {digest}\n'
+
+
+def through_32(generator, workers):
+    records = []
+    for k in range(2,33):
+        if k==4:
+            continue
+        with TemporaryDirectory() as scratch:
+            manifest = census(k,generator,Path(scratch),workers)
+        records.append(modulus_record(k,manifest))
+    return ''.join(records)
+
+
 if __name__ == '__main__':
     cli = argparse.ArgumentParser(description=__doc__)
     cli.add_argument('generator',type=Path)
-    cli.add_argument('--modulus',type=int,default=27)
+    scope = cli.add_mutually_exclusive_group()
+    scope.add_argument('--modulus',type=int,default=27)
+    scope.add_argument('--through-32',action='store_true')
     cli.add_argument('--workers',type=int,default=2)
     cli.add_argument('--keep',type=Path,help='keep row streams for whole-tree replay')
     cli.add_argument('--manifest',type=Path)
     args = cli.parse_args()
-    with TemporaryDirectory() as scratch:
-        directory = args.keep or Path(scratch)
-        directory.mkdir(exist_ok=True)
-        result = census(args.modulus,args.generator.resolve(),directory,args.workers)
+    if args.through_32:
+        if args.keep:
+            cli.error('--keep applies to one modulus')
+        result = through_32(args.generator.resolve(),args.workers)
+    else:
+        with TemporaryDirectory() as scratch:
+            directory = args.keep or Path(scratch)
+            directory.mkdir(exist_ok=True)
+            result = census(args.modulus,args.generator.resolve(),directory,args.workers)
     if args.manifest:
         assert args.manifest.read_text() == result
     print(result,end='')

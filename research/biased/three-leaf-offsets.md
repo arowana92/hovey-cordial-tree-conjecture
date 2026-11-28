@@ -1,8 +1,8 @@
 # Two prescribed edge offsets on trees with at most three leaves
 
-**Theorem (computer-assisted at 27 labels).** Every finite tree with at most three leaves admits a 27-cordial labeling with up to two exceptional edge offsets. The exceptional edges can be anywhere and have independently prescribed offsets. All remaining edges have one common offset. An adjusted edge $uv$ has weight $f(u)+f(v)+\delta_{uv}$.
+**Theorem (computer-assisted).** For every modulus $1\le k\le32$ except 4, every finite tree with at most three leaves admits a $k$-cordial labeling with up to two exceptional edge offsets. The exceptional edges can be anywhere and have independently prescribed offsets. All remaining edges have one common offset. An adjusted edge $uv$ has weight $f(u)+f(v)+\delta_{uv}$.
 
-In particular, start with a tree of any order having at most three leaves. Replace each of up to two edges by a chain of ordinary trees of orders divisible by 27, each with a known cordial labeling. Choose arbitrary entry and exit vertices in each inserted tree, allowing them to coincide. The resulting ordinary tree is 27-cordial. Every tree of order exactly 27 is available as an insertion by the [integer census](../census/README.md). [Expansion formula](sparse-path-offsets.md#compressing-a-tree-between-two-ports)
+In particular, start with a tree of any order having at most three leaves. At any of these moduli $k$, replace each of up to two edges by a chain of ordinary trees of orders divisible by $k$, each with a known $k$-cordial labeling. Choose arbitrary entry and exit vertices in each inserted tree, allowing them to coincide. The resulting ordinary tree is $k$-cordial. At 27 labels, every tree of order exactly 27 is available as an insertion by the [integer census](../census/README.md). [Expansion formula](sparse-path-offsets.md#compressing-a-tree-between-two-ports)
 
 ## Reduction to one order
 
@@ -15,6 +15,12 @@ A tree with exactly three leaves has one vertex of degree three. Regard its thre
 Suppose $n\ge k+2$. Select an arm $A$ containing an exceptional edge if one remains. Include all of $A$ and the center in a connected $k$-vertex piece $U$. Complete $U$ using initial segments of the other arms $B,C$, leaving at least one vertex on each. This is possible because $|A|\le k-1$ and $(|B|-1)+(|C|-1)\ge k-1-|A|$, where arm lengths exclude the center. The piece has at most three leaves and at most $q$ exceptions. Choose a bijective rainbow labeling on it with missing edge weight $h$.
 
 The vertices outside $U$ form two paths. Join their inner endpoints by a temporary edge. If the two ports of $U$ have labels $p,r$ and their joining edges have offsets $b,c$, assign the temporary edge offset $p+r-h+b+c$. At least one original exception was absorbed whenever any was present. The residual path therefore has at most $q$ exceptions, including the temporary edge. Label the path, then expand this edge using the translation $d=a+p+b-h$ at its first endpoint $a$. The second joining edge has exactly the temporary edge's adjusted weight. The piece and the first joining edge contribute one to every bin. This works also when the two ports coincide. Finally restore the removed terminal blocks. The reverse implication follows by specializing to order $k$.
+
+## Moduli through 32
+
+At each $k$ it suffices to check the order-$k$ paths and all positive arm triples $a\le b\le c$ summing to $k-1$. The [path theorem](sparse-path-offsets.md) supplies the former at each indicated modulus. The arm triples are empty at 2 and 3. The group of order one is immediate. Across the other successful moduli the branching-tree checks cover **864 shapes**, **14,799,807 permutations** and **176,330,278** literal choices of shape, positions and nonzero offsets. The [summary manifest](three-leaf-offsets-through-32.sha256) gives counts and the hash of the complete per-shape manifest at each modulus. At modulus four the four-vertex path with offsets $(0,1,0)$ fails because all 24 permutations repeat an adjusted weight. This exception concerns an offset on the middle edge. The ordinary four-label conjecture is known.
+
+The whole-tree reconstruction also passed at 2, 3, 5 and 8 on 1,560 adjusted trees and 120 ordinary expansions per modulus. This exercises arm deletion down to a single vertex and the small-modulus cases in which there are no branching base trees.
 
 ## Verification at 27
 
@@ -30,4 +36,5 @@ c++ -std=c++17 -O3 "$r/sparse_path_offsets.cpp" -o "$out/generate"
 python3 -B -m research.biased.check_three_leaf_offsets "$out/generate" --keep "$out/rows" --manifest "$r/three-leaf-offsets-27.sha256"
 "$out/generate" 27 > "$out/rows/path.txt"
 python3 -B -m research.biased.replay_three_leaf_offsets "$out/rows"
+python3 -B -m research.biased.check_three_leaf_offsets "$out/generate" --through-32 --manifest "$r/three-leaf-offsets-through-32.sha256"
 ~~~
