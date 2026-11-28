@@ -1,8 +1,8 @@
 # A prescribed leaf in a most-frequent class
 
-**Theorem.** For every modulus $1\le m\le26$, every finite tree and any one of its leaves, there is an $m$-cordial labeling in which the leaf belongs to a most-frequent vertex residue. The same holds for $m=27$ on trees with at most ten leaves, and for $28\le m\le30$ on trees with at most eight leaves. Translation allows any particular residue to be chosen for that most-frequent class.
+**Theorem.** For every modulus $1\le m\le26$, every finite tree and any one of its leaves, there is an $m$-cordial labeling in which the leaf belongs to a most-frequent vertex residue. The [marked ring extension](census/marked-ring.md) gives the same result for $m=27$ on trees with at most eleven leaves, and for $28\le m\le30$ on trees with at most eight leaves. Translation allows any particular residue to be chosen for that most-frequent class.
 
-**Matching consequence.** Every finite tree with a perfect matching or a matching missing just one vertex is $2m$-cordial at **every odd $m\le25$**. This includes $26,30,34,38,42,46,50$ labels at arbitrary tree orders and with arbitrarily many leaves. The same conclusion holds at 54 labels with at most ten leaves and at 58 labels with at most eight leaves.
+**Matching consequence.** Every finite tree with a perfect matching or a matching missing just one vertex is $2m$-cordial at **every odd $m\le25$**. This includes $26,30,34,38,42,46,50$ labels at arbitrary tree orders and with arbitrarily many leaves. The same conclusion holds at 54 labels with at most eleven leaves and at 58 labels with at most eight leaves.
 
 ## Keeping the leaf in a high bin across a cut
 
