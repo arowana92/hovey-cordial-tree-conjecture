@@ -65,3 +65,11 @@ The full run uses a rank bit array of approximately 1.87 GiB, plus worker memory
 ~~~sh
 python3 -B "$src/stream_spine.py" 27 8192 10 "$out/generate" "$out/verify" "$out/audit27" --pipe-witnesses --rank-bits
 ~~~
+
+Shard 271 at the full stride of 8,192 was regenerated separately from a public SSH checkout. Its 1,963,347 shapes and 115,350,817 witness rows matched that shard's generation log in the full run. The native verifier accepted the local records and reached the expected incomplete-catalog check. On 70 sampled forests the independent checker covered 1,263,306 actual boundary inputs using all 6,331 stored permutations in those records. The file has 3,022,681,411 bytes. These checks establish a finite milestone at 27.
+
+~~~sh
+"$out/generate" 27 271 8192 "$out/271.spn" --ranked-cover
+echo "9ba5238a0b8cc1e8dfe4f122e8305c51322b897cf61eeb31282786c3f0c0f386  $out/271.spn" | shasum -a 256 -c -
+python3 -B "$src/check_spine_samples.py" "$out/271.spn" --stride 30000
+~~~
