@@ -1,6 +1,6 @@
 # Independently attached paths and order bounds at 26 and 27 labels
 
-**Theorem (computer-assisted).** If a counterexample exists at 26 labels, one of least order has **49 through 208 vertices**. At 27 labels the corresponding interval is **50 through 243 vertices**. At both 26 and 27 labels, any five paths attached by their endpoints at arbitrary vertices of a prescribed cordial core of order zero or one modulo $k$ can grow in any prescribed interleaving. One labeling works on every prefix. At 26 labels this also holds for six independently attached paths.
+**Theorem (computer-assisted).** If a counterexample exists at 26 labels, one of least order has **49 through 208 vertices**. At 27 labels the corresponding interval is **50 through 243 vertices**. At both 26 and 27 labels, any six paths attached by their endpoints at arbitrary vertices of a prescribed cordial core of order zero or one modulo $k$ can grow in any prescribed interleaving. One labeling works on every prefix.
 
 Write the minimum order as $km+s$, $1\le s\le k$. The possible order lies in the interval in the corresponding cell and is congruent to its column heading modulo $k$.
 
@@ -24,12 +24,13 @@ On a core of order one modulo $k$, translate the sole surplus vertex residue to 
 | 27 | 3 | 56 | 10,376 | 1,102,248 |
 | 27 | 4 | 136 | 184,128 | 72,275,976 |
 | 27 | 5 | 221 | 1,789,693 | 3,171,108,447 |
+| 27 | 6 | 282 | 11,256,418 | 109,252,577,898 |
 
 The [one- through four-path certificates at 26](terminal-order.md) complete the lower path counts. For each larger path count, a [separate checker](../rainbow/check_path_permutations.cpp) enumerates all ordered compositions to obtain the expected sorted lists. It checks every permutation and actual internal sum, recursively assigns distinct unused weights to the entering edges, and reconstructs the parent labels from these sums. It computes the least unit multiple of every ordered input tuple by a base-$k$ digit recurrence, then requires every representative to have a witness. Multiplication by any unit fixes zero and scales every sum. The Python and native checkers also agreed on all four smaller path counts at 27. A separate SSH checkout regenerated all ten streams for one through five paths at both moduli and reproduced every digest and verifier total. A [whole-tree replay](../rainbow/check_path_growth.py) assembled the witnesses on star cores at both allowed order residues, with coincident and different parents. Recounting both histograms after each step verified 1,240 actual prefixes at 26 and 1,280 at 27. [Generator](../rainbow/independent_paths.cpp) · [SHA-256 manifest](../rainbow/five-paths.sha256)
 
-At 26 the same full native verification covered six paths. The whole-tree replay with one through six paths recounted 1,500 actual prefixes. [Six-path digest](../rainbow/six-paths.sha256)
+The same full native verification covered six paths at both moduli. The whole-tree replay with one through six paths recounted 1,500 actual prefixes at 26 and 1,548 at 27. [Six-path digest](../rainbow/six-paths.sha256)
 
-In a minimum counterexample the five longest terminal arms together have length at most $M=s-2$. Otherwise remove $s-1$ terminal vertices on at most five paths. Minimality labels the connected remainder of order one modulo $k$, and the certificate restores the removed paths. Let $z$ be the fifth largest length. Then $5z\le M$ and the sum of $(a-z)_+$ over all arm lengths $a$ is at most $M-5z$. Each joint with $j$ terminal arms of total length $w$ uses at least $(w-jz)_+$ of this budget. The six-path certificate gives the same statement at 26 for the six longest arms, with $z$ the sixth largest length and budget $M-6z$.
+In a minimum counterexample the five longest terminal arms together have length at most $M=s-2$. Otherwise remove $s-1$ terminal vertices on at most five paths. Minimality labels the connected remainder of order one modulo $k$, and the certificate restores the removed paths. Let $z$ be the fifth largest length. Then $5z\le M$ and the sum of $(a-z)_+$ over all arm lengths $a$ is at most $M-5z$. Each joint with $j$ terminal arms of total length $w$ uses at least $(w-jz)_+$ of this budget. The six-path certificates give the same statement at both moduli for the six longest arms, with $z$ the sixth largest length and budget $M-6z$.
 
 ## Cuts at small sides and at a branching vertex
 
@@ -65,15 +66,14 @@ c++ -O3 -std=c++17 -DRAINBOW_WIDE_MASK -c "$r/leaf_search.cpp" -o "$out/leaf.o"
 c++ -O3 -std=c++17 "$r/independent_paths.cpp" "$out/ref.o" "$out/leaf.o" -o "$out/paths"
 c++ -O3 -std=c++17 "$r/check_path_permutations.cpp" -o "$out/check-paths"
 for k in 26 27; do
-    for j in 1 2 3 4 5; do
+    for j in 1 2 3 4 5 6; do
         "$out/paths" "$k" "$j" > "$out/multipath-$k-$j"
         "$out/check-paths" "$k" "$j" "$out/multipath-$k-$j"
     done
 done
 (cd "$out" && shasum -a 256 -c "$r/independent-paths.sha256" && shasum -a 256 -c "$r/five-paths.sha256")
-"$out/paths" 26 6 > "$out/multipath-26-6"
-"$out/check-paths" 26 6 "$out/multipath-26-6"
 (cd "$out" && shasum -a 256 -c "$r/six-paths.sha256")
+python3 -B -m research.rainbow.check_path_growth "$out" 27 6
 python3 -B -m research.rainbow.check_path_growth "$out" 26 6
 python3 -B -m research.rainbow.check_path_growth "$out"
 python3 -B -m research.census.check_ring_cuts
