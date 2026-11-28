@@ -1,7 +1,6 @@
 """Certify centroid cuts at order 51 with the independent one- and two-vertex extensions."""
 from collections import Counter
 from functools import lru_cache
-from itertools import combinations
 from pathlib import Path
 
 from .check_leaf_profile_manifests import read_rows
@@ -72,22 +71,30 @@ def cut_checker(catalog):
         if sum(s for s,h in parts if h == 1) >= 23:
             return True
         total_tips = sum(h for _,h in parts)
-        for length in range(1,len(parts)+1):
-            if sum(s for s,_ in parts[:length]) > 23:
-                break
-            for whole in set(combinations(parts,length)):
-                z = 23-sum(s for s,_ in whole)
-                if z < 0:
-                    continue
-                if z == 0:
-                    if total_tips-sum(j for _,j in whole) <= 7 or covers(whole,0,0):
+        # Visit submultisets directly; many centroid branches can have identical type.
+        kinds = sorted(Counter(parts).items(),reverse=True)
+        remaining = [quantity for part,quantity in kinds]
+
+        def choose(start,whole,z,tips):
+            if z == 0:
+                return total_tips-tips <= 7 or covers(whole,0,0)
+            if whole:
+                smallest = whole[0][0]
+                for j,((s,h),_) in enumerate(kinds):
+                    if remaining[j] and z < s and smallest >= min(s,z+min(z,h)):
+                        if covers(whole,z,h):
+                            return True
+            for j in range(start,len(kinds)):
+                (s,h),_ = kinds[j]
+                if remaining[j] and s <= z:
+                    remaining[j] -= 1
+                    ok = choose(j,((s,h),)+whole,z-s,tips+h)
+                    remaining[j] += 1
+                    if ok:
                         return True
-                    continue
-                # Multiplicities matter when a whole branch and the partial one have equal type.
-                for s,h in (Counter(parts)-Counter(whole)):
-                    if z < s and whole[0][0] >= min(s,z+min(z,h)) and covers(whole,z,h):
-                        return True
-        return False
+            return False
+
+        return choose(0,(),23,0)
     return accepts
 
 
@@ -109,12 +116,11 @@ def certificates():
     return catalog, totals
 
 
-def check(leaves,catalog):
+def check(leaves,accepts):
     cases = set(centroid_profiles(leaves))
     independent = {p for p in numerical_branches(50,leaves,leaves-8,23,7)
                    if admissible_sizes(tuple(s for s,_ in p)) and short_arms(p)}
     assert cases == independent
-    accepts = cut_checker(catalog)
     for profile in cases:
         assert accepts(profile), profile
     print('leaves', leaves, 'centroid profiles covered', len(cases))
@@ -122,6 +128,7 @@ def check(leaves,catalog):
 
 if __name__ == '__main__':
     catalog, totals = certificates()
-    for h in range(17,20):
-        check(h,catalog)
+    accepts = cut_checker(catalog)
+    for h in range(17,21):
+        check(h,accepts)
     print(dict(totals))
