@@ -1,4 +1,4 @@
-"""Verify the two small orders at 16 leaves, using independently audited profiles."""
+"""Verify orders 50 through 52 at 16 leaves, using independently audited profiles."""
 from itertools import combinations
 from pathlib import Path
 
@@ -62,5 +62,5 @@ def verify(n):
 
 
 if __name__=='__main__':
-    for order in (50,51):
+    for order in (50,51,52):
         verify(order)

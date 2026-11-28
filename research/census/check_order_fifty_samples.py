@@ -76,6 +76,6 @@ def check(path, order=50):
 if __name__ == '__main__':
     parser = ArgumentParser(description=__doc__)
     parser.add_argument('stream', type=Path)
-    parser.add_argument('--order', type=int, choices=(50,51), default=50)
+    parser.add_argument('--order', type=int, choices=(50,51,52), default=50)
     args = parser.parse_args()
     check(args.stream,args.order)

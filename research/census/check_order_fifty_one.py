@@ -101,8 +101,10 @@ def cut_checker(catalog):
 def certificates():
     base = Path(__file__).parent
     catalog = ProfileCatalog()
-    for mass in range(23,27):
-        for path in (base/'leaf-profile-audits').glob(f'*-{mass+28}.txt'):
+    # Keep the base catalogue fixed so later leaf-count runs can reuse these streams.
+    for mass, maximum_leaves in ((23,16), (24,15), (25,14), (26,13)):
+        for h in range(12, maximum_leaves+1):
+            path = base/'leaf-profile-audits'/f'{h}-{mass+28}.txt'
             catalog.known[mass].update(read_rows(path,mass))
     totals = Counter()
     for path in sorted((base/'order-51-audits').glob('*.txt')):
@@ -129,6 +131,6 @@ def check(leaves,accepts):
 if __name__ == '__main__':
     catalog, totals = certificates()
     accepts = cut_checker(catalog)
-    for h in range(17,21):
+    for h in range(17,22):
         check(h,accepts)
     print(dict(totals))

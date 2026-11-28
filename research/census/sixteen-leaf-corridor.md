@@ -1,6 +1,6 @@
-# Reducing sixteen leaves to three orders at 27 labels
+# Reducing sixteen leaves to two orders at 27 labels
 
-**Theorem (computer-assisted).** Every tree with at most sixteen leaves and at most 51 vertices is 27-cordial. If any tree with at most sixteen leaves fails ordinary 27-cordiality, a least-order failure within that class has **52, 53 or 54 vertices**. Within fifteen leaves only orders 53 and 54 remain, and within fourteen leaves only order 54 remains. The connected-prefix theorem already covers every tree with at most thirteen leaves. [Leaf profile certificates](leaf-profile-cuts.md)
+**Theorem (computer-assisted).** Every tree with at most sixteen leaves and at most 52 vertices is 27-cordial. If any tree with at most sixteen leaves fails ordinary 27-cordiality, a least-order failure within that class has **53 or 54 vertices**. Within fourteen leaves only order 54 remains. The connected-prefix theorem already covers every tree with at most thirteen leaves. [Leaf profile certificates](leaf-profile-cuts.md)
 
 Write the least order as $27m+1+t$. The [short-forest proof](../rainbow/twenty-one-free.md) leaves $22\le t\le26$. Suppose the order exceeds 54. The [three-group reduction](../rainbow/few-leaves.md) and [seven-tip certificate](../rainbow/seven-tip-27.md) require exactly sixteen leaves. At every vertex, any union of branches with at most seven leaves has mass strictly below $t$, since its last $t$ vertices in size-ordered preorder would otherwise give a certified cut. A connected core has at most as many leaves as the original tree.
 
@@ -38,9 +38,9 @@ python3 -B -m research.census.check_sixteen_leaf_corridor
 ~~~
 
 
-## Orders 50 and 51
+## Orders 50 through 52
 
-The existing proof covers up to fifteen leaves at both orders. Suppose there are exactly sixteen leaves and let $t=n-28$. A union of branches at a vertex with at most seven tips and mass at least $t$ gives an ordered suffix cut of $t$ vertices. Its connected 28-vertex core is cordial. Also, if the terminal paths at any one joint contain at least $t$ vertices, remove a size-ordered suffix of those paths. Its possible partial arm is uniquely shortest and the [terminal path certificate](../rainbow/terminal-paths.md) reattaches it. At order 50, any union of whole branches at a joint of mass exactly 22 works by the [common-parent theorem](../rainbow/common-site-27.md).
+The existing proof covers up to fifteen leaves at all three orders. Suppose there are exactly sixteen leaves and let $t=n-28$. A union of branches at a vertex with at most seven tips and mass at least $t$ gives an ordered suffix cut of $t$ vertices. Its connected 28-vertex core is cordial. Also, if the terminal paths at any one joint contain at least $t$ vertices, remove a size-ordered suffix of those paths. Its possible partial arm is uniquely shortest and the [terminal path certificate](../rainbow/terminal-paths.md) reattaches it. At order 50, any union of whole branches at a joint of mass exactly 22 works by the [common-parent theorem](../rainbow/common-site-27.md).
 
 If there is no eight-to-eight leaf split, select a leaf centroid. All its branches have at most seven tips. Record their orders and tip counts, discarding every profile already excluded by a seven-tip union of mass at least $t$. The [geometry checker](check_sixteen_base.py) obtains the complete remaining set in two ways, first ordering by branch size and then by tip count. In the first recursion it tracks every attainable mass for each tip budget. In the second it keeps only the greatest attainable mass. For every profile, it checks a terminal-path cut, a common-parent cut at 50, or a [certified ordered suffix](leaf-profile-cuts.md) using the current manifests, including padding of a largest component.
 
@@ -50,8 +50,9 @@ If an eight-to-eight path exists, keep the earlier notation $A,B,h$. If $A,B\le2
 |---:|---:|---:|---:|---:|---:|---:|
 | 50 | 9,504 | 969 | 151 | 7,516,917 | 121,303,563 | 49,499,842,527 |
 | 51 | 17,351 | 1,778 | 482 | 24,264,177 | 865,895,881 | 223,478,853,795 |
+| 52 | 31,370 | 3,386 | 1,118 | 52,602,355 | 1,806,879,253 | 485,545,258,575 |
 
-The witness streams were independently verified for distinct labels, distinct actual weights and complete boundary coverage. The geometry checker recomputes the exact forest and literal input counts of the [order-50](leaf-profile-audits/16-50.txt) and [order-51](leaf-profile-audits/16-51.txt) manifests. These two orders require only ordinary cordiality on a joined pair of small trees. The prefix and marked-leaf results retain the bounds in the [separate induction](leaf-profile-cuts.md).
+The witness streams were independently verified for distinct labels, distinct actual weights and complete boundary coverage. The geometry checker recomputes the exact forest and literal input counts of the [order-50](leaf-profile-audits/16-50.txt), [order-51](leaf-profile-audits/16-51.txt) and [order-52](leaf-profile-audits/16-52.txt) manifests. At order 52 a [whole-tree replay](check_order_fifty_samples.py) attached all ten forests of one profile to three different 28-vertex cores under every permitted boundary assignment. Counting actual vertex labels and endpoint sums verified 21,870 joins, including 720 with exactly 16 leaves. These three orders require only ordinary cordiality on a joined pair of small trees. The prefix and marked-leaf results retain the bounds in the [separate induction](leaf-profile-cuts.md).
 
 ~~~bash
 set -euo pipefail
@@ -61,13 +62,15 @@ c=research/census
 c++ -O3 -std=c++17 -Drainbow_witness=reference_witness -c "$r/search.cpp" -o "$out/ref.o"
 c++ -O3 -std=c++17 "$r/spine_generate.cpp" "$r/leaf_search.cpp" "$out/ref.o" -o "$out/make"
 c++ -O3 -std=c++17 -pthread "$r/spine_verify.cpp" -o "$out/check"
-for n in 50 51; do
+for n in 50 51 52; do
   cert="$c/leaf-profile-audits/16-$n.txt"
   awk -F '  ' '{print $3}' "$cert" > "$out/profiles"
   flags=()
-  if [[ $n = 50 ]]; then flags+=(--restarts); fi
+  if [[ $n != 51 ]]; then flags+=(--restarts); fi
   python3 -B "$c/stream_leaf_profiles.py" 27 "$out/profiles" "$out/make" "$out/check" "$out/a$n" --workers 2 "${flags[@]}"
   cmp "$out/a$n/manifest.txt" "$cert"
 done
+"$out/make" 27 0 1 "$out/sample" --typed-restarts 1,1 1,1 5,1 5,2 5,2 7,1
+python3 -B -m research.census.check_order_fifty_samples "$out/sample" --order 52
 python3 -B -m research.census.check_sixteen_base
 ~~~
