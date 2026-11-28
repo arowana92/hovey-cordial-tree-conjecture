@@ -1,6 +1,6 @@
 # Two 24-vertex sides in a 52-vertex tree
 
-**Computer-assisted theorem.** Every tree of order 52 with two disjoint edge sides of order 24 is 27-cordial. Thus a 52-vertex counterexample can have at most one edge cutting off 24 vertices. Two distinct sides of that size cannot contain one another, and their combined size is less than 52.
+**Computer-assisted theorem.** Every tree of order 52 with two disjoint edge sides of order 24 is 27-cordial. Thus a 52-vertex counterexample can have at most one edge cutting off 24 vertices. Two distinct sides of that size cannot contain one another, and their combined size is less than 52. A subsequent proof covers every 52-vertex tree with even one such side. [Single-side theorem](side24-at-52.md)
 
 Remove the two sides. The remaining connected tree $C$ has four vertices. Each removed piece meets $C$ by one edge. Call its endpoint in $C$ a port.
 
