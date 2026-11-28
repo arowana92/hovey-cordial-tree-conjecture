@@ -1,6 +1,6 @@
 # Independently attached paths and order bounds at 26 and 27 labels
 
-**Theorem (computer-assisted).** If a counterexample exists at 26 labels, one of least order has **49 through 208 vertices**. At 27 labels the corresponding interval is **50 through 216 vertices**. At both 26 and 27 labels, any six paths attached by their endpoints at arbitrary vertices of a prescribed cordial core of order zero or one modulo $k$ can grow in any prescribed interleaving. One labeling works on every prefix.
+**Theorem (computer-assisted).** If a counterexample exists at 26 labels, one of least order has **49 through 208 vertices**. At 27 labels the upper bound is **216 vertices**, and the later [order-50 theorem](order-fifty.md) raises the lower bound to **51**. At both 26 and 27 labels, any six paths attached by their endpoints at arbitrary vertices of a prescribed cordial core of order zero or one modulo $k$ can grow in any prescribed interleaving. One labeling works on every prefix.
 
 The [subsequent unrestricted proof at 26](../rainbow/twenty-six.md) excludes that entire interval. The [seven-tip forest certificate](../rainbow/seven-tip-27.md) tightens the earlier 27-label ceiling from 243 to 216.
 
