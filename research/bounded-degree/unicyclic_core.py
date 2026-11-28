@@ -3,10 +3,13 @@ from collections import Counter
 from math import gcd
 
 
-def core(k,edges,cut,pins=None,spare_leaves=None,buffer_degree=None):
+def core(k,edges,cut,pins=None,spare_leaves=None,buffer_degree=None,
+         *, absent=None, forbidden_vertex=None, holes=()):
     """Return a partial labeling satisfying the two embedding moments.
 
-    Edges are pairs on range(k), and cut is a cycle-edge index. The theorem
+    With cut=None the active graph is a tree. Its palettes may omit one
+    vertex label and the corresponding number of edge colors. Otherwise
+    cut indexes the edge to open in the spanning unicyclic graph. The theorem
     guarantees room for these choices at sufficiently large orders.
     """
     neighbors = [set() for _ in range(k)]
@@ -14,17 +17,18 @@ def core(k,edges,cut,pins=None,spare_leaves=None,buffer_degree=None):
         neighbors[a].add(b)
         neighbors[b].add(a)
     deg = [len(row) for row in neighbors]
-    u,v = edges[cut]
+    opened = set(edges[cut]) if cut is not None else set()
+    active = [i for i in range(k) if i!=absent]
     leaves = [i for i in range(k) if deg[i]==1]
     if len(leaves)<2:
         raise ValueError('expected at least two leaves')
     p,q = leaves[:2] if spare_leaves is None else spare_leaves
     pins = {} if pins is None else pins
     assert p in leaves and q in leaves and p!=q and p not in pins and q not in pins
-    marked = set(pins)|{u,v,p,q}
-    tree_degree = [d-int(i in (u,v)) for i,d in enumerate(deg)]
-    for degree in sorted(set(tree_degree)):
-        group = [i for i in range(k) if tree_degree[i]==degree]
+    marked = set(pins)|opened|{p,q}
+    tree_degree = [d-int(i in opened) for i,d in enumerate(deg)]
+    for degree in sorted({tree_degree[i] for i in active}):
+        group = [i for i in active if tree_degree[i]==degree]
         inside = sum(i in marked for i in group)
         rest = [i for i in group if i not in marked]
         need = max(0,6-inside)
@@ -37,8 +41,8 @@ def core(k,edges,cut,pins=None,spare_leaves=None,buffer_degree=None):
     z = next(i for i in outside[1:] if i not in neighbors[y])
 
     labels = {}
-    used = set()
-    weights = set()
+    used = set() if forbidden_vertex is None else {forbidden_vertex}
+    weights = set(holes)
 
     def weight_list(i,a):
         return [(a+labels[j])%k for j in neighbors[i] if j in labels]
@@ -58,13 +62,14 @@ def core(k,edges,cut,pins=None,spare_leaves=None,buffer_degree=None):
                  and weights.isdisjoint(weight_list(i,a)))
         assign(i,a)
     total = sum((deg[i]-1)*a for i,a in labels.items())
-    assert total%g==0
-    pair_sum = (-total//g)*pow(modulus//g,-1,k//g)%(k//g)
+    difference = (forbidden_vertex or 0)-sum(holes)-total
+    assert difference%g==0
+    pair_sum = (difference//g)*pow(modulus//g,-1,k//g)%(k//g)
     a = next(a for a in range(k) if a not in used and (pair_sum-a)%k not in used
              and a!=(pair_sum-a)%k)
     assign(y,a)
     assign(z,(pair_sum-a)%k)
-    pair_sum = (k*(k-1)//2-sum(labels.values()))%k
+    pair_sum = (k*(k-1)//2-(forbidden_vertex or 0)-sum(labels.values()))%k
     for a in range(k):
         b = (pair_sum-a)%k
         if a==b or a in used or b in used:

@@ -27,18 +27,19 @@ def residue_sums(modulus,coefficients,target):
     return solutions[target%modulus]
 
 
-def routing(edges,adj,t,protected,d):
-    """One auxiliary wire per component, using sites of the specified degree."""
+def routing(edges,adj,t,protected,d,*,closed=True):
+    """Build t wires on a cut forest, optionally closing a cycle in the first component."""
     k = len(adj)
     unavailable = neighborhood(adj,protected,3)
     pairs = []
-    for a,b in (edges if t>1 else ()):
+    cut_count = t-int(closed)
+    for a,b in (edges if cut_count else ()):
         if min(len(adj[a]),len(adj[b]))>=2 and a not in unavailable and b not in unavailable:
             pairs.append((a,b))
             unavailable.update(neighborhood(adj,(a,b),4))
-            if len(pairs)==t-1:
+            if len(pairs)==cut_count:
                 break
-    assert len(pairs)==t-1
+    assert len(pairs)==cut_count
     pair_set = set(pairs)
     kept = [edge for edge in edges if edge not in pair_set]
     forest = adjacency(k,kept)
@@ -60,11 +61,11 @@ def routing(edges,adj,t,protected,d):
                 if u not in owner:
                     owner[u] = root
                     stack.append(u)
-    if t==1:
+    if not pairs:
         root = next(v for v in range(k) if v not in unavailable)
         anchors.append(root)
         owner = dict.fromkeys(range(k),root)
-    assert len(anchors)==t and len(owner)==k
+    assert len(anchors)==cut_count+1 and len(owner)==k
     unavailable = neighborhood(forest,fixed|set(anchors),1)
     pools = {a:[] for a in anchors}
     for v in range(k):
@@ -75,10 +76,42 @@ def routing(edges,adj,t,protected,d):
     available = pools[order[0]][:]
     wires = []
     for j,a in enumerate(order):
-        wires.append((a,available.pop()))
+        if j or closed:
+            wires.append((a,available.pop()))
         if j:
             available.extend(pools[a])
     return pairs,kept,anchors,wires
+
+
+def lift_marks(k,g,variables,forms,groups,rng):
+    # The variables range over a coset of gG. A comparison whose
+    # constant is nonzero modulo g is already decided. Otherwise divide by g.
+    inequalities = defaultdict(list)
+    for group in groups:
+        for left,right in combinations(group,2):
+            row = difference(left,right)
+            constant = row.pop(-1,0)
+            if constant%g:
+                continue
+            if not row:
+                assert constant%k, "identical forms in a distinctness constraint"
+                continue
+            inequalities[max(row)].append((constant//g,row))
+    point = {}
+    size = k//g
+    for i in sorted(variables):
+        banned = set()
+        for constant,row in inequalities[i]:
+            a = row[i]
+            rhs = -constant-sum(c*point[v] for v,c in row.items() if v!=i)
+            factor = gcd(a,size)
+            if rhs%factor==0:
+                period = size//factor
+                x = (rhs//factor)*pow(a//factor,-1,period)%period
+                banned.update(range(x,size,period))
+        point[i] = rng.choice([x for x in range(size) if x not in banned])
+    return {v:(form.get(-1,0)+g*sum(c*point[i] for i,c in form.items() if i>=0))%k
+            for v,form in forms.items()}
 
 
 def construct(edges,ports,old_labels,deleted,rng):
@@ -117,32 +150,7 @@ def construct(edges,ports,old_labels,deleted,rng):
     for a,b in kept:
         if a in forms and b in forms:
             sums.append(expression(*forms[a].items(),*forms[b].items()))
-    # The variables range over a coset of gG. A comparison whose
-    # constant is nonzero modulo g is already decided. Otherwise divide by g.
-    inequalities = defaultdict(list)
-    for group in (list(forms.values()),sums):
-        for left,right in combinations(group,2):
-            row = difference(left,right)
-            constant = row.pop(-1,0)
-            if constant%g:
-                continue
-            assert row
-            inequalities[max(row)].append((constant//g,row))
-    point = {}
-    size = k//g
-    for i in sorted(residues):
-        banned = set()
-        for constant,row in inequalities[i]:
-            a = row[i]
-            rhs = -constant-sum(c*point[v] for v,c in row.items() if v!=i)
-            factor = gcd(a,size)
-            if rhs%factor==0:
-                period = size//factor
-                x = (rhs//factor)*pow(a//factor,-1,period)%period
-                banned.update(range(x,size,period))
-        point[i] = rng.choice([x for x in range(size) if x not in banned])
-    pins = {v:(form.get(-1,0)+g*sum(c*point[i] for i,c in form.items() if i>=0))%k
-            for v,form in forms.items()}
+    pins = lift_marks(k,g,residues,forms,(list(forms.values()),sums),rng)
     auxiliary = kept+wires
     cut = len(kept)
     labels = core(k,auxiliary,cut,pins,leaves,d)
