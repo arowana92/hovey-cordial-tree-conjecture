@@ -25,6 +25,7 @@ class Generator {
     int k, mass, shard, shards;
     bool cover;
     bool short_restarts = false;
+    bool two_roots = false;
     std::ofstream file;
     std::ostream& out;
     std::map<int,std::vector<int>> orbit_codes;
@@ -221,7 +222,8 @@ class Generator {
         for (std::size_t j = 0; j < roots.size(); ++j) {
             int at = roots[j];
             int size = (j+1 < roots.size() ? roots[j+1] : n)-at;
-            if (size > at) gaps.push_back(size-at);
+            if (two_roots) gaps.push_back(k); // Each root has its own unrestricted boundary color.
+            else if (size > at) gaps.push_back(size-at);
             group[at] = static_cast<int>(gaps.size())-1;
         }
         // A zero boundary on every component is the base case at the dummy root.
@@ -308,8 +310,10 @@ public:
         if (!out) throw std::runtime_error("cannot open output");
     }
 
-    void run(bool ranked, int tip_limit, bool listed = false, const ForestType* type = nullptr, bool restart = false) {
+    void run(bool ranked, int tip_limit, bool listed = false, const ForestType* type = nullptr, bool restart = false,
+             bool independent = false) {
         short_restarts = restart;
+        two_roots = independent;
         out.write(mass < k-1 ? "SPN3" : cover ? "SPN2" : "SPN1", 4);
         out.put(static_cast<char>(k));
         if (mass < k-1) out.put(static_cast<char>(mass));
@@ -363,11 +367,14 @@ public:
 
 int main(int argc, char** argv) {
     std::ios::sync_with_stdio(false);
-    if (argc >= 7 && (std::string(argv[5]) == "--typed" || std::string(argv[5]) == "--typed-restarts")) {
+    if (argc >= 7 && (std::string(argv[5]) == "--typed" || std::string(argv[5]) == "--typed-restarts" ||
+                      std::string(argv[5]) == "--two-roots")) {
         int k = std::stoi(argv[1]);
         if (k < 5 || k > 27 || std::string(argv[2]) != "0" || std::string(argv[3]) != "1") return 2;
         ForestType type(k,argc-6,argv+6);
-        Generator(k,type.mass,0,1,argv[4],true).run(false,0,false,&type,std::string(argv[5]) == "--typed-restarts");
+        bool independent = std::string(argv[5]) == "--two-roots";
+        if (independent && (type.stem || type.parts.size() != 2)) return 2;
+        Generator(k,type.mass,0,1,argv[4],true).run(false,0,false,&type,std::string(argv[5]) != "--typed",independent);
         return 0;
     }
     if (argc < 5 || argc > 8) return 2;

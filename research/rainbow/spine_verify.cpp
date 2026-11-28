@@ -117,7 +117,7 @@ struct Shape {
         return {length/2, bits};
     }
 
-    Shape(int modulus, Count word): k(modulus), code(word) {
+    Shape(int modulus, Count word, bool independent): k(modulus), code(word) {
         check((code >> (2*(k-1))) == 0, "invalid high bits");
         int mass = 0, group = -1;
         std::pair<int,Count> previous{};
@@ -126,7 +126,7 @@ struct Shape {
             auto s = subtree(-1);
             check(previous <= s, "noncanonical components");
             previous = s;
-            if (s.first > mass) ++group;
+            if (independent || s.first > mass) ++group;
             sizes.push_back(s.first);
             groups.push_back(group);
             mass += s.first;
@@ -139,7 +139,7 @@ struct Profile {
     std::vector<int> canonical; // dense indices for permitted unit orbits
     int groups, representatives = 0;
     Count assignments = 0;
-    Profile(int k, const Shape& s): groups(s.groups.back()+1) {
+    Profile(int k, const Shape& s, bool independent): groups(s.groups.back()+1) {
         int total = 1;
         for (int i = 0; i < groups; ++i) total *= k;
         canonical.assign(total,-1);
@@ -153,7 +153,7 @@ struct Profile {
             for (std::size_t j = 0; j < s.sizes.size(); ++j) {
                 int color = digits[s.groups[j]];
                 if (color != last) {
-                    if (s.sizes[j] < mass+runs) { valid = false; break; }
+                    if (!independent && s.sizes[j] < mass+runs) { valid = false; break; }
                     ++runs;
                 }
                 last = color;
@@ -262,16 +262,17 @@ struct Audit {
     }
 
     void verify(const char* path, int tip_limit=0, int short_mass=0, const ForestType* type=nullptr,
-                ShardPosition* shard=nullptr) {
+                ShardPosition* shard=nullptr, bool independent=false) {
         Reader in(path);
         for (char c : std::string("SPN")) check(in.byte() == c, "bad header");
         int version = in.byte();
         check(short_mass ? version == '3' : version == '1' || version == '2', "unexpected stream version");
         check(in.byte() == k, "wrong modulus");
+        if (independent) check(version != '1', "expected packed two-root stream");
         if (short_mass) check(in.byte() == short_mass, "wrong short forest order");
         for (int first; (first = in.next()) >= 0;) {
             Count word = in.rest(first,8);
-            Shape s(short_mass ? short_mass+1 : k,word);
+            Shape s(short_mass ? short_mass+1 : k,word,independent);
             check(!tip_limit || s.leaves <= tip_limit, "too many tips in restricted catalog");
             if (type) {
                 std::array<bool,32> parent{};
@@ -296,7 +297,7 @@ struct Audit {
             if (shard) shard->accept(word);
             else if (bits) bits->insert(s);
             else check(seen.insert(word).second, "repeated forest");
-            const Profile& p = profiles.try_emplace(s.sizes, k, s).first->second;
+            const Profile& p = profiles.try_emplace(s.sizes, k, s, independent).first->second;
             const bool active = type || s.leaves <= 2*(k-2)/3;
             int count = active ? p.representatives : 1;
             Count stored = in.rest(in.byte(),4);
@@ -421,11 +422,13 @@ int main(int argc, char** argv) {
                       << " rows=" << audit.rows << " assignments=" << audit.colorings << '\n';
             return 0;
         }
-        if (std::string(argv[2]) == "--typed") {
+        if (std::string(argv[2]) == "--typed" || std::string(argv[2]) == "--two-roots") {
             if (argc < 5) return 2;
             ForestType type(k,argc-4,argv+4);
             Audit audit(k);
-            audit.verify(argv[3],0,type.mass < k-1 ? type.mass : 0,&type);
+            bool independent = std::string(argv[2]) == "--two-roots";
+            if (independent && (type.stem || type.parts.size() != 2)) return 2;
+            audit.verify(argv[3],0,type.mass < k-1 ? type.mass : 0,&type,nullptr,independent);
             Count expected = 1;
             for (std::size_t i = 0; i < type.parts.size();) {
                 auto [size,tips] = type.parts[i];
@@ -438,6 +441,7 @@ int main(int argc, char** argv) {
                 i = j;
             }
             check(audit.seen.size() == expected && audit.eligible == expected, "incomplete component type");
+            if (independent) check(audit.colorings == expected*k*k, "missing two-root assignments");
             std::cout << "forests=" << expected << " rows=" << audit.rows << " assignments=" << audit.colorings << '\n';
             return 0;
         }
