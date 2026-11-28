@@ -44,7 +44,7 @@ At $k=27$ this gives $B\le17,19,23$ at residues $s=23,24,26$, respectively. At $
 $$
                              B\le 2s-k-2 .
 $$
-For $k\ge3$ the totient condition is equivalently $s\ge k-\varphi(k)/2$. Thus at 27 labels the bounds for the five possible residues 23 through 27 are respectively **17, 19, 21, 23 and 25**. In particular the exceptional high-bin profiles for residue 25 described above can always be avoided by choosing a labeling of the retained tree.
+For $k\ge3$ the totient condition is equivalently $s\ge k-\varphi(k)/2$. Thus at 27 labels the bounds for the five possible residues 23 through 27 are respectively **17, 19, 21, 23 and 25**. A [three-step overlap and distance argument](two-parent-overlaps.md) further lowers the first three bounds to 16, 18 and 20. In particular the exceptional high-bin profiles for residue 25 described above can always be avoided by choosing a labeling of the retained tree.
 
 Suppose $B\ge2s-k-1$. Delete exactly $r=2s-k-1$ leaves from these two parents. The remaining tree has order $mk+h$. Prune a further $h-1$ leaves successively, keeping a connected tree of order $mk+1$. Label this smaller tree by minimality and translate its surplus to zero. Restore the last $h-1$ vertices in reverse deletion order. Use a different unit modulo $k$ at each restored vertex and require a different edge sum at each step. With $i$ vertices already restored, the used units exclude $i$ choices, and the used new edge weights exclude at most $i$ more since the next parent is known. The totient inequality gives a choice even at the last step, when $i=h-2$. For $h=1$ there is no restoration.
 
