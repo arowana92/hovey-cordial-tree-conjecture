@@ -1,26 +1,32 @@
 """Realize the multiset reduction and check the resulting labels on whole trees."""
 import argparse
 import subprocess
+import struct
 from collections import Counter, defaultdict
 from itertools import combinations
+from functools import lru_cache
 from pathlib import Path
 from random import Random
 
-from .check_four_hole_matchings import K, RECORD, UNITS, catalog
+from .check_four_hole_matchings import K, UNITS, catalog
 from research.census.check_order_fifty_samples import core
 
 G = set(range(K))
-HOLES, IMAGES = catalog()
-INDEX = {mask: i for i, mask in enumerate(HOLES)}
+@lru_cache(None)
+def matching_catalog(omitted):
+    holes, images = catalog(omitted)
+    return holes, images, {mask: i for i, mask in enumerate(holes)}
 
 
-def prepare(shores):
+def prepare(shores, omitted=4):
+    size = K - omitted
+    _, images, index = matching_catalog(omitted)
     bags = [Counter(values) for values in shores]
     m, = {sum(b.values()) for b in bags}
-    assert m - sum(m - len(b) for b in bags) >= 23
+    assert m - sum(m - len(b) for b in bags) >= size
     assert sum(sum(x*n for x, n in b.items()) for b in bags) % K == 0
     fixed = []
-    while m > 23:
+    while m > size:
         special = next(((i, x) for i, b in enumerate(bags) for x, n in b.items() if n > 1), None)
         i, x = special or (0, next(iter(bags[0])))
         j, k = (i+1) % 3, (i+2) % 3
@@ -33,21 +39,22 @@ def prepare(shores):
                 del b[v]
         fixed.append(tuple(row))
         m -= 1
-    assert all(len(b) == 23 for b in bags)
-    center = [(-sum(b) * pow(23, -1, K)) % K for b in bags]
+    assert all(len(b) == size for b in bags)
+    center = [(-sum(b) * pow(size, -1, K)) % K for b in bags]
     assert sum(center) % K == 0
-    ids = [INDEX[sum(1 << x for x in G - {(v+t) % K for v in b})] for b, t in zip(bags, center)]
+    ids = [index[sum(1 << x for x in G - {(v+t) % K for v in b})] for b, t in zip(bags, center)]
     key, unit, perm = min(
-        (tuple(IMAGES[ids[i]][col] for i in order), u, order)
+        (tuple(images[ids[i]][col] for i in order), u, order)
         for col, u in enumerate(UNITS)
-        for order in [tuple(sorted(range(3), key=lambda i: IMAGES[ids[i]][col]))])
+        for order in [tuple(sorted(range(3), key=lambda i: images[ids[i]][col]))])
     return key, unit, perm, center, fixed
 
 
-def interpret(data, record, shores):
+def interpret(data, record, shores, omitted=4):
+    holes, _, _ = matching_catalog(omitted)
     key, unit, perm, center, fixed = data
     assert tuple(record[:3]) == key
-    middle = sorted(x for x in G if not (HOLES[key[1]] >> x & 1))
+    middle = sorted(x for x in G if not (holes[key[1]] >> x & 1))
     rows = fixed.copy()
     for x, s in zip(record[3:], middle):
         row = [0]*3
@@ -84,23 +91,24 @@ def cores(h):
         yield labels, edges
 
 
-def match_shores(generator, shores_list):
-    prepared = [prepare(shores) for shores in shores_list]
+def match_shores(generator, shores_list, omitted=4):
+    record = struct.Struct(f'<HHH{K-omitted}B')
+    prepared = [prepare(shores, omitted) for shores in shores_list]
     keys = sorted({data[0] for data in prepared})
     query = ''.join('%d %d %d\n' % key for key in keys)
     raw = subprocess.run([str(generator.resolve()), '--keys'], input=query.encode(),
                          stdout=subprocess.PIPE, check=True).stdout
-    records = {key: row for key, row in zip(keys, RECORD.iter_unpack(raw))}
-    assert len(raw) == RECORD.size*len(keys)
-    return len(keys), [interpret(data, records[data[0]], shores)
+    records = {key: row for key, row in zip(keys, record.iter_unpack(raw))}
+    assert len(raw) == record.size*len(keys)
+    return len(keys), [interpret(data, records[data[0]], shores, omitted)
                        for data, shores in zip(prepared, shores_list)]
 
 
-def checks(generator):
+def checks(generator, omitted=4):
     rng = Random(231627)
     cases = []
     trees, blocked = 0, 0
-    for h in range(1, 5):
+    for h in range(1, omitted+1):
         for f, edges in cores(h):
             vs, ws = balanced(f, edges, [0]*len(edges))
             m = len(f)//K
@@ -108,7 +116,7 @@ def checks(generator):
             W = {x for x in G if ws[x] > m}
             assert (len(U), len(W)) == (h, h-1)
             for r in (K-h-2, K-h-1, K-h):
-                for excess in range(5-h):
+                for excess in range(omitted+1-h):
                     for use_offsets in (False, True):
                         for _ in range(4):
                             shifts = rng.sample(range(K), r-excess)
@@ -151,9 +159,13 @@ def checks(generator):
             actual += 1
     # Choose the added core labels from sites that receive no exterior leaf.
     controlled = 0
-    for leaves, sites in ((23, 22), (22, 22)):
-        h = 52 - leaves - K
-        for run in (2, 5, 9):
+    profiles = [(52, 23, 22), (52, 22, 22)]
+    if omitted == 5:
+        profiles.extend([(52, 23, 21), (52, 22, 21), (52, 21, 21),
+                         (53, 24, 22), (53, 23, 22), (53, 22, 22)])
+    for order, leaves, sites in profiles:
+        h = order - leaves - K
+        for run in ((2, 5, 9) if omitted == 4 else (2, 4, 6)):
             initial, original_edges = core(run)
             for _ in range(30):
                 f, edges = initial.copy(), original_edges.copy()
@@ -177,16 +189,21 @@ def checks(generator):
                 assert W == {x for x in G if ws[x] == 2}
                 shifts = [f[v] for v in parents]
                 assert len(set(shifts)) >= sites-1
-                a, b = next((a, b) for a, b in combinations(sorted(G-set(shifts)), 2)
-                            if (sum(U)-sum(W)-sum(shifts)-a-b) % K not in W)
-                ext = shifts+[a, b]
+                assert h + leaves - len(set(shifts)) <= omitted
+                padding = K - h - leaves
+                dummy = next(values for values in combinations(sorted(G-set(shifts)), padding)
+                             if (sum(U)-sum(W)-sum(shifts)-sum(values)) % K not in W)
+                ext = shifts + list(dummy)
                 z = (sum(U)-sum(W)-sum(ext)) % K
                 cases.append(((sorted(G-U), ext, sorted((-w) % K for w in G-W-{z})),
                               (f, edges, parents, shifts, [0]*leaves)))
                 controlled += 1
     # At order 54 the last core leaf (with one exterior child) tunes the gap.
     divisible = 0
-    for leaves, sites in ((25, 24), (25, 25), (24, 24)):
+    profiles = [(25, 24), (25, 25), (24, 24)]
+    if omitted == 5:
+        profiles.extend([(25, 23), (24, 23), (23, 23)])
+    for leaves, sites in profiles:
         h = 54-leaves-K
         for run in (3, 7):
             for _ in range(40):
@@ -195,12 +212,19 @@ def checks(generator):
                 must = {v for v in range(28) if sum(v in edge for edge in edges) == 1} - set(origins)
                 selected = sorted(must) + rng.sample(sorted(set(range(28))-must), sites-(h-1)-len(must))
                 parents = selected + list(range(28, K+h))
-                if sites < leaves:
-                    parents.append(rng.choice(selected))
+                extra = leaves-sites
+                if omitted == 5 and leaves == 25 and sites == 23:
+                    # Exercise last vertices with one, two or three exterior children.
+                    last_extras = rng.randrange(extra+1)
+                    parents.extend([K+h-1]*last_extras)
+                    extra -= last_extras
+                parents.extend(rng.choice(selected) for _ in range(extra))
                 old, _ = balanced(f, edges, [0]*len(edges))
                 pool = {f[v] for v in range(28) if v not in parents and old[f[v]] == 1}
+                prior_weights = set()
                 for origin in origins[:-1]:
-                    x = min(pool)
+                    x = min(x for x in pool if (x+f[origin]) % K not in prior_weights)
+                    prior_weights.add((x+f[origin]) % K)
                     pool.remove(x)
                     edges.append((origin, len(f)))
                     f.append(x)
@@ -208,12 +232,13 @@ def checks(generator):
                 U = {x for x in G if vcount[x] == 2}
                 W = {x for x in G if wcount[x] == 2}
                 prior = [f[v] for v in parents if v < len(f)]
-                assert len(prior) == leaves-1
+                copies = parents.count(len(f))
+                assert len(prior) == leaves-copies
                 for a in sorted(pool) + sorted(G-pool):
                     w = (a+f[origins[-1]]) % K
-                    shifts = prior+[a]
+                    shifts = prior+[a]*copies
                     z = (sum(U)+a-sum(W)-w-sum(shifts)) % K
-                    if a not in U and w not in W and z not in W|{w} and h+leaves-len(set(shifts)) <= 4:
+                    if a not in U and w not in W and z not in W|{w} and h+leaves-len(set(shifts)) <= omitted:
                         break
                 else:
                     raise AssertionError("missing full-size repair")
@@ -226,7 +251,7 @@ def checks(generator):
     # Three repeated shores, including valid multisets larger than the group.
     for m in range(24, 30):
         for _ in range(45):
-            extras = m-23
+            extras = m-(K-omitted)
             while True:
                 base = K if m >= K else m-1
                 rows = [(x, x, -2*x % K) for x in rng.sample(range(K), base)]
@@ -237,7 +262,7 @@ def checks(generator):
                 if sum(m-len(set(col)) for col in shores) <= extras:
                     break
             cases.append((shores, None))
-    key_count, solutions = match_shores(generator, [shores for shores, _ in cases])
+    key_count, solutions = match_shores(generator, [shores for shores, _ in cases], omitted)
     for (_, tree), rows in zip(cases, solutions):
         if tree:
             f, edges, parents, shifts, offsets = tree
@@ -250,7 +275,7 @@ def checks(generator):
             trees += 1
     assert blocked and actual
     print(f'{key_count} orbit witnesses, {trees} whole trees, including {actual} with '
-          f'23 different leaf parents at order 52, {controlled} with controlled core labels at order 52, '
+          f'23 different leaf parents at order 52, {controlled} with controlled core labels, '
           f'{divisible} tuned at order 54, {blocked} forced collisions, '
           f'{len(cases)-trees} multiset checks')
 
@@ -258,4 +283,6 @@ def checks(generator):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('generator', type=Path)
-    checks(parser.parse_args().generator)
+    parser.add_argument('--holes', type=int, choices=(4, 5), default=4)
+    args = parser.parse_args()
+    checks(args.generator, args.holes)

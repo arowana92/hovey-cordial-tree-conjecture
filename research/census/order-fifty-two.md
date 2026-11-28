@@ -2,7 +2,7 @@
 
 **Theorem (computer-assisted).** Every tree on 52 vertices with at most seventeen leaves is 27-cordial. The [nineteen-leaf proof below](#nineteen-leaves) narrows a possible 52-vertex counterexample to **20 through 23 leaves**. The smaller leaf counts follow from the sixteen-leaf theorem. At least 24 leaves allow 24 of them to be restored on a 28-vertex core by Hall's theorem. All smaller tree orders already admit 27-cordial labelings. [Sixteen-leaf theorem](sixteen-leaf-corridor.md) · [Leaf restoration](../counterexample-bound.md#removing-leaves) · [Through order 51](order-fifty-one.md)
 
-At 22 or 23 leaves, at least 22 different leaf parents suffice for 27-cordiality. A possible failure with 23 leaves has eight through twenty-one distinct parents. [Four-hole matching and restoration](../biased/four-hole-matchings.md)
+At 21 through 23 leaves, at least 21 different leaf parents suffice for 27-cordiality. A possible failure with 23 leaves has eight through twenty distinct parents. [Five-hole matching and restoration](../biased/five-hole-matchings.md)
 
 ## The centroid calculation
 

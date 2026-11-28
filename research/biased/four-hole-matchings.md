@@ -2,7 +2,7 @@
 
 **Theorem (computer-assisted).** Let each of three sets in $\mathbb Z_{27}$ have size 23. They can be partitioned across the three sets into zero-sum triples, using every entry once, if and only if the sums of the three sets add to zero. The same holds at every size from 23 to 27. This gives the four-hole case of the finite matching question in Problem 7.4 of Müyesser and Pokrovskiy. [*A random Hall–Paige conjecture*, Section 7.4](https://doi.org/10.1007/s00222-025-01328-x)
 
-**Tree consequence.** Every 52-vertex tree with 22 or 23 leaves at **at least 22 different parents** is 27-cordial. Any 52-vertex counterexample with 23 leaves must have between **eight and twenty-one** different leaf parents. At order 54, both 24 leaves at 24 parents and 25 leaves at 24 or 25 parents suffice. The remaining order-52 cases stay open. [Lower bound on parent count](seven-shift-lists-27.md) · [Order-52 results](../census/order-fifty-two.md)
+**Tree consequence.** Every 52-vertex tree with 22 or 23 leaves at **at least 22 different parents** is 27-cordial. Any 52-vertex counterexample with 23 leaves must have between **eight and twenty-one** different leaf parents. At order 54, both 24 leaves at 24 parents and 25 leaves at 24 or 25 parents suffice. The [five-hole census](five-hole-matchings.md) strengthens these parent bounds. [Lower bound on parent count](seven-shift-lists-27.md) · [Order-52 results](../census/order-fifty-two.md)
 
 ## From sets to prescribed repeated labels
 

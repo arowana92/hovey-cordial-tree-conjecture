@@ -1,4 +1,4 @@
-// Emit a matching for each normalized triple of four omitted residues at 27.
+// Emit a matching for each normalized triple of four or five omitted residues at 27.
 #include <algorithm>
 #include <array>
 #include <cstdint>
@@ -10,7 +10,13 @@
 #include <vector>
 
 using Mask = std::uint32_t;
-constexpr int modulus = 27, rows = 23;
+#ifndef OMITTED_RESIDUES
+#define OMITTED_RESIDUES 4
+#endif
+constexpr int omitted = OMITTED_RESIDUES;
+static_assert(omitted == 4 || omitted == 5);
+constexpr int modulus = 27, rows = modulus - omitted;
+constexpr int catalog_size = omitted == 4 ? 650 : 2990;
 constexpr Mask full = (Mask{1} << modulus) - 1;
 using Triple = std::array<int, 3>;
 
@@ -91,22 +97,26 @@ int main(int argc, char** argv) {
     bool requested = argc == 2 && std::string(argv[1]) == "--keys";
     if (!requested && argc != 1 && argc != 3) return 2;
     int low = argc == 3 ? std::stoi(argv[1]) : 0;
-    int high = argc == 3 ? std::stoi(argv[2]) : 650;
-    if (low < 0 || low > high || high > 650) return 2;
+    int high = argc == 3 ? std::stoi(argv[2]) : catalog_size;
+    if (low < 0 || low > high || high > catalog_size) return 2;
 
     std::vector<Mask> holes;
-    for (int d = 3; d < modulus; ++d)
-        for (int c = 2; c < d; ++c)
-            for (int b = 1; b < c; ++b)
-                for (int a = 0; a < b; ++a)
-                    if ((a + b + c + d) % modulus == 0)
-                        holes.push_back(bit(a) | bit(b) | bit(c) | bit(d));
-    if (holes.size() != 650) return 2;
+    // Enumerate masks in numeric order, recursing on their highest residue.
+    auto enumerate = [&](auto&& self, int left, int bound, int sum, Mask mask) -> void {
+        if (!left) {
+            if (sum % modulus == 0) holes.push_back(mask);
+            return;
+        }
+        for (int x = left - 1; x < bound; ++x)
+            self(self, left - 1, x, sum + x, mask | bit(x));
+    };
+    enumerate(enumerate, omitted, modulus, 0, 0);
+    if (holes.size() != catalog_size) return 2;
     std::map<Mask, int> index;
-    for (int i = 0; i < 650; ++i) index.emplace(holes[i], i);
-    std::vector<std::array<int, 18>> images(650);
-    std::vector<Mask> negatives(650);
-    for (int i = 0; i < 650; ++i) {
+    for (int i = 0; i < catalog_size; ++i) index.emplace(holes[i], i);
+    std::vector<std::array<int, 18>> images(catalog_size);
+    std::vector<Mask> negatives(catalog_size);
+    for (int i = 0; i < catalog_size; ++i) {
         int col = 0;
         for (int u = 1; u < modulus; ++u) if (std::gcd(u, modulus) == 1) {
             Mask image = 0;
@@ -119,7 +129,8 @@ int main(int argc, char** argv) {
     auto emit = [&](Triple key) {
         auto [i,j,k] = key;
         Search search;
-        search.state = 1 + (i * 650u + j) * 650u + k;
+        search.state = 1 + (i * std::uint32_t(catalog_size) + j) * std::uint32_t(catalog_size) + k;
+        if (!search.state) search.state = 1;
         search.solve(full ^ holes[i], full ^ holes[j], full ^ negatives[k]);
         // Little-endian indices, then input residues in increasing shift order.
         for (int t : key) { std::cout.put(char(t & 255)); std::cout.put(char(t >> 8)); }
@@ -128,16 +139,16 @@ int main(int argc, char** argv) {
     if (requested) {
         int i,j,k;
         while (std::cin >> i) {
-            if (!(std::cin >> j >> k) || i < 0 || i > j || j > k || k >= 650) return 2;
+            if (!(std::cin >> j >> k) || i < 0 || i > j || j > k || k >= catalog_size) return 2;
             emit({i,j,k});
         }
         return std::cin.eof() && std::cout ? 0 : 2;
     }
     for (int i = low; i < high; ++i) {
         if (*std::min_element(images[i].begin(), images[i].end()) < i) continue;
-        for (int j = i; j < 650; ++j) {
+        for (int j = i; j < catalog_size; ++j) {
             if (*std::min_element(images[j].begin(), images[j].end()) < i) continue;
-            for (int k = j; k < 650; ++k) {
+            for (int k = j; k < catalog_size; ++k) {
                 Triple key{i,j,k};
                 bool canonical = true;
                 for (int col = 0; col < 18; ++col) {
