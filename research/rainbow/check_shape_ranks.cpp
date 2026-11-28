@@ -98,7 +98,9 @@ Word cross(int n,bool complete) {
     Word count=0, sample_stride=complete?1:std::max<Word>(1,rank.total()/50000);
     for (Word i=0;i<rank.total();i+=sample_stride) {
         std::vector<int> parents;
-        unpack(other[i],n,parents);
+        Word word=other[i];
+        if (other.index(word)!=i) throw std::runtime_error("wrong stream index");
+        unpack(word,n,parents);
         Word id=rank(parents);
         if (id>=rank.total() || (complete?seen[id]:!subset.insert(id).second))
             throw std::runtime_error("rank repeated or out of range");

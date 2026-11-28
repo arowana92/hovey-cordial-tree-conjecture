@@ -74,3 +74,17 @@ Shard 271 at the full stride of 8,192 was regenerated separately from a public S
 echo "9ba5238a0b8cc1e8dfe4f122e8305c51322b897cf61eeb31282786c3f0c0f386  $out/271.spn" | shasum -a 256 -c -
 python3 -B "$src/check_spine_samples.py" "$out/271.spn" --stride 30000
 ~~~
+
+## Verifying a single ranked shard and resuming a run
+
+A canonical forest word now has a directly computable position in the stream order. Let the remaining forest have mass $m$ and let $i$ be the first allowed small component type. The table $A(m,i)$ counts completions after that restriction. If the first component has small type $j$, the number of earlier choices is $A(m,i)-A(m,j)$. Add this to the position and continue on the suffix with lower bound $j$. If the first component is larger than half the original mass, it is the sole remaining component. Skip all small-first completions and continue inside its root with no sibling restriction. These rules depend only on the actual bracket word. [Index and decoding routines](ranked_forest.hpp)
+
+For shard $a$ at stride $d$, the verifier recomputes the position of every parsed canonical word and requires the successive values $a,a+d,a+2d,\ldots$ below the independently counted number $N$ of rooted bases. It checks both ends of this sequence and every labeling and boundary orbit. A repeated word would have the same position twice. Consequently the full set of accepted shards contains $N$ distinct valid words, which proves completeness even without assuming that the generator's enumeration is correct. The independent shape-rank bijection above supplies an additional check.
+
+The driver saves each successful verifier report and stream hash by atomic rename after both producer and verifier exit successfully. Run the same command with the same output directory and binaries after an interruption. The final report reconciles all shard counts with the separate partition recurrence. At eight labels an independent full-catalog replay matched all seven shard hashes and both former verification modes. Removing one report and its generator summary required regenerating just that shard. Nine malformed inputs were rejected, including a stream assigned to the wrong shard and missing, transposed or duplicated records. At 27 labels the pilot above matched its published hash and passed the positional check on all 7,670 forests and 451,990 rows. The unrestricted 27-label witness audit remains open. [Restartable driver](stream_ranked_shards.py) · [Regression checks](check_ranked_shards.py)
+
+~~~sh
+python3 -B "$src/check_ranked_shards.py" "$out/generate" "$out/verify"
+"$out/verify" 27 --ranked-shard 89 2097152 "$out/pilot-27.spn"
+python3 -B "$src/stream_ranked_shards.py" 27 8192 10 "$out/generate" "$out/verify" "$out/ranked27"
+~~~

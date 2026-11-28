@@ -61,6 +61,42 @@ public:
         }
     }
     Word count() const { return ways.back()[0]; }
+    // Index a canonical bracket word by counting all preceding first components.
+    Word index(Word forest) const {
+        int mass = static_cast<int>(ways.size())-1;
+        std::size_t first = 0;
+        Word position = 0;
+        if (forest >> (2*mass)) throw std::invalid_argument("forest high bits");
+        while (mass) {
+            int depth = 0, bits = 0;
+            do {
+                if (bits == 2*mass) throw std::invalid_argument("unclosed component");
+                depth += ((forest >> (2*mass-1-bits)) & 1) ? 1 : -1;
+                if (depth < 0) throw std::invalid_argument("unexpected close");
+                ++bits;
+            } while (depth);
+            int size = bits/2;
+            const auto& row = ways[mass];
+            if (size > half) {
+                if (size != mass || !row.back()) throw std::invalid_argument("invalid large component");
+                position += row[first] - row.back();
+                --mass;
+                forest = (forest >> 1) & ((Word(1) << (2*mass))-1);
+                first = 0;
+            } else {
+                mass -= size;
+                Word code = forest >> (2*mass);
+                auto type = std::lower_bound(small.begin()+first,small.end(),code,
+                    [](const Tree& tree,Word value) { return tree.word < value; });
+                if (type == small.end() || type->word != code) throw std::invalid_argument("unknown component");
+                std::size_t next = type-small.begin();
+                position += row[first] - row[next];
+                first = next;
+                forest &= (Word(1) << (2*mass))-1;
+            }
+        }
+        return position;
+    }
     Word operator[](Word rank) const {
         if (rank >= count()) throw std::out_of_range("forest rank");
         return decode(static_cast<int>(ways.size())-1,0,rank);

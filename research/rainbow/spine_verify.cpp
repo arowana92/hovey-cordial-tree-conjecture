@@ -17,6 +17,7 @@
 #include <unordered_set>
 #include <vector>
 #include "shape_rank.hpp"
+#include "ranked_forest.hpp"
 #include "forest_type.hpp"
 
 namespace {
@@ -188,6 +189,19 @@ public:
     }
 };
 
+struct ShardPosition {
+    RankedForests catalog;
+    Count next, stride;
+    ShardPosition(int k, int index, int shards): catalog(k-1), next(index), stride(shards) {
+        check(shards > 0 && index >= 0 && index < shards, "invalid shard position");
+        check(catalog.count() == rooted_count(k), "stream rank total");
+    }
+    void accept(Count word) {
+        check(next < catalog.count() && catalog.index(word) == next, "wrong forest at shard position");
+        next += stride;
+    }
+};
+
 struct Audit {
     int k;
     std::unordered_set<Count> seen;
@@ -247,7 +261,8 @@ struct Audit {
         visit(visit, 0, internal, 0, 1);
     }
 
-    void verify(const char* path, int tip_limit=0, int short_mass=0, const ForestType* type=nullptr) {
+    void verify(const char* path, int tip_limit=0, int short_mass=0, const ForestType* type=nullptr,
+                ShardPosition* shard=nullptr) {
         Reader in(path);
         for (char c : std::string("SPN")) check(in.byte() == c, "bad header");
         int version = in.byte();
@@ -278,7 +293,8 @@ struct Audit {
                 std::sort(actual.begin(),actual.end());
                 check(actual == type->parts, "wrong component order or tip count");
             }
-            if (bits) bits->insert(s);
+            if (shard) shard->accept(word);
+            else if (bits) bits->insert(s);
             else check(seen.insert(word).second, "repeated forest");
             const Profile& p = profiles.try_emplace(s.sizes, k, s).first->second;
             const bool active = s.leaves <= 2*(k-2)/3;
@@ -395,6 +411,16 @@ int main(int argc, char** argv) {
     int max_modulus = partial ? 40 : limited ? 30 : 27;
     if (k < 5 || k > max_modulus) return 2;
     try {
+        if (std::string(argv[2]) == "--ranked-shard") {
+            if (argc != 6) return 2;
+            ShardPosition shard(k,std::stoi(argv[3]),std::stoi(argv[4]));
+            Audit audit(k);
+            audit.verify(argv[5],0,0,nullptr,&shard);
+            check(shard.next >= shard.catalog.count(), "incomplete ranked shard");
+            std::cout << "eligible=" << audit.eligible << " base_only=" << audit.base_only
+                      << " rows=" << audit.rows << " assignments=" << audit.colorings << '\n';
+            return 0;
+        }
         if (std::string(argv[2]) == "--typed") {
             if (argc < 5) return 2;
             ForestType type(k,argc-4,argv+4);
