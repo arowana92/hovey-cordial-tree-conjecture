@@ -324,13 +324,14 @@ struct Cover {
         static const PairOrbits pairs;
         std::array<Word,k> open;
         open.fill(pairs.full);
-        for (int trial=0; trial<3500; ++trial) {
+        for (int trial=0; trial<(n>23 ? 100000 : 3500); ++trial) {
+            if (trial>=3500 && trial%200==0) orient(random()%n);
             budget = trial<500 ? 150 : 1200;
-            label[0] = 0;
+            label[order[0]] = 0;
             if (!place(1,all^1,all)) continue;
             Mask edge_holes = all;
             for (int i=1; i<n; ++i)
-                edge_holes ^= Mask(1)<<((label[i]+label[parent[i]])%k);
+                edge_holes ^= Mask(1)<<((label[i]+label[canonical_parent[i]])%k);
 
             Mask shifted[k], from_unused = 0, different[k]{};
             for (int t=0; t<k; ++t) shifted[t] = rotate(edge_holes,(k-t)%k);
@@ -479,7 +480,8 @@ int main(int argc,char** argv) {
     bool pair=argc==5 && std::string(argv[4])=="--pair";
     if (argc!=4 && !edge && !leaf && !pair) return 2;
     int n=std::stoi(argv[1]), shard=std::stoi(argv[2]), stride=std::stoi(argv[3]);
-    if (n<3 || n>((leaf || pair) ? 23 : 25) || (n%2==0 && !pair) || stride<1 || shard<0 || shard>=stride) return 2;
+    int maximum=pair ? 23 : leaf ? 24 : 25;
+    if (n<3 || n>maximum || (n%2==0 && !pair && !leaf) || stride<1 || shard<0 || shard>=stride) return 2;
     MarkedTreeRanks forests(n);
     for (Word rank=shard; rank<forests.count(); rank+=stride) {
         Word word=forests.word(rank);

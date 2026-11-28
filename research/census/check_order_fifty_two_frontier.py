@@ -2,11 +2,12 @@
 import argparse
 from collections import Counter
 from copy import deepcopy
+from functools import lru_cache
 import gzip
 from pathlib import Path
 
 from research.census.check_leaf_profile_manifests import read_rows
-from research.census.check_order_fifty_one import centroid_profiles, cut_checker, short_arms
+from research.census.check_order_fifty_one import centroid_profiles, cut_checker, short_arms, two_sites
 from research.census.check_order_fifty_two import catalog_and_totals, singleton_cut
 from research.census.check_order_fifty_two_eighteen import allowed_sizes, common_or_pair, possible_spectra
 from research.census.leaf_profile_geometry import numerical_branches
@@ -39,18 +40,32 @@ def published():
     return cat
 
 
-def inventory(leaves):
-    initial = set(centroid_profiles(leaves,52,24,allowed_sizes))
+@lru_cache(None)
+def avoiding_23(sizes):
+    if not allowed_sizes(sizes):
+        return False
+    sums = 1
+    for size in sizes:
+        sums |= sums << size
+    return not sums & (1 << 23)
+
+
+def independent_leaf_or_pair(parts):
+    return common_or_pair(parts) or two_sites(parts)
+
+
+def inventory(leaves, allowed=allowed_sizes):
+    initial = set(centroid_profiles(leaves,52,24,allowed))
     # The forbidden subset sums and complementary pairs persist when adding
     # branches, so the descending recursion can reject a partial size list.
-    other = {p for p in numerical_branches(51,leaves,leaves-8,24,7,allow_sizes=allowed_sizes)
+    other = {p for p in numerical_branches(51,leaves,leaves-8,24,7,allow_sizes=allowed)
              if short_arms(p,24)}
     assert initial==other
     possible = {p for p in initial if possible_spectra(p)}
     return len(initial),possible
 
 
-def check(path,through,receipt_paths,pending_path=None,reduced=False):
+def check(path,through,receipt_paths,pending_path=None,reduced=False,independent_leaf=False):
     original = frontier(path)
     directory = path.parent/'order-52-audits'
     nineteen = read_rows(directory/'nineteen/24-restarts.txt',24)
@@ -60,13 +75,28 @@ def check(path,through,receipt_paths,pending_path=None,reduced=False):
     published_profiles = set(nineteen)|set(further)
     cat = published()
     groups = original
-    if reduced:
-        groups = frontier(path.with_name('order-52-reduced.profiles.gz'))
+    later = read_rows(directory/'twenty/24-restarts.txt',24)
+    assert set(later)<=set.union(*original.values())-published_profiles
+    confirmed = published_profiles|set(later)
+    allowed = allowed_sizes
+    covers_shape = common_or_pair
+    if independent_leaf:
+        extra = read_rows(directory/'independent-leaf/24-restarts.txt',24)
+        assert set(extra)<=set.union(*original.values())-confirmed
+        confirmed.update(extra)
+        allowed = avoiding_23
+        covers_shape = independent_leaf_or_pair
+    if reduced or independent_leaf:
+        name = 'order-52-independent-leaf.profiles.gz' if independent_leaf else 'order-52-reduced.profiles.gz'
+        groups = frontier(path.with_name(name))
         candidates = set.union(*groups.values())
         assert not groups[19] and candidates<=set.union(*original.values())-published_profiles
-        cat.known[24].update(published_profiles)
-        print('starting forest profiles with published receipts',len(published_profiles))
-    old_cut = cut_checker(cat,24,common_or_pair)
+        base_receipts = confirmed if independent_leaf else published_profiles
+        if independent_leaf:
+            assert not candidates & base_receipts
+        cat.known[24].update(base_receipts)
+        print('starting forest profiles with published receipts',len(base_receipts))
+    old_cut = cut_checker(cat,24,covers_shape)
     totals = Counter()
     needed = set()
     for level in range(19,through+1):
@@ -79,16 +109,13 @@ def check(path,through,receipt_paths,pending_path=None,reduced=False):
         # Each fresh instance has its own cached answers to padded membership.
         stage = deepcopy(cat)
         stage.known[24].update(needed)
-        new_cut = cut_checker(stage,24,common_or_pair)
-        numeric,possible = inventory(level)
+        new_cut = cut_checker(stage,24,covers_shape)
+        numeric,possible = inventory(level,allowed)
         gaps = [p for p in possible if not singleton_cut(p) and not old_cut(p)]
         assert all(new_cut(p) for p in gaps)
         print(level,'leaves; numerical, surviving, outside earlier catalog, added tests',
               numeric,len(possible),len(gaps),len(current),flush=True)
     print('sufficient tests',dict(totals))
-    later = read_rows(directory/'twenty/24-restarts.txt',24)
-    assert set(later)<=set.union(*original.values())-published_profiles
-    confirmed = published_profiles|set(later)
     remaining = needed-confirmed
     print('published receipts used',len(needed & confirmed),
           'remaining by leaf count',{h:len(groups[h] & remaining) for h in range(19,through+1)})
@@ -116,7 +143,9 @@ if __name__=='__main__':
     cli = argparse.ArgumentParser(description=__doc__)
     cli.add_argument('--through',type=int,choices=range(19,24),default=23)
     cli.add_argument('--receipts',nargs='+',type=Path)
-    cli.add_argument('--reduced',action='store_true',help='use alternative cuts with the published receipts as a base')
+    mode = cli.add_mutually_exclusive_group()
+    mode.add_argument('--independent-leaf',action='store_true',help='use the 23-vertex common forest with one independent leaf')
+    mode.add_argument('--reduced',action='store_true',help='use alternative cuts with the published receipts as a base')
     cli.add_argument('--write-pending',type=Path,help='write remaining profiles in generator format')
     args = cli.parse_args()
-    check(Path(__file__).with_name('order-52-frontier.profiles.gz'),args.through,args.receipts,args.write_pending,args.reduced)
+    check(Path(__file__).with_name('order-52-frontier.profiles.gz'),args.through,args.receipts,args.write_pending,args.reduced,args.independent_leaf)

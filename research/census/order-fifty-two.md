@@ -140,3 +140,29 @@ python3 -B -m research.census.check_order_fifty_two_frontier --reduced --write-p
 python3 -B -m research.census.stream_leaf_profiles 27 "$out/reduced.profiles" "$out/generate" "$out/verify" "$out/reduced" --restarts --workers 2
 python3 -B -m research.census.check_order_fifty_two_frontier --reduced --receipts "$out/reduced/manifest.txt"
 ~~~
+
+## Using the 23-vertex forest and an independent leaf
+
+**Conditional reduction.** The [new checklist](order-52-independent-leaf.profiles.gz) has **1,047** outstanding tests. The **139** in the twenty-leaf stage suffice for every tree at that leaf count. They are sufficient tests and the unconditional bound remains nineteen leaves.
+
+The [23-vertex forest theorem](../rainbow/common-leaf-23.md) gives two changes to the geometry. First, a centroid subcollection of order 23 can be restored along with a leaf removed from its connected complement. Second, consider the exterior of a size-ordered cut with 24 vertices. If its only possible change of boundary color follows a singleton, the 23 remaining vertices have a common parent color and the singleton has an arbitrary parent color. The previously proved case in which a color change follows the first two vertices still applies. Both changes cannot occur in the same sorted size sequence, since a break after a singleton requires that the next component already have order at least two.
+
+The calculation uses the 575 earlier receipts, the 23 receipts from the twenty-leaf stage and [84 further receipts](order-52-audits/independent-leaf/24-restarts.txt). The last group verifies 59,508,215 rooted forests, 2,260,562,589 witness rows and 631,134,576,657 literal boundary assignments. The geometry checker compares two centroid enumerations, applies the complementary-side restrictions, and requires a certified or listed exterior for every admissible suffix of its selected cut.
+
+| Leaves | Numerical centroid profiles | After complementary sides | Outside the initial catalog | Additional tests |
+| ---: | ---: | ---: | ---: | ---: |
+| 20 | 10,849 | 8,965 | 85 | 139 |
+| 21 | 14,078 | 11,721 | 488 | 189 |
+| 22 | 17,729 | 14,906 | 1,431 | 197 |
+| 23 | 21,582 | 18,327 | 2,932 | 522 |
+
+The final column is cumulative in its use of earlier stages. The list represents 169,833,794 distinct rooted forests and 1,974,703,367,520 literal boundary assignments. Run the geometry check from the repository root. To regenerate the 84 completed streams, use the generator and verifier built above.
+
+~~~bash
+python3 -B -m research.census.check_order_fifty_two_frontier --independent-leaf
+cert=research/census/order-52-audits/independent-leaf/24-restarts.txt
+awk -F '  ' '{print $3}' "$cert" > "$out/independent-known.profiles"
+python3 -B -m research.census.stream_leaf_profiles 27 "$out/independent-known.profiles" \
+    "$out/generate" "$out/verify" "$out/independent-known" --restarts --workers 2
+cmp "$out/independent-known/manifest.txt" "$cert"
+~~~
