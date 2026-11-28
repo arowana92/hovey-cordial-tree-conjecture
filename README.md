@@ -6,7 +6,7 @@ On any path in a smallest counterexample at modulus $k$, each residue of the cut
 
 At 27 labels, every 52-vertex tree with at most twenty leaves is cordial. A counterexample at that order would have **21, 22 or 23 leaves**. A checklist of 793 further forest tests suffices for the whole order, and its first 134 suffice for twenty-one leaves. [Twenty-leaf proof and remaining cases](research/census/order-fifty-two.md#twenty-leaves)
 
-At 27 labels, every 52-vertex tree with 21 through 23 leaves at 21 or more distinct parents is cordial. A counterexample with 23 leaves would need eight through twenty different parents. The proof classifies all zero-sum matchings with five missing residues on each side and also gives parent bounds at orders 53 and 54. [Leaf extension and certificates](research/biased/five-hole-matchings.md)
+At 27 labels, every 52-vertex tree with 21 through 23 leaves at 21 or more distinct parents is cordial. A counterexample with 23 leaves would need eight through twenty different parents. Twenty parents suffice when deleting the exterior leaves leaves a tree with at most seven leaves, or eight at the 21- and 22-leaf counts. Corresponding bounds hold at orders 53 and 54. [Leaf extension and certificates](research/biased/five-hole-matchings.md)
 
 Every tree on $h\ge3$ vertices can be made super edge-magic by adding at most $h-3$ leaves at original vertices. The construction identifies two sites that can then take arbitrary further leaf populations, with one integer labeling working at every modulus. [Construction and prescribed-population corollary](research/hub/linear-leaf-host.md)
 
