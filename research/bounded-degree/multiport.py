@@ -117,7 +117,7 @@ def lift_marks(k,g,variables,forms,groups,rng):
 def construct(edges,ports,old_labels,deleted,rng):
     k = len(edges)+1
     t = len(ports)
-    assert len(set(ports))==t==len(old_labels)==len(deleted)+1 and t>=2
+    assert len(set(ports))==t==len(old_labels)==len(deleted)+1 and t>=1
     adj = adjacency(k,edges)
     coefficients = [len(row)-1 for row in adj]
     for v in ports:
