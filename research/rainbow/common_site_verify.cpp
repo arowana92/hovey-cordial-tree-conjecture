@@ -143,7 +143,7 @@ int main(int argc,char** argv) {
     bool pair=argc==5 && std::string(argv[4])=="--pair";
     if (argc!=4 && !edge && !leaf && !pair) return 2;
     int n=std::stoi(argv[1]), shard=std::stoi(argv[2]), stride=std::stoi(argv[3]);
-    if (n<3 || n>((edge || leaf || pair) ? 23 : 25) || (n%2==0 && !pair) || stride<1 || shard<0 || shard>=stride) return 2;
+    if (n<3 || n>((leaf || pair) ? 23 : 25) || (n%2==0 && !pair) || stride<1 || shard<0 || shard>=stride) return 2;
     MarkedTreeRanks ranks(n);
     std::array<Mask,k> orbit{};
     for (int d=0; d<k; ++d) for (int u=1; u<k; ++u)

@@ -52,7 +52,7 @@ struct PairOrbits {
 struct Cover {
     int n, budget;
     bool edge_mode;
-    std::array<int,k> parent{}, size{}, order{}, label{};
+    std::array<int,k> parent{}, canonical_parent{}, size{}, order{}, label{};
     std::array<Mask,k> neighbors{};
     Mask missing = 0;
     std::array<Mask,3> hits{};
@@ -66,6 +66,7 @@ struct Cover {
                 stack[height++] = next++;
             } else --height;
         }
+        canonical_parent=parent;
         for (int i=1; i<n; ++i) {
             neighbors[i]|=Mask(1)<<parent[i];
             neighbors[parent[i]]|=Mask(1)<<i;
@@ -104,7 +105,7 @@ struct Cover {
         if (edge_mode) {
             holes=all;
             for (int i=1; i<n; ++i) {
-                values[i]=(label[i]+label[parent[i]])%k;
+                values[i]=(label[i]+label[canonical_parent[i]])%k;
                 holes^=Mask(1)<<values[i];
             }
         }
@@ -289,6 +290,57 @@ struct Cover {
         return false;
     }
 
+    bool edge_witness(int child,int difference) {
+        int root=canonical_parent[child];
+        orient(root);
+        auto where=std::find(order.begin()+1,order.begin()+n,child);
+        std::rotate(order.begin()+1,where,where+1);
+        for (int trial=0; trial<300; ++trial) {
+            int a=1+random()%(k-1);
+            int forbidden=(a+difference)%k;
+            label[root]=0;
+            label[child]=a;
+            budget=trial<100 ? 300 : 3000;
+            if (place(2,all^1^(Mask(1)<<a),all^(Mask(1)<<a)^(Mask(1)<<forbidden))) return true;
+        }
+        // The two positions beyond the tree hold unused labels for swaps.
+        std::array<int,k> sites{},palette{};
+        int count=0;
+        for (int i=0; i<k; ++i) if (i!=root && i!=child) sites[count++]=i;
+        for (int trial=0; trial<32; ++trial) {
+            int a=1+random()%(k-1), forbidden=(a+difference)%k;
+            label[root]=0;
+            label[child]=a;
+            int m=0;
+            for (int x=1; x<k; ++x) if (x!=a) palette[m++]=x;
+            for (int j=count-1; j>0; --j) std::swap(palette[j],palette[random()%(j+1)]);
+            for (int j=0; j<count; ++j) label[sites[j]]=palette[j];
+            auto score=[&]() {
+                Mask weights=0;
+                for (int i=1; i<n; ++i) weights|=Mask(1)<<((label[i]+label[canonical_parent[i]])%k);
+                return n-1-__builtin_popcount(weights&~(Mask(1)<<forbidden));
+            };
+            int conflicts=score();
+            for (int step=0; conflicts && step<2500; ++step) {
+                int v=sites[random()%count], chosen=-1,best=n,ties=0;
+                for (int j=0; j<count; ++j) {
+                    int b=sites[j];
+                    if (v==b) continue;
+                    std::swap(label[v],label[b]);
+                    int trial_score=score();
+                    std::swap(label[v],label[b]);
+                    if (trial_score<best) {best=trial_score;chosen=b;ties=1;}
+                    else if (trial_score==best && random()%++ties==0) chosen=b;
+                }
+                if (best>=conflicts && random()%11==0) chosen=sites[random()%count];
+                std::swap(label[v],label[chosen]);
+                conflicts=score();
+            }
+            if (!conflicts) return true;
+        }
+        return false;
+    }
+
     bool certify() {
         const Mask every=((Mask(1)<<n)-1)^Mask(edge_mode);
         int broad_trials=n<=23 ? 2000 : 60;
@@ -299,7 +351,15 @@ struct Cover {
             record(every);
             if ((hits[0]&hits[1]&hits[2])==every) return true;
         }
-        if (edge_mode) return false;
+        if (edge_mode) {
+            constexpr int differences[]={9,3,1};
+            for (int j=0; j<3; ++j) while (hits[j]!=every) {
+                int child=__builtin_ctz(every^hits[j]);
+                if (!edge_witness(child,differences[j])) return false;
+                record(every);
+            }
+            return true;
+        }
         // For a remaining mark, fix its color at zero and reserve a missing
         // color at the desired difference. Rerooting keeps the search parent-first.
         constexpr int difference[]={9,3,1};
@@ -328,7 +388,7 @@ int main(int argc,char** argv) {
     bool pair=argc==5 && std::string(argv[4])=="--pair";
     if (argc!=4 && !edge && !leaf && !pair) return 2;
     int n=std::stoi(argv[1]), shard=std::stoi(argv[2]), stride=std::stoi(argv[3]);
-    if (n<3 || n>((edge || leaf || pair) ? 23 : 25) || (n%2==0 && !pair) || stride<1 || shard<0 || shard>=stride) return 2;
+    if (n<3 || n>((leaf || pair) ? 23 : 25) || (n%2==0 && !pair) || stride<1 || shard<0 || shard>=stride) return 2;
     MarkedTreeRanks forests(n);
     for (Word rank=shard; rank<forests.count(); rank+=stride) {
         Word word=forests.word(rank);
