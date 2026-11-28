@@ -1,6 +1,6 @@
 # Two attachment vertices and one prescribed edge offset modulo 27
 
-**Theorem (computer-assisted).** Let a tree have at most seven leaves. At every order, one can prescribe an additive offset on any one edge modulo 27 and choose a single labeling and a connected vertex order such that every prefix is cordial, counting the offset whenever the edge is present. All other edges use the ordinary endpoint sum.
+**Theorem (computer-assisted).** Let a tree have at most eight leaves. At every order, one can prescribe an additive offset on any one edge modulo 27 and choose a single labeling and a connected vertex order such that every prefix is cordial, counting the offset whenever the edge is present. All other edges use the ordinary endpoint sum.
 
 ## A certificate on 27 vertices
 
@@ -19,9 +19,10 @@ When $vw$ is an edge, $f(v)+f(w)$ occurs, so only the second alternative is poss
 | 5 | 35,271 | 1,338,905 |
 | 6 | 359,304 | 13,637,910 |
 | 7 | 2,310,430 | 87,701,395 |
-| Total | 2,707,075 | 102,756,900 |
+| 8 | 9,993,697 | 379,306,865 |
+| Total | 12,700,772 | 482,063,765 |
 
-There are 378 unordered port pairs per tree, counting coincident ports. The [100 shards through six leaves](period-ports-six.sha256) and the [565 seven-leaf shards](period-ports-seven.sha256) cover 1,023,274,350 choices of tree and port pair. The columns give leaf count, tree and row counts, first and last tree words, and SHA-256 of the binary witness stream. The [generator](../rainbow/common_site_generate.cpp) records ordinary bijections until the coefficient zero or all three nonzero unit orbits have appeared at each pair. The [verifier](../rainbow/common_site_verify.cpp) reparses each tree, checks all labels and endpoint sums, and explicitly expands the unit multiples of each coefficient. It requires canonical ordering of the branches, a centroid root, the specified leaf count and strictly increasing tree words. The [census checker](period_port_census.py) checks disjoint shard ranges and independently counts the required trees. An odd-order tree has a unique centroid. At order 27 its branches form a multiset of rooted trees of orders at most 13 and total order 26. Multiplying their multiset generating functions by order and tip count gives the counts above.
+There are 378 unordered port pairs per tree, counting coincident ports. The [100 shards through six leaves](period-ports-six.sha256), the [565 seven-leaf shards](period-ports-seven.sha256) and the [2,440 eight-leaf shards](period-ports-eight.sha256) cover 4,800,891,816 choices of tree and port pair. The columns give leaf count, tree and row counts, first and last tree words, and SHA-256 of the binary witness stream. The [generator](../rainbow/common_site_generate.cpp) records ordinary bijections until the coefficient zero or all three nonzero unit orbits have appeared at each pair. If a coefficient remains uncovered, it adds a virtual edge between the ports with the negative of the desired coefficient as its offset. A permutation with all 27 edge weights distinct then supplies the required ordinary row. This final search supplied the missing multiple-of-nine coefficient at an edge of the broom with seven short arms and one arm of length 19. The [verifier](../rainbow/common_site_verify.cpp) reparses each tree, checks all labels and endpoint sums, and explicitly expands the unit multiples of each coefficient. It requires canonical ordering of the branches, a centroid root, the specified leaf count and strictly increasing tree words. The [census checker](period_port_census.py) checks disjoint shard ranges and independently counts the required trees. An odd-order tree has a unique centroid. At order 27 its branches form a multiset of rooted trees of orders at most 13 and total order 26. Multiplying their multiset generating functions by order and tip count gives the counts above.
 
 ## Keeping the marked edge during growth
 
@@ -33,9 +34,9 @@ If $t>0$, delete the marked edge temporarily. Choose an original leaf on its sma
 
 ## Ordinary trees obtained by inserting pieces
 
-* In a core of **any order with at most seven leaves**, replace one edge by any chain of trees of positive orders divisible by 27. Each inserted tree may have arbitrary ports and branching, provided it admits an ordinary 27-cordial labeling. The successive pieces have a total effective offset. Prescribe that offset on the core edge, then expand it. Each inserted period adds one to every vertex and edge bin. [Expansion identity](period-chains.md)
+* In a core of **any order with at most eight leaves**, replace one edge by any chain of trees of positive orders divisible by 27. Each inserted tree may have arbitrary ports and branching, provided it admits an ordinary 27-cordial labeling. The successive pieces have a total effective offset. Prescribe that offset on the core edge, then expand it. Each inserted period adds one to every vertex and edge bin. [Expansion identity](period-chains.md)
 * In a core of **at most 27 vertices with any number of leaves**, replace any number of edges with chains of order-27 trees from the certificate. All of these expanded trees are 27-cordial. Start with a rainbow labeling of the core, available from the [integer census](../census/README.md). If all pieces of a chain can give zero, retain its original weight. Otherwise at least one piece gives all 26 nonzero offsets. Fix the others, leaving at least 26 possible total offsets for that chain. Assign the remaining chains distinct final weights in turn. At each step at most 25 weights are already in use. [Small-core insertion lemma](period-edges.md)
-* In particular, suppose a tree on **53 or 54 vertices** has a connected 27-vertex piece incident to exactly two outside edges. The entire tree is 27-cordial if the piece has at most seven leaves, or if suppressing it to one edge leaves a tree with at most seven leaves. For the second case the piece itself has an ordinary rainbow labeling by the integer census. At 80 or 81 vertices two disjoint certified 27-vertex pieces, each incident to two outside edges, suffice. Adjacent pieces form one chain on suppression.
+* In particular, suppose a tree on **53 or 54 vertices** has a connected 27-vertex piece incident to exactly two outside edges. The entire tree is 27-cordial if the piece has at most eight leaves, or if suppressing it to one edge leaves a tree with at most eight leaves. For the second case the piece itself has an ordinary rainbow labeling by the integer census. At 80 or 81 vertices two disjoint certified 27-vertex pieces, each incident to two outside edges, suffice. Adjacent pieces form one chain on suppression.
 
 For a smallest 27-label counterexample of order $n$ containing $m$ disjoint certified pieces, the [packing bound](period-edges.md) gives $3m+1<2\lceil(n-1)/27\rceil$. In particular three such pieces exclude a counterexample through order 136, with arbitrary branching in the compressed core.
 
@@ -55,13 +56,22 @@ cmp "$out/six/manifest.txt" research/biased/period-ports-six.sha256
 python3 -B -m research.biased.period_port_census 7 --run "$out/seven" \
     --generator "$out/gen" --verifier "$out/check" --workers 2
 cmp "$out/seven/manifest.txt" research/biased/period-ports-seven.sha256
+python3 -B -m research.biased.period_port_census 8 --run "$out/eight" \
+    --generator "$out/gen" --verifier "$out/check" --workers 2
+cmp "$out/eight/manifest.txt" research/biased/period-ports-eight.sha256
 python3 -B -m research.biased.period_port_census 2 3 4 5 6 --sample 1 | "$out/gen" --ports > "$out/examples"
 python3 -B -m research.biased.period_port_census 7 --sample 3 | "$out/gen" --ports >> "$out/examples"
 c++ -O3 -std=c++17 -fPIC -Drainbow_witness=reference_witness -c "$r/search.cpp" -o "$out/ref.o"
 c++ -O3 -std=c++17 -fPIC -shared "$r/leaf_search.cpp" "$out/ref.o" -o "$out/search.so"
 python3 -B -m research.biased.check_period_ports "$out/examples" --growth-library "$out/search.so"
+python3 -B -m research.biased.period_port_census 8 --sample 3 > "$out/eight.words"
+echo 17967480420941824 >> "$out/eight.words"
+"$out/gen" --ports < "$out/eight.words" > "$out/eight.examples"
+python3 -B -m research.biased.check_period_ports "$out/eight.examples" --growth-library "$out/search.so"
 ~~~
 
 The [whole-tree checker](check_period_ports.py) built and recounted 154,224 ordinary trees of orders 53 and 54, including every port pair in the sampled shapes. It also checked all 5,616 single-edge adjustments in those shapes and 18,592 actual connected prefixes on 288 adjusted trees of orders 28 through 109. The all-orders statements follow from the finite certificate and the growth and insertion proofs.
 
 A separate checkout regenerated all 100 shards through six leaves and seven-leaf shards 0, 137, 310, 432 and 564. All hashes matched. The five seven-leaf shards contain 16,670 trees and 632,532 rows.
+
+Four eight-leaf shapes, including the broom, gave 77,112 ordinary expansions, 2,808 adjusted base labelings and 144 growth examples with 9,296 directly checked connected prefixes. For the all-orders growth step, eight original leaves leave at most seven rooted tips in the ordered suffix.

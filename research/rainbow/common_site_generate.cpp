@@ -183,6 +183,36 @@ struct Cover {
         return false;
     }
 
+    bool port_swaps(int v, int w, int coefficient) {
+        // Add a virtual edge whose adjusted sum has to fill the unique hole.
+        auto score=[&]() {
+            Mask weights=Mask(1)<<((label[v]+label[w]+k-coefficient)%k);
+            for (int i=1; i<k; ++i)
+                weights|=Mask(1)<<((label[i]+label[canonical_parent[i]])%k);
+            return k-__builtin_popcount(weights);
+        };
+        for (int trial=0; trial<256; ++trial) {
+            std::iota(label.begin(),label.end(),0);
+            for (int j=k-1; j>0; --j) std::swap(label[j],label[random()%(j+1)]);
+            int conflicts=score();
+            for (int step=0; conflicts && step<4000; ++step) {
+                int a=random()%k, partner=-1, best=k, ties=0;
+                for (int b=0; b<k; ++b) if (b!=a) {
+                    std::swap(label[a],label[b]);
+                    int candidate=score();
+                    std::swap(label[a],label[b]);
+                    if (candidate<best) { best=candidate; partner=b; ties=1; }
+                    else if (candidate==best && random()%++ties==0) partner=b;
+                }
+                if (best>=conflicts && random()%10==0) partner=random()%k;
+                std::swap(label[a],label[partner]);
+                conflicts=score();
+            }
+            if (!conflicts) return true;
+        }
+        return false;
+    }
+
     bool certify_ports() {
         std::array<std::array<Mask,3>,k> covered{};
         for (int trial=0; trial<100000; ++trial) {
@@ -214,7 +244,15 @@ struct Cover {
             if (progress) for (int v=0; v<k; ++v) std::putc(label[v],stdout);
             if (finished) return true;
         }
-        return false;
+        // A scarce coefficient can be targeted by a virtual edge with a bias.
+        for (int v=0; v<k; ++v) for (int w=v; w<k; ++w) {
+            for (int j=0; j<3; ++j) if (!(covered[v][j]&(Mask(1)<<w))) {
+                int coefficient=j==0 ? 1 : j==1 ? 3 : 9;
+                if (!port_swaps(v,w,coefficient)) return false;
+                for (int i=0; i<k; ++i) std::putc(label[i],stdout);
+            }
+        }
+        return true;
     }
 
     bool certify_pair() {
