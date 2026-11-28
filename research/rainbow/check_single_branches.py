@@ -1,6 +1,7 @@
 """Count the typed single-branch certificate and check the interval tests."""
 from argparse import ArgumentParser
 from math import gcd
+from functools import lru_cache
 from pathlib import Path
 import re
 
@@ -56,6 +57,25 @@ def interval_checks(k):
     return limits
 
 
+def sharp_common_bound(limit):
+    @lru_cache(None)
+    def unit_gap(t):
+        return largest_gap({0}|{x for x in range(1,t) if gcd(x,t)==1}, t)
+    for k in range(2,limit+1):
+        divisors = [t for t in range(2,k+1) if k%t==0]
+        actual = max(k//t*unit_gap(t) for t in divisors)
+        expected = 2*k//3 if k%6==0 else k//divisors[0]
+        assert actual==expected
+        # At the claimed threshold exhibit a failing marked interval, realized
+        # by the ordinary star labeling with center 0 and leaf labels 1..m.
+        m=k-actual
+        order=6 if k%6==0 else divisors[0]
+        mark=k//6 if order==6 else 0
+        shifts=[k//order*u for u in range(1,order) if gcd(u,order)==1]
+        assert all((mark-b)%k<=m for b in shifts)
+    print('sharp common-parent width through modulus',limit)
+
+
 if __name__ == '__main__':
     cli = ArgumentParser(description=__doc__)
     cli.add_argument('--manifest',type=Path)
@@ -64,6 +84,7 @@ if __name__ == '__main__':
     if args.manifest:
         check_manifest(args.manifest)
     if args.intervals:
+        sharp_common_bound(1024)
         for k in range(2,42):
             table = interval_checks(k)
             if k==27:

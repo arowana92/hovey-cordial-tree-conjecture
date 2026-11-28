@@ -30,6 +30,26 @@ Thus for a least counterexample of order $27m+1+t$, if an edge cuts off exactly 
 
 At orders 50 through 54 there is also a test for a union of branches at a single joint. If the other branches at that joint have 27 vertices altogether and at most seven rooted tips, the [common-site period theorem](../bounded-degree/prescribed-pair.md) labels those 27 vertices around the joint with its own label as the surplus. The remaining forest has at most 26 vertices at this common parent. Apply the zero row of the table. This test permits arbitrary branching in the remaining forest.
 
+## Sharp interval width for a marked vertex and a missing residue
+
+Let $p$ be the smallest prime divisor of $k$. Over all nonzero unit orbits $O$ modulo $k$, the **largest possible** $g(O\cup\{0\})$ equals
+$$
+G(k)=
+\begin{cases}
+2k/3,&6\mid k,\\
+k/p,&6\nmid k.
+\end{cases}
+$$
+Thus an interval labeling of the augmented tree on $m+1$ vertices works at every common parent color whenever $m<k-G(k)$. This bound is sharp for using affine images of an arbitrary given marked interval labeling. For a **connected** branch with its own interval labeling, the corresponding sufficient inequality for nonzero parent difference is $m\le k-k/p$, by the [sharp bound without adjoining zero](../census/marked-ring.md). At zero difference use the augmented tree as above.
+
+To prove the formula, write a nonzero orbit as $g$ times the units modulo $t=k/g$. Here $g$ is the gcd of the difference and $k$; every unit modulo $t$ lifts to a unit modulo $k$. Let $q$ be the smallest prime divisor of $t$ and $r=t/q$. When $t$ is prime, adjoining zero gives every residue. If $q\mid r$, every block of $r$ consecutive integers contains a representative of 1 modulo $r$, which is coprime to $t$. Otherwise an even $r$ is impossible, since then $q=2$. For odd $r\ge5$ the pairs $(1,2)$ and $(-2,-1)$ modulo $r$ are disjoint and consist of units. Listing a block of $r$ consecutive integers can break at most one of these two adjacencies. In the other pair at most one integer is divisible by $q$. Thus the block meets a unit modulo $t$. The only remaining composite case is $r=3,q=2$, when $t=6$ and the points $0,1,5$ have maximum gap four.
+
+After scaling, every nonexceptional divisor $t$ contributes a maximum gap at most $k/q\le k/p$. Taking $t=p$ attains $k/p$. When $6\mid k$, taking $t=6$ attains $2k/3$, larger than $k/2$. This proves the formula. The [finite check](check_single_branches.py) independently computes every orbit gap through modulus 1024.
+
+For sharpness, take the orbit attaining $G(k)$. A translate of $-(O\cup\{0\})$ fits in $[0,m]$ as soon as $m\ge k-G(k)$, for $m<k$. Mark the translated zero. A star with center labeled zero and leaves labeled $1,\ldots,m$ realizes this entire interval with consecutive edge sums. For that mark all potential preimages of the unused residue lie in the given vertex interval, so every affine image fails the two prescriptions. This argument concerns one fixed labeling.
+
+In particular **every common-parent forest of up to 26 new vertices extends a prescribed surplus core at every modulus $k\ge79$**, by the integer census through order 27. At $k=78$, the star labeling on $0,\ldots,26$ with mark 13 cannot be affinely transformed to put 13 at that mark while leaving zero unused: the only possible preimages of zero are 0 and 26. The [modulo-27 marked-tree certificate](common-site-27.md) uses multiple labelings and goes beyond the single-interval bound there.
+
 ## Reproduction
 
 The earlier six low-tip streams use the deterministic search, and the final eight use bounded restarts. Generation and verification can be piped without keeping the raw streams. The independent checker counts all shapes and also verifies the gap formulas by enumerating the available residues through modulus 41.
