@@ -8,6 +8,8 @@ The new audit has 88,398,176 rooted trees, 170,277,064 witness rows and 2,386,75
 
 Consequently, if a least 27-label counterexample has order $27m+23$, neither side of any edge cut can have any of the exact orders **22 through 27**. For 22, the smaller remaining core has order one modulo 27 and the theorem applies. Orders 23 through 27 follow from the [affine and divisible cut theorems](../prime/four-deficits.md). At order 50 the [centroid and two-cut proof](../census/order-fifty.md) also covers every tree that avoids these edges.
 
+Permuting leaf children at the branch root also gives a criterion using a bijective rainbow labeling of one padded tree. At 27 labels it covers 25-vertex branches with at least seven leaf children at the entering root. [Sibling construction](sibling-branches.md)
+
 ## A unit-orbit test at any modulus
 
 Let $k\ge2$, normalize the surplus to zero and assume $b\ne0$. Write $O$ for the orbit of $b$ under multiplication by units modulo $k$. Let $g(O)$ be the largest clockwise distance between consecutive orbit points, with $g(O)=k$ for a singleton. The following tests apply whenever the indicated integer labelings exist. An integer interval labeling uses consecutive vertex labels and distinct consecutive edge sums. The [integer census](../census/README.md) supplies every tree of order at most 27.
