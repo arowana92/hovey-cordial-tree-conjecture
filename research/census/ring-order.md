@@ -1,6 +1,6 @@
-# Five independently attached paths and order bounds at 26 and 27 labels
+# Independently attached paths and order bounds at 26 and 27 labels
 
-**Theorem (computer-assisted).** If a counterexample exists at 26 labels, one of least order has **49 through 208 vertices**. At 27 labels the corresponding interval is **50 through 243 vertices**. At both 26 and 27 labels, any five paths attached by their endpoints at arbitrary vertices of a prescribed cordial core of order zero or one modulo $k$ can grow in any prescribed interleaving. One labeling works on every prefix.
+**Theorem (computer-assisted).** If a counterexample exists at 26 labels, one of least order has **49 through 208 vertices**. At 27 labels the corresponding interval is **50 through 243 vertices**. At both 26 and 27 labels, any five paths attached by their endpoints at arbitrary vertices of a prescribed cordial core of order zero or one modulo $k$ can grow in any prescribed interleaving. One labeling works on every prefix. At 26 labels this also holds for six independently attached paths.
 
 Write the minimum order as $km+s$, $1\le s\le k$. The possible order lies in the interval in the corresponding cell and is congruent to its column heading modulo $k$.
 
@@ -11,22 +11,25 @@ Write the minimum order as $km+s$, $1\le s\le k$. The possible order lies in the
 
 The lower endpoints and residue exclusions follow from the [21-vertex extension](../rainbow/twenty-one-free.md). The maxima are upper bounds from necessary conditions. For 26 the previous ceiling was [286 vertices](pendant-order.md). At 27 the one-side-leaf replacement reduces the previous ceiling of 351. [Edge replacements for all old frequency profiles](one-leaf-period.md)
 
-## Five terminal paths with independently prescribed parents
+## Terminal paths with independently prescribed parents
 
-On a core of order one modulo $k$, translate the sole surplus vertex residue to zero. For every partition of $k-1$ into at most five positive path lengths, the certificate works for every tuple of parent labels. A witness uses every nonzero residue once on the paths and gives $k-1$ distinct sums including the entering edges. Every parent-first prefix uses a subset of these vertices and a subset of these edges. Consequently both frequency distributions stay balanced. Pad a last short batch at a tip and restrict. From order zero modulo $k$, give the next vertex the unique label filling the deficient weight, then start another batch. A path that continues through this boundary uses its present endpoint as its next parent.
+On a core of order one modulo $k$, translate the sole surplus vertex residue to zero. For every partition of $k-1$ into the certified number of positive path lengths, the certificate works for every tuple of parent labels. A witness uses every nonzero residue once on the paths and gives $k-1$ distinct sums including the entering edges. Every parent-first prefix uses a subset of these vertices and a subset of these edges. Consequently both frequency distributions stay balanced. Pad a last short batch at a tip and restrict. From order zero modulo $k$, give the next vertex the unique label filling the deficient weight, then start another batch. A path that continues through this boundary uses its present endpoint as its next parent.
 
 | Modulus | Paths | Length lists | Witnesses | Ordered parent tuples across all lists |
 |---:|---:|---:|---:|---:|
 | 26 | 5 | 192 | 1,816,020 | 2,281,224,192 |
+| 26 | 6 | 235 | 10,727,429 | 72,595,207,360 |
 | 27 | 1 | 1 | 3 | 27 |
 | 27 | 2 | 13 | 281 | 9,477 |
 | 27 | 3 | 56 | 10,376 | 1,102,248 |
 | 27 | 4 | 136 | 184,128 | 72,275,976 |
 | 27 | 5 | 221 | 1,789,693 | 3,171,108,447 |
 
-The [one- through four-path certificates at 26](terminal-order.md) complete the lower path counts. For five paths, a [separate checker](../rainbow/check_path_permutations.cpp) enumerates all ordered compositions to obtain the expected sorted lists. It checks every permutation and actual internal sum, recursively assigns distinct unused weights to the entering edges, and reconstructs the parent labels from these sums. It computes the least unit multiple of every ordered input tuple by a base-$k$ digit recurrence, then requires every representative to have a witness. Multiplication by any unit fixes zero and scales every sum. The Python and native checkers also agreed on all four smaller path counts at 27. A separate SSH checkout regenerated all ten streams for one through five paths at both moduli and reproduced every digest and verifier total. A [whole-tree replay](../rainbow/check_path_growth.py) assembled the witnesses on star cores at both allowed order residues, with coincident and different parents. Recounting both histograms after each step verified 1,240 actual prefixes at 26 and 1,280 at 27. [Generator](../rainbow/independent_paths.cpp) · [SHA-256 manifest](../rainbow/five-paths.sha256)
+The [one- through four-path certificates at 26](terminal-order.md) complete the lower path counts. For each larger path count, a [separate checker](../rainbow/check_path_permutations.cpp) enumerates all ordered compositions to obtain the expected sorted lists. It checks every permutation and actual internal sum, recursively assigns distinct unused weights to the entering edges, and reconstructs the parent labels from these sums. It computes the least unit multiple of every ordered input tuple by a base-$k$ digit recurrence, then requires every representative to have a witness. Multiplication by any unit fixes zero and scales every sum. The Python and native checkers also agreed on all four smaller path counts at 27. A separate SSH checkout regenerated all ten streams for one through five paths at both moduli and reproduced every digest and verifier total. A [whole-tree replay](../rainbow/check_path_growth.py) assembled the witnesses on star cores at both allowed order residues, with coincident and different parents. Recounting both histograms after each step verified 1,240 actual prefixes at 26 and 1,280 at 27. [Generator](../rainbow/independent_paths.cpp) · [SHA-256 manifest](../rainbow/five-paths.sha256)
 
-In a minimum counterexample the five longest terminal arms together have length at most $M=s-2$. Otherwise remove $s-1$ terminal vertices on at most five paths. Minimality labels the connected remainder of order one modulo $k$, and the certificate restores the removed paths. Let $z$ be the fifth largest length. Then $5z\le M$ and the sum of $(a-z)_+$ over all arm lengths $a$ is at most $M-5z$. Each joint with $j$ terminal arms of total length $w$ uses at least $(w-jz)_+$ of this budget.
+At 26 the same full native verification covered six paths. The whole-tree replay with one through six paths recounted 1,500 actual prefixes. [Six-path digest](../rainbow/six-paths.sha256)
+
+In a minimum counterexample the five longest terminal arms together have length at most $M=s-2$. Otherwise remove $s-1$ terminal vertices on at most five paths. Minimality labels the connected remainder of order one modulo $k$, and the certificate restores the removed paths. Let $z$ be the fifth largest length. Then $5z\le M$ and the sum of $(a-z)_+$ over all arm lengths $a$ is at most $M-5z$. Each joint with $j$ terminal arms of total length $w$ uses at least $(w-jz)_+$ of this budget. The six-path certificate gives the same statement at 26 for the six longest arms, with $z$ the sixth largest length and budget $M-6z$.
 
 ## Cuts at small sides and at a branching vertex
 
@@ -68,6 +71,10 @@ for k in 26 27; do
     done
 done
 (cd "$out" && shasum -a 256 -c "$r/independent-paths.sha256" && shasum -a 256 -c "$r/five-paths.sha256")
+"$out/paths" 26 6 > "$out/multipath-26-6"
+"$out/check-paths" 26 6 "$out/multipath-26-6"
+(cd "$out" && shasum -a 256 -c "$r/six-paths.sha256")
+python3 -B -m research.rainbow.check_path_growth "$out" 26 6
 python3 -B -m research.rainbow.check_path_growth "$out"
 python3 -B -m research.census.check_ring_cuts
 lean "$c/SideForestOrder.lean"

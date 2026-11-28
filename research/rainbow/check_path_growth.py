@@ -1,4 +1,4 @@
-"""Assemble five-path witnesses on actual cores and recount every prefix."""
+"""Assemble path witnesses on actual cores and recount every prefix."""
 
 from functools import lru_cache
 from math import gcd
@@ -10,10 +10,10 @@ from .check_cut_growth import replay
 
 
 class Catalog:
-    def __init__(self, directory, k):
+    def __init__(self, directory, k, paths=5):
         self.k = k
         self.positions = {}
-        for j in range(1, 6):
+        for j in range(1, paths+1):
             path = directory / f"multipath-{k}-{j}"
             with path.open("rb") as stream:
                 while True:
@@ -60,12 +60,12 @@ class Catalog:
         raise ValueError((shape, parents, surplus))
 
 
-def check(directory, k):
-    catalog = Catalog(directory, k)
+def check(directory, k, paths=5):
+    catalog = Catalog(directory, k, paths)
     rng = Random(1991+k)
     total = 0
     for core in (k,k+1):
-        for arms in range(1,6):
+        for arms in range(1,paths+1):
             for common in (False,True):
                 shift = rng.randrange(k)
                 labels = [(v+shift)%k for v in range(core)]
@@ -103,5 +103,8 @@ def check(directory, k):
 
 
 if __name__ == "__main__":
-    for modulus in (26,27):
-        check(Path(sys.argv[1]), modulus)
+    if len(sys.argv)==4:
+        check(Path(sys.argv[1]),int(sys.argv[2]),int(sys.argv[3]))
+    else:
+        for modulus in (26,27):
+            check(Path(sys.argv[1]),modulus)
