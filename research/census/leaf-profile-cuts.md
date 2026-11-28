@@ -1,6 +1,6 @@
-# Cordial growth for trees with at most thirteen leaves at 27 labels
+# Cordial growth for trees with at most fourteen leaves at 27 labels
 
-**Theorem (computer-assisted).** Every finite tree with at most thirteen leaves has one labeling that is 27-cordial on every prefix of a connected vertex order. Any specified leaf can be placed in the last block of 27 vertices (or the final shorter block) and receive a most-frequent vertex residue. Every tree with at most fifteen leaves and at most 52 vertices also satisfies these assertions. Within fourteen leaves the same assertions hold through order 53. A least failure within fifteen leaves must have order 53 or 54, and within fourteen leaves only order 54 remains.
+**Theorem (computer-assisted).** Every finite tree with at most fourteen leaves has one labeling that is 27-cordial on every prefix of a connected vertex order. Any specified leaf can be placed in the last block of 27 vertices (or the final shorter block) and receive a most-frequent vertex residue. Every tree with at most fifteen leaves and at most 53 vertices also satisfies these assertions. If the result fails within fifteen leaves, the least failure in that class has exactly fifteen leaves and order 54.
 
 The earlier results cover [every tree through 49 vertices](../rainbow/twenty-one-free.md) and [at most eleven leaves at every order](eleven-leaves.md). The [three-group reduction](../rainbow/few-leaves.md#a-finite-reduction-for-eleven-leaves) puts the least counterexample within thirteen leaves at order at most 54 using six tips. The [seven-tip certificate](../rainbow/seven-tip-27.md) gives the same bound within fifteen leaves. This leaves five orders to verify for an all-orders theorem.
 
@@ -23,9 +23,9 @@ Enumerate every possible multiset of pairs $(s,h)$ for the suffix within $B$, wi
 
 Use the existing [prefix induction](../rainbow/cut-growth.md) for at most ten leaves. For eleven through fifteen leaves, the integer base gives distinct labels and edge weights through order 27. At order one modulo 27, delete the marked leaf, or any leaf if unmarked, apply induction, then append it with the label that fills the deficient edge bin. For the remaining orders through 49 use the [21-vertex exterior certificate](../rainbow/twenty-one-free.md) on the size-ordered cut, which has at most thirteen tips. At orders 50 through 54, each completed row below certifies a cut to a 28-vertex core. For exactly eleven leaves they accept all 64, 81, 100, 120 and 140 exceptional numerical cases, respectively, using the twelve-leaf manifests. Above 54 the [three-group argument](../rainbow/few-leaves.md#a-finite-reduction-for-eleven-leaves) supplies a cut with at most $q$ tips.
 
-Each core is connected, has order one modulo 27 and has at most as many leaves as the original tree. Apply induction to the core, retaining the mark if it lies there. Its final block is a singleton, so a retained mark has the unique surplus color. The exterior receives distinct colors avoiding this surplus, with distinct new edge weights. Append its vertices in any parent-first order. Every prefix increments only distinct low vertex bins and distinct initially equal edge bins. The final block consists of the last core vertex and the exterior. Its residues are all most frequent. All five finite orders are covered through thirteen leaves. For fourteen and fifteen leaves the same proof applies through the last consecutive order in the table below.
+Each core is connected, has order one modulo 27 and has at most as many leaves as the original tree. Apply induction to the core, retaining the mark if it lies there. Its final block is a singleton, so a retained mark has the unique surplus color. The exterior receives distinct colors avoiding this surplus, with distinct new edge weights. Append its vertices in any parent-first order. Every prefix increments only distinct low vertex bins and distinct initially equal edge bins. The final block consists of the last core vertex and the exterior. Its residues are all most frequent. All five finite orders are covered through fourteen leaves. For fifteen leaves the table covers the first four orders.
 
-The [matching lift and marked-leaf deletion](marked-ring.md#matching-consequence-and-verification) now prove 54-cordiality for any tree with at most thirteen leaves and a perfect or near-perfect matching. Matching contraction and the temporary-leaf construction in that argument preserve the required leaf bound.
+The [matching lift and marked-leaf deletion](marked-ring.md#matching-consequence-and-verification) give 54-cordiality for any tree with at most fourteen leaves and a perfect or near-perfect matching. Matching contraction and the temporary-leaf construction in that argument preserve the required leaf bound.
 
 ## Independent enumeration and labeling checks
 
@@ -35,7 +35,7 @@ A certificate profile lists the order and tip count of every component. The [gen
 
 The [manifest checker](check_leaf_profile_manifests.py) uses integer partitions to count rooted components independently. If a type has $N$ rooted trees and occurs $c$ times, its factor in the shape count is $\binom{N+c-1}{c}$. A separate recurrence counts literal boundary assignments by whether the next component starts a new run. The [small-modulus regression](check_typed_leaf_streams.py) compares whole component-type dictionaries against full catalogs at eight labels and directly checks their literal boundary inputs. It also injects 184 truncated, repeated, empty or invalid-label streams.
 
-At each order the profile dictionaries are cumulative in leaf count. Each manifest records the additional profiles first used at that leaf count. The fourteen- and fifteen-leaf rows use the seven-tip theorem for the freely permitted shapes.
+At each order the profile dictionaries are cumulative in leaf count. Each manifest records the additional profiles first used at that leaf count. The twelve- and thirteen-leaf table entries give cumulative certificate totals. At fourteen and fifteen leaves the table counts the additional profiles, and the seven-tip theorem supplies the freely permitted shapes.
 
 | Leaves | Order | Numerical cases requiring a cut | Profiles | Rooted forests | Witness rows | Boundary assignments |
 |---:|---:|---:|---:|---:|---:|---:|
@@ -53,9 +53,13 @@ At each order the profile dictionaries are cumulative in leaf count. Each manife
 | 14 | 51 | 1,186 | 388 | 15,878,970 | 459,395,255 | 103,700,019,582 |
 | 14 | 52 | 1,732 | 183 | 16,028,313 | 877,505,837 | 172,313,857,575 |
 | 14 | 53 | 2,505 | 249 | 32,960,118 | 1,794,713,468 | 344,948,036,130 |
+| 14 | 54 | 3,451 | 293 | 66,743,558 | 6,336,041,656 | 666,995,883,318 |
 | 15 | 50 | 2,186 | 329 | 16,019,357 | 274,022,699 | 71,146,816,965 |
 | 15 | 51 | 3,768 | 554 | 35,862,672 | 930,592,083 | 209,257,110,180 |
 | 15 | 52 | 6,446 | 240 | 42,112,876 | 1,536,568,447 | 249,950,696,346 |
+| 15 | 53 | 11,305 | 442 | 82,619,236 | 3,403,891,094 | 575,972,140,716 |
+
+The last fourteen-leaf order and the first four fifteen-leaf orders have complete cut coverage in both geometry implementations. Every generated stream received independent witness verification. A second build regenerated all 79 new streams with at most 100 forests, matching each digest for a total of 3,499 forests, 651,902 witness rows and 71,827,641 boundary assignments. A [whole-tree replay](check_order_fifty_samples.py) recounted every prefix of the restoration on 8,748 trees of order 54, including 2,104 with fourteen leaves, and 2,187 trees of order 53, including 287 with fifteen leaves. [Fourteen leaves at 54](leaf-profile-audits/14-54.txt) · [Fifteen leaves at 53](leaf-profile-audits/15-53.txt)
 
 ## Reproduction
 
@@ -87,4 +91,8 @@ for manifest in "$c"/leaf-profile-audits/1[2-5]-*.txt; do
   for ((i=12; i<=leaves; i++)); do proof+=("$c/leaf-profile-audits/$i-$n.txt"); done
   python3 -B -m research.census.check_leaf_profile_manifests "$n" "$leaves" "$out/geometry" "${proof[@]}"
 done
+"$out/generate" 27 0 1 "$out/sample54" --typed 1,1 1,1 1,1 1,1 1,1 4,1 17,2
+python3 -B -m research.census.check_order_fifty_samples "$out/sample54" --order 54 --sample 4
+"$out/generate" 27 0 1 "$out/sample53" --typed-restarts 1,1 1,1 1,1 1,1 1,1 1,1 1,1 18,1
+python3 -B -m research.census.check_order_fifty_samples "$out/sample53" --order 53
 ~~~

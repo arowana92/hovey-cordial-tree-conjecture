@@ -31,12 +31,15 @@ def core(run):
     return labels, edges
 
 
-def check(path, order=50):
+def check(path, order=50, limit=None):
     mass = order-28
-    cores = [core(r) for r in (4,5,6)]
+    runs = (2,3,4) if order>=53 else (4,5,6)
+    cores = [core(r) for r in runs]
     leaves = Counter()
     shapes = 0
     for _, _, payload, (parents, roots, sizes, _) in records(path):
+        if limit is not None and shapes>=limit:
+            break
         assert len(parents) == mass
         options = []
         for row in iter_unpack(f'{mass}B', payload):
@@ -65,6 +68,15 @@ def check(path, order=50):
                 for histogram in (vertex,edge):
                     bins = [histogram[x] for x in range(27)]
                     assert max(bins)-min(bins) <= 1
+                if order>=53:
+                    vertex_bins = [old.count(c) for c in range(27)]
+                    edge_bins = [1]*27
+                    for u,v in joined[len(edges):]:
+                        assert u<v
+                        vertex_bins[coloring[v]] += 1
+                        edge_bins[(coloring[u]+coloring[v])%27] += 1
+                        for bins in (vertex_bins,edge_bins):
+                            assert max(bins)-min(bins)<=1
                 degree = Counter(x for pair in joined for x in pair)
                 leaves[sum(n==1 for n in degree.values())] += 1
         shapes += 1
@@ -76,6 +88,7 @@ def check(path, order=50):
 if __name__ == '__main__':
     parser = ArgumentParser(description=__doc__)
     parser.add_argument('stream', type=Path)
-    parser.add_argument('--order', type=int, choices=(50,51,52), default=50)
+    parser.add_argument('--order', type=int, choices=range(50,55), default=50)
+    parser.add_argument('--sample',type=int,help='maximum number of rooted forests to expand')
     args = parser.parse_args()
-    check(args.stream,args.order)
+    check(args.stream,args.order,args.sample)
