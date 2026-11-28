@@ -8,6 +8,8 @@ At 27 labels, every 52-vertex tree with at most nineteen leaves is cordial. An o
 
 At 27 labels, every 52-vertex tree with 21 through 23 leaves at 21 or more distinct parents is cordial. A counterexample with 23 leaves would need eight through twenty different parents. The proof classifies all zero-sum matchings with five missing residues on each side and also gives parent bounds at orders 53 and 54. [Leaf extension and certificates](research/biased/five-hole-matchings.md)
 
+At every modulus $k$, attaching at least three leaves at every vertex of any tree of order $h\ge k$ gives a $k$-cordial tree. Two leaves per vertex suffice if $h\ge2k$ or $k$ divides $h$. [Breadth-first construction and exact completion criterion](research/hub/breadth-first-leaves.md)
+
 For all sufficiently large $k$, take any tree with $(1\pm\delta)k$ vertices for a sufficiently small absolute $\delta>0$. Attaching leaves at $(1-\delta)k$ or more different vertices gives a $k$-cordial tree. If the original order is any positive multiple of $k$, at least one new leaf at every vertex suffices. [Proof and uniform forest attachment](research/hub/private-leaves.md)
 
 At every odd modulus, a harmonious cycle can contain any prescribed full arithmetic progression as consecutive vertices. This lets branches move between corresponding vertices on two copies of a path while preserving the original cordial labeling. [Construction, tree operation and Lean arithmetic check](research/census/cycle-progressions.md)
