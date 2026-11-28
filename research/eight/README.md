@@ -4,6 +4,8 @@
 
 A second proof uses seven-vertex packets and classifies every obstruction to preserving a core of order one modulo eight. Only 42 colored forests fail, all on seven new vertices. Every larger forest extends. [Classification, independent enumeration and second proof](surplus.md)
 
+A compact version of the ordered-cut proof fits in a 3,639-byte certificate. A Python script regenerates it from scratch, and a separate C++ check proves its 322 permutations are the minimum for those cut conditions and the specified unit symmetry. [Compact proof, certificate and checks](small-cover.md)
+
 ## The extension lemma
 
 Let a connected labeled core have order $8m$, with $m\ge 1$. In a cordial labeling each vertex residue occurs $m$ times. There are $8m-1$ edges, so one residue $d$ occurs $m-1$ times and every other residue occurs $m$ times.
