@@ -22,6 +22,8 @@ Take a diameter path. Its first and last edges are pendant. At every other edge 
 
 Write $n=mp+s$ now with $1\le s\le p$ and let $L$ be the number of leaves. The divisible-cut and leaf-deletion bounds give $n\le p(L-1)$ and $L\le s-2$. If $s<p$, these already give $n\le p(p-4)$. If $s=p$, the diameter is at most $2p-4$. A center is therefore at distance at most $p-2$ from every vertex. Its paths to the $L$ leaves cover the tree, so $n\le 1+L(p-2)\le1+(p-2)^2$. Rounding down to a multiple of $p$ gives $p(p-4)$ for $p\ge7$. [Divisible-cut and leaf bounds](../divisible-cuts.md)
 
+For pieces on different edges, a separate [packing inequality](period-edges.md) gives $3m<2\lceil(n-1)/p\rceil$ for $m$ disjoint two-port pieces in a smallest prime counterexample of order $n$.
+
 ## Testing a given interval
 
 Scale each fixed piece independently by a unit. To test whether their total effective offset can be a prescribed $z$, work at every $p^a\parallel k$. Truncate valuations at $a$, let $j$ be the least valuation among the $c_i$, and let $m$ be its multiplicity. Require $p^j\mid z$. If $j=a$, there is no further condition at this prime. The remaining conditions depend on the prime.
