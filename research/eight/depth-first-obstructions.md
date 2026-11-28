@@ -2,6 +2,8 @@
 
 **Theorem.** For every composite modulus $k$, there is a $k$-cordial tree and a specified depth-first preorder such that no labeling is cordial on every prefix of that order. If $p$ is the least prime divisor of $k$, the example has $k(p+2)$ vertices. In particular it has 32 vertices at eight labels and 45 at nine. At every even modulus with an odd factor, a caterpillar on $2k$ vertices suffices.
 
+The [two-period construction](two-period-orders.md) gives a diameter-four example on $2k$ vertices at every composite modulus. It also determines the exact minimum orders at eight and nine.
+
 ## An obstruction at every composite modulus
 
 Put $g=k/p$. Start the preorder with a path on $k$ vertices, oriented away from its first vertex. Choose distinct path vertices $v_1,\ldots,v_{p+1}$ in reverse path order, with $v_1$ its far end and $v_{p+1}$ its first vertex. Put $a_1=v_1$. For $i=1,\ldots,p+1$, append a star of order $g$ at $a_i$, then a star of order $k-g$ at $v_i$, in each case listing the new center and then its leaf children. Put $a_{i+1}$ equal to the second new center. The first star of the next block is the remaining child subtree of that center. After finishing it, the traversal backtracks to the next $v_i$. This is a depth-first preorder.
