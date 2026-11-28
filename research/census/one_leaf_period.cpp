@@ -4,6 +4,7 @@
 #include <iostream>
 #include <numeric>
 #include <stdexcept>
+#include <string>
 #include <vector>
 
 using Mask = std::uint64_t;
@@ -198,6 +199,45 @@ void vertex_witnesses(int k,int c,int cut) {
     throw std::runtime_error("vertex search incomplete");
 }
 
+// Cover every feasible nonuniform transfer at every regular cycle vertex.
+// Reflection fixing the junction identifies positions v and cycle-v.
+void transfer_spectrum(int k, int cycle) {
+    const int sum = k*(k-1)/2 % k;
+    std::vector<int> orbit(k*k,-1);
+    int orbits = 0;
+    for (int p = 0; p < k; ++p) for (int q = 0; q < k; ++q) {
+        if (p == q || (p+k-q)%k == sum || orbit[p*k+q] >= 0) continue;
+        for (int u = 1; u < k; ++u) if (std::gcd(u,k) == 1)
+            orbit[(u*p%k)*k+u*q%k] = orbits;
+        ++orbits;
+    }
+    Search search(k,cycle,transfer);
+    std::vector<std::vector<bool>> seen(cycle/2+1,std::vector<bool>(orbits));
+    int missing = cycle/2*orbits;
+    for (int attempt = 0; attempt < 2000000 && missing; ++attempt) {
+        if (!search.next()) continue;
+        auto bins = search.counts();
+        int p = std::find(bins.begin(),bins.end(),2)-bins.begin();
+        if (p == k) continue;
+        int q = std::find(bins.begin(),bins.end(),0)-bins.begin();
+        bool used = false;
+        for (int v = 1; v < cycle; ++v) {
+            int shift = 2*(k-search.label[v]);
+            int id = orbit[((p+shift)%k)*k+(q+shift)%k];
+            if (id < 0) throw std::runtime_error("forbidden transfer sum");
+            auto& row = seen[std::min(v,cycle-v)];
+            if (!row[id]) {
+                row[id] = true;
+                used = true;
+                --missing;
+            }
+        }
+        if (used) search.emit();
+    }
+    if (missing) throw std::runtime_error("regular-port transfer spectrum incomplete");
+    if (sum) vertex_witnesses(k,cycle,harmonious);
+}
+
 // The order-six triangle with a three-edge tail has no harmonious
 // labeling. Check the actual opening with prescribed old labels 0 and d.
 void six_triangle() {
@@ -222,11 +262,15 @@ void six_triangle() {
 }
 
 int main(int argc,char** argv) {
-    if (argc!=2) return 2;
+    bool spectrum = argc==3 && std::string(argv[2])=="--spectrum";
+    if (argc!=2 && !spectrum) return 2;
     int k=std::stoi(argv[1]);
     if (k<4 || k>63) return 2;
+    if (spectrum && k<10 && k!=7) return 2;
     for (int c=3;c<k;++c) {
-        if (k==6 && c==3) {
+        if (spectrum) {
+            transfer_spectrum(k,c);
+        } else if (k==6 && c==3) {
             six_triangle();
         } else if (k%2==0) {
             vertex_witnesses(k,c,harmonious);
