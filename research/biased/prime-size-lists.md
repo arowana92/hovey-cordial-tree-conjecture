@@ -10,6 +10,8 @@ Let $p$ be an odd prime and $k=2p$. Give each of $p$ rows its own list $A_i$ of 
 
 For example, $p-1$ zero shifts and one shift of 2 fail on the common even list. Changing one of the lists to include an odd input removes the obstruction.
 
+For any number of rows whose shifts lie in a prime-order coset, lists of size at least the row count suffice when at most $p-1$ lists have that minimum size. [Separate-list extension](prime-coset-spare.md)
+
 ## Mixed shift parities
 
 Write $v$ for the number of odd shifts. When $0<v<p$, the [two-Vandermonde coefficient](twice-prime-power-lists.md#reduction-of-the-coefficient), reduced modulo $p$ and up to sign, is
