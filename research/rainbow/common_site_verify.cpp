@@ -47,7 +47,7 @@ Digits decode(Word word,int n) {
     return parents;
 }
 
-Word coverage(int n,const Digits& parents,const std::array<Mask,k>& orbit) {
+Word coverage(int n,const Digits& parents,const std::array<Mask,k>& orbit,bool edge) {
     std::array<Mask,k> covered{};
     Word rows=0;
     for (int lead=std::getc(stdin); lead!=255; lead=std::getc(stdin)) {
@@ -65,23 +65,25 @@ Word coverage(int n,const Digits& parents,const std::array<Mask,k>& orbit) {
                 weights|=Mask(1)<<weight;
             }
         }
-        for (int i=0; i<n; ++i) {
+        for (int i=edge ? 1 : 0; i<n; ++i) {
             if (covered[i]==full) continue;
-            covered[i]|=1;  // Translating the marked vertex to zero always works.
-            for (Mask holes=full^vertices; holes; holes&=holes-1)
-                covered[i]|=orbit[(labels[i]+k-__builtin_ctz(holes))%k];
+            covered[i]|=1;
+            int value=edge ? (labels[i]+labels[parents[i]])%k : labels[i];
+            for (Mask holes=full^(edge ? weights : vertices); holes; holes&=holes-1)
+                covered[i]|=orbit[(value+k-__builtin_ctz(holes))%k];
         }
         ++rows;
     }
-    for (int i=0; i<n; ++i) require(covered[i]==full,"missing an old parent color");
+    for (int i=edge ? 1 : 0; i<n; ++i) require(covered[i]==full,"missing a prescribed residue");
     return rows;
 }
 }
 
 int main(int argc,char** argv) {
-    if (argc!=4) return 2;
+    bool edge=argc==5 && std::string(argv[4])=="--edge";
+    if (argc!=4 && !edge) return 2;
     int n=std::stoi(argv[1]), shard=std::stoi(argv[2]), stride=std::stoi(argv[3]);
-    if (n<3 || n>25 || n%2==0 || stride<1 || shard<0 || shard>=stride) return 2;
+    if (n<3 || n>(edge ? 23 : 25) || n%2==0 || stride<1 || shard<0 || shard>=stride) return 2;
     RankedForests ranks(n-1,true);
     std::array<Mask,k> orbit{};
     for (int d=0; d<k; ++d) for (int u=1; u<k; ++u)
@@ -97,7 +99,7 @@ int main(int argc,char** argv) {
         auto parents=decode(word,n);
         auto branches=(word>>1)&((Word(1)<<(2*n-2))-1);
         require(ranks.index(branches)==pos,"tree outside shard or out of order");
-        witnesses+=coverage(n,parents,orbit);
+        witnesses+=coverage(n,parents,orbit,edge);
         ++trees;
     }
     require(std::getc(stdin)==EOF && !std::ferror(stdin),"trailing data or read error");

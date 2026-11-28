@@ -21,13 +21,14 @@ Mask rotate(Mask values, int shift) {
 
 struct Cover {
     int n, budget;
+    bool edge_mode;
     std::array<int,k> parent{}, size{}, order{}, label{};
     std::array<Mask,k> neighbors{};
     Mask missing = 0;
     std::array<Mask,3> hits{};
     std::uint32_t seed;
 
-    Cover(int vertices, Word word): n(vertices), seed((word^(word>>32))|1U) {
+    Cover(int vertices, Word word, bool edge): n(vertices), edge_mode(edge), seed((word^(word>>32))|1U) {
         int height = 0, next = 0, stack[k];
         for (int bit=2*n-1; bit>=0; --bit) {
             if ((word>>bit)&1) {
@@ -68,14 +69,23 @@ struct Cover {
     }
 
     void record(Mask every) {
+        auto values=label;
+        Mask holes=missing;
+        if (edge_mode) {
+            holes=all;
+            for (int i=1; i<n; ++i) {
+                values[i]=(label[i]+label[parent[i]])%k;
+                holes^=Mask(1)<<values[i];
+            }
+        }
         std::array<Mask,3> residues{};
         for (int d=1; d<k; ++d)
-            residues[d%9==0 ? 0 : d%3==0 ? 1 : 2] |= rotate(missing,d);
+            residues[d%9==0 ? 0 : d%3==0 ? 1 : 2] |= rotate(holes,d);
         const auto previous=hits;
         for (int orbit=0; orbit<3; ++orbit)
             for (Mask left=every^hits[orbit]; left; left&=left-1) {
                 int v=__builtin_ctz(left);
-                if ((residues[orbit]>>label[v])&1) hits[orbit] |= Mask(1)<<v;
+                if ((residues[orbit]>>values[v])&1) hits[orbit] |= Mask(1)<<v;
             }
         if (previous!=hits)
             for (int v=0; v<n; ++v) std::putc(label[v],stdout);
@@ -143,7 +153,7 @@ struct Cover {
     }
 
     bool certify() {
-        const Mask every=(Mask(1)<<n)-1;
+        const Mask every=((Mask(1)<<n)-1)^Mask(edge_mode);
         int broad_trials=n<=23 ? 2000 : 60;
         for (int trial=0; trial<broad_trials; ++trial) {
             budget=150;
@@ -152,6 +162,7 @@ struct Cover {
             record(every);
             if ((hits[0]&hits[1]&hits[2])==every) return true;
         }
+        if (edge_mode) return false;
         // For a remaining mark, fix its color at zero and reserve a missing
         // color at the desired difference. Rerooting keeps the search parent-first.
         constexpr int difference[]={9,3,1};
@@ -175,14 +186,15 @@ struct Cover {
 }
 
 int main(int argc,char** argv) {
-    if (argc!=4) return 2;
+    bool edge=argc==5 && std::string(argv[4])=="--edge";
+    if (argc!=4 && !edge) return 2;
     int n=std::stoi(argv[1]), shard=std::stoi(argv[2]), stride=std::stoi(argv[3]);
-    if (n<3 || n>25 || n%2==0 || stride<1 || shard<0 || shard>=stride) return 2;
+    if (n<3 || n>(edge ? 23 : 25) || n%2==0 || stride<1 || shard<0 || shard>=stride) return 2;
     RankedForests forests(n-1,true);
     for (Word rank=shard; rank<forests.count(); rank+=stride) {
         Word word=(Word(1)<<(2*n-1))|(forests[rank]<<1);
         for (int j=0; j<8; ++j) std::putc((word>>(8*j))&255,stdout);
-        if (!Cover(n,word).certify())
+        if (!Cover(n,word,edge).certify())
             throw std::runtime_error("unresolved marked tree at rank "+std::to_string(rank));
         std::putc(255,stdout);
     }
