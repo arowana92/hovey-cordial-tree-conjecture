@@ -29,13 +29,19 @@ def prescriptions(k,h,target,edge_high,vertex_high):
     return result
 
 
-def construct(k,edges,ports,old,removed,eh,vh,rng):
+def construct(k,edges,ports,old,removed,eh,vh,rng,reducer=None):
     graph = adjacency(k,edges)
     counts = Counter(ports)
     delta = [len(row)+counts[v]-2 for v,row in enumerate(graph)]
-    assert len(ports)>=5 and delta.count(-1)<=1
+    assert reducer is not None or (len(ports)>=5 and delta.count(-1)<=1)
     fixed = {v for v,c in enumerate(delta) if c or counts[v]}
-    internal = [(a,b) for a,b in edges if a in fixed and b in fixed]
+    sites = {}
+    if reducer is not None:
+        edges,fixed,sites = reducer(edges,fixed)
+        graph = adjacency(k,edges)
+        assert all(delta[v]==0 for v in sites)
+    all_marks = fixed|sites.keys()
+    internal = [(a,b) for a,b in edges if a in all_marks and b in all_marks]
     h = reduce(gcd,delta,k)
     choices = prescriptions(k,h,sum(removed)-sum(old)-sum(range(k)),eh,vh)
     if not choices: return None
@@ -43,6 +49,7 @@ def construct(k,edges,ports,old,removed,eh,vh,rng):
     for attempt in range(1,5001):
         pins = {v:rng.randrange(k) for v in fixed}
         moment = sum(delta[v]*x for v,x in pins.items())%k
+        pins.update({s:(pins[a]+pins[b]-pins[r])%k for s,(a,b,r) in sites.items()})
         if moment not in choices or len(set(pins.values()))!=len(pins): continue
         dup,gap = (list(row) for row in choices[moment])
         colors = [(pins[v]+a)%k for v,a in zip(ports,old)]+[(pins[v]+pins[w])%k for v,w in internal]
