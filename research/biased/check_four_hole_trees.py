@@ -137,6 +137,80 @@ def checks(generator):
             cases.append(((sorted(G-U), ext, sorted((-w) % K for w in G-W-{z})),
                           (f, edges, parents, shifts, [0]*23)))
             actual += 1
+    # Choose the added core labels from sites that receive no exterior leaf.
+    controlled = 0
+    for leaves, sites in ((23, 22), (22, 22)):
+        h = 52 - leaves - K
+        for run in (2, 5, 9):
+            initial, original_edges = core(run)
+            for _ in range(30):
+                f, edges = initial.copy(), original_edges.copy()
+                old_tips = {v for v in range(28) if sum(v in edge for edge in edges) == 1}
+                origins = rng.sample(range(28), h-1)
+                tips = old_tips-set(origins)
+                parents = sorted(tips) + rng.sample(sorted(set(range(28))-tips), sites-(h-1)-len(tips))
+                parents += list(range(28, K+h))
+                parents += rng.choices(parents, k=leaves-sites)
+                old_counts = Counter(f)
+                unused = {f[v] for v in range(28) if v not in parents and old_counts[f[v]] == 1}
+                W = set()
+                for origin in origins:
+                    x = next(x for x in sorted(unused) if (x+f[origin]) % K not in W)
+                    unused.remove(x)
+                    W.add((x+f[origin]) % K)
+                    edges.append((origin, len(f)))
+                    f.append(x)
+                vs, ws = balanced(f, edges, [0]*len(edges))
+                U = {x for x in G if vs[x] == 2}
+                assert W == {x for x in G if ws[x] == 2}
+                shifts = [f[v] for v in parents]
+                assert len(set(shifts)) >= sites-1
+                a, b = next((a, b) for a, b in combinations(sorted(G-set(shifts)), 2)
+                            if (sum(U)-sum(W)-sum(shifts)-a-b) % K not in W)
+                ext = shifts+[a, b]
+                z = (sum(U)-sum(W)-sum(ext)) % K
+                cases.append(((sorted(G-U), ext, sorted((-w) % K for w in G-W-{z})),
+                              (f, edges, parents, shifts, [0]*leaves)))
+                controlled += 1
+    # At order 54 the last core leaf (with one exterior child) tunes the gap.
+    divisible = 0
+    for leaves, sites in ((25, 24), (25, 25), (24, 24)):
+        h = 54-leaves-K
+        for run in (3, 7):
+            for _ in range(40):
+                f, edges = core(run)
+                origins = rng.sample(range(28), h-1)
+                must = {v for v in range(28) if sum(v in edge for edge in edges) == 1} - set(origins)
+                selected = sorted(must) + rng.sample(sorted(set(range(28))-must), sites-(h-1)-len(must))
+                parents = selected + list(range(28, K+h))
+                if sites < leaves:
+                    parents.append(rng.choice(selected))
+                old, _ = balanced(f, edges, [0]*len(edges))
+                pool = {f[v] for v in range(28) if v not in parents and old[f[v]] == 1}
+                for origin in origins[:-1]:
+                    x = min(pool)
+                    pool.remove(x)
+                    edges.append((origin, len(f)))
+                    f.append(x)
+                vcount, wcount = balanced(f, edges, [0]*len(edges))
+                U = {x for x in G if vcount[x] == 2}
+                W = {x for x in G if wcount[x] == 2}
+                prior = [f[v] for v in parents if v < len(f)]
+                assert len(prior) == leaves-1
+                for a in sorted(pool) + sorted(G-pool):
+                    w = (a+f[origins[-1]]) % K
+                    shifts = prior+[a]
+                    z = (sum(U)+a-sum(W)-w-sum(shifts)) % K
+                    if a not in U and w not in W and z not in W|{w} and h+leaves-len(set(shifts)) <= 4:
+                        break
+                else:
+                    raise AssertionError("missing full-size repair")
+                edges.append((origins[-1], len(f)))
+                f.append(a)
+                shifts = [f[v] for v in parents]
+                cases.append(((sorted(G-U-{a}), shifts, sorted((-x) % K for x in G-W-{w,z})),
+                              (f, edges, parents, shifts, [0]*leaves)))
+                divisible += 1
     # Three repeated shores, including valid multisets larger than the group.
     for m in range(24, 30):
         for _ in range(45):
@@ -171,7 +245,8 @@ def checks(generator):
             trees += 1
     assert blocked and actual
     print(f'{len(keys)} orbit witnesses, {trees} whole trees, including {actual} with '
-          f'23 different leaf parents at order 52, {blocked} forced collisions, '
+          f'23 different leaf parents at order 52, {controlled} with controlled core labels at order 52, '
+          f'{divisible} tuned at order 54, {blocked} forced collisions, '
           f'{len(cases)-trees} multiset checks')
 
 
