@@ -97,7 +97,8 @@ void check_leaf_row(int n,const Digits& labels,Mask vertices,Mask weights,
     }
 }
 
-Word coverage(int n,const Digits& parents,const std::array<Mask,k>& orbit,bool edge,bool leaf,bool pair) {
+Word coverage(int n,const Digits& parents,const std::array<Mask,k>& orbit,bool edge,bool leaf,bool pair,
+              std::array<std::array<Mask,k>,k>* ports=nullptr) {
     std::array<Mask,k> covered{};
     std::array<std::array<Mask,4>,k> pending{}, sibling{};
     if (leaf || pair) for (int i=0; i<n; ++i) pending[i].fill(full);
@@ -118,7 +119,13 @@ Word coverage(int n,const Digits& parents,const std::array<Mask,k>& orbit,bool e
                 weights|=Mask(1)<<weight;
             }
         }
-        if (leaf || pair) check_leaf_row(n,labels,vertices,weights,pending,sibling,pair);
+        if (ports) {
+            int h=__builtin_ctz(full^weights);
+            for (int v=0; v<n; ++v) for (int w=0; w<=v; ++w) {
+                int c=(labels[v]+labels[w]+k-h)%k;
+                (*ports)[v][w] |= c ? (orbit[c]|1) : full;
+            }
+        } else if (leaf || pair) check_leaf_row(n,labels,vertices,weights,pending,sibling,pair);
         else for (int i=edge ? 1 : 0; i<n; ++i) {
             if (covered[i]==full) continue;
             covered[i]|=1;
@@ -128,7 +135,10 @@ Word coverage(int n,const Digits& parents,const std::array<Mask,k>& orbit,bool e
         }
         ++rows;
     }
-    if (leaf || pair) {
+    if (ports) {
+        for (int v=0; v<n; ++v) for (int w=0; w<=v; ++w)
+            require((*ports)[v][w]==full,"uncovered port pair");
+    } else if (leaf || pair) {
         for (int v=0; v<n; ++v) for (int j=0; j<4; ++j)
             require(!(pending[v][j]|sibling[v][j]),"missing an independent leaf-parent color");
     } else for (int i=edge ? 1 : 0; i<n; ++i)
@@ -138,6 +148,34 @@ Word coverage(int n,const Digits& parents,const std::array<Mask,k>& orbit,bool e
 }
 
 int main(int argc,char** argv) {
+    if (argc==3 && std::string(argv[1])=="--ports") {
+        int leaves=std::stoi(argv[2]);
+        std::array<Mask,k> orbit{};
+        for (int x=0; x<k; ++x) for (int u=1; u<k; ++u) if (std::gcd(u,k)==1)
+            orbit[x]|=Mask(1)<<((u*x)%k);
+        Word first=0,last=0,count=0,rows=0;
+        for (int lead=std::getc(stdin); lead!=EOF; lead=std::getc(stdin)) {
+            Word word=lead;
+            for (int i=1; i<8; ++i) {
+                int byte=std::getc(stdin);
+                require(byte!=EOF,"truncated port tree");
+                word|=Word(byte)<<(8*i);
+            }
+            bool central_edge=false;
+            auto parent=decode(word,k,central_edge);
+            require(word>last && !central_edge,"nonincreasing or bicentered port tree");
+            Digits degrees{};
+            for (int v=1; v<k; ++v) { ++degrees[v]; ++degrees[parent[v]]; }
+            require(std::count(degrees.begin(),degrees.end(),1)==leaves,"wrong port-tree leaf count");
+            if (!count++) first=word;
+            last=word;
+            std::array<std::array<Mask,k>,k> port_options{};
+            rows+=coverage(k,parent,orbit,false,false,false,&port_options);
+        }
+        require(count && !std::ferror(stdin),"missing port trees");
+        std::cout<<count<<' '<<rows<<' '<<first<<' '<<last<<'\n';
+        return 0;
+    }
     bool edge=argc==5 && std::string(argv[4])=="--edge";
     bool leaf=argc==5 && std::string(argv[4])=="--leaf";
     bool pair=argc==5 && std::string(argv[4])=="--pair";

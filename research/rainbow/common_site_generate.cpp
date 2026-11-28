@@ -183,6 +183,40 @@ struct Cover {
         return false;
     }
 
+    bool certify_ports() {
+        std::array<std::array<Mask,3>,k> covered{};
+        for (int trial=0; trial<100000; ++trial) {
+            if (trial && trial%100==0) orient(random()%k);
+            budget=trial<1500 ? 220 : 1400;
+            label[order[0]]=0;
+            if (!place(1,all^1,all)) continue;
+            Mask by3[3]{}, by9[9]{}, at[k]{}, unused=all;
+            for (int v=0; v<k; ++v) {
+                int x=label[v];
+                at[x]=Mask(1)<<v;
+                by3[x%3]|=at[x];
+                by9[x%9]|=at[x];
+                if (v) unused^=Mask(1)<<((x+label[canonical_parent[v]])%k);
+            }
+            int hole=__builtin_ctz(unused);
+            bool finished=true, progress=false;
+            for (int v=0; v<k; ++v) {
+                int r=(hole-label[v]+k)%k;
+                // Offset zero suffices by itself. Otherwise the other port
+                // must supply each nonzero orbit, possibly on different rows.
+                Mask delta[]={at[r]|(all^by3[r%3]), at[r]|(by3[r%3]^by9[r%9]), by9[r%9]};
+                for (int j=0; j<3; ++j) {
+                    progress|=(delta[j]&~covered[v][j])!=0;
+                    covered[v][j]|=delta[j];
+                    finished &= covered[v][j]==all;
+                }
+            }
+            if (progress) for (int v=0; v<k; ++v) std::putc(label[v],stdout);
+            if (finished) return true;
+        }
+        return false;
+    }
+
     bool certify_pair() {
         static const PairOrbits pairs;
         std::array<Word,k> need_path, need_siblings;
@@ -384,6 +418,24 @@ struct Cover {
 }
 
 int main(int argc,char** argv) {
+    if (argc==2 && std::string(argv[1])=="--ports") {
+        Word word;
+        while (std::cin>>word) {
+            int height=0;
+            if (word>>(2*k)) return 2;
+            for (int j=2*k-1; j>=0; --j) {
+                height+=(word>>j)&1 ? 1 : -1;
+                if (height<0 || (!height && j)) return 2;
+            }
+            if (height) return 2;
+            for (int j=0; j<8; ++j) std::putc((word>>(8*j))&255,stdout);
+            Cover cover(k,word,false);
+            if (!cover.certify_ports())
+                throw std::runtime_error("unresolved port pair on tree "+std::to_string(word));
+            std::putc(255,stdout);
+        }
+        return std::cin.eof() && std::fflush(stdout)==0 ? 0 : 1;
+    }
     bool edge=argc==5 && std::string(argv[4])=="--edge";
     bool leaf=argc==5 && std::string(argv[4])=="--leaf";
     bool pair=argc==5 && std::string(argv[4])=="--pair";
