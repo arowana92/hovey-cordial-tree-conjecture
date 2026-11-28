@@ -24,6 +24,30 @@ For an interval of length at most 26 the hypothesis rules out seven or more tips
 
 Starting from the chosen root label, take the next 26 vertices, or as many as remain. These distinct labels fill previously low vertex bins while the distinct weights start from uniform edge bins. Every initial segment is cordial. At divisible order the next vertex takes the unique label that fills the deficient edge bin. Repeat with the next interval. A short batch with at most five tips can be padded by extending a tip and restricted after labeling. The same proof preserves any fixed cordial prefix of order zero or one modulo 27 in the given preorder. It also allows arbitrary independent offsets on edges entering each batch from an earlier one.
 
+## Five edges on every terminal arm at 27
+
+Every prescribed depth-first order still works when **every terminal arm has length at least five**. Seven tips in a batch would use at least $2+5\cdot5=27$ vertices. In a batch with six tips the four middle tips carry four disjoint pendant chains of at least five vertices. Extend any tip to pad the forest to 26 vertices. Delete the last four vertices from each of those four chains. This leaves a forest on ten vertices with six tips. Reversing the operation lists every possible padded forest needed in the proof.
+
+The [checker](check_five_edge_arms.py) enumerates all such ten-vertex forests by adjoining a dummy root, and tries each choice of four tips. It independently enumerates their component orders and tip counts by partitions, allocating the four extensions by component. Both methods yield the same profiles. There are 2,437 possible padded shapes. With one or two roots the seven-tip results apply, with six roots all components are paths, and the ordered certificate handles the profiles for which all boundary choices are ordered. The other 653 candidate shapes occur in 120 profiles. The [supplementary certificates](five-edge-arm-profiles-27.sha256) test every shape in those profiles, including arbitrary colors on equal-sized components.
+
+| Components | Profiles | Forests tested | Witness rows | Literal boundary assignments |
+|---:|---:|---:|---:|---:|
+| 3 | 27 | 232,720 | 42,929,375 | 4,580,627,760 |
+| 4 | 56 | 21,781 | 29,445,794 | 11,575,316,421 |
+| 5 | 37 | 644 | 5,194,086 | 9,240,696,108 |
+
+The same fixed-core and entering-offset conclusions follow. For a full replay, use the generator, verifier and shared library built in the [independent-root reproduction](prescribed-five-tips-27.md#independent-checks-and-reproduction).
+
+~~~bash
+file=research/rainbow/five-edge-arm-profiles-27.sha256
+awk -F '  ' '{print $3}' "$file" > "$out/arms.profiles"
+python3 -B research/census/stream_leaf_profiles.py 27 "$out/arms.profiles" "$out/generate" "$out/verify" "$out/arms" --independent-roots --workers 2
+cmp "$file" "$out/arms/manifest.txt"
+python3 -B -m research.rainbow.check_five_edge_arms "$file" "$out/search.so"
+~~~
+
+The whole-tree check recounts 3,950 growth steps on 41 orders. One test places a six-tip batch with five components and a fork exactly at a block boundary.
+
 ## Arbitrarily large moduli
 
 **Theorem.** Fix $0<\alpha,\beta<1$. At every sufficiently large modulus $k$, if all but at most $k^{1-\beta}$ terminal arms have length at least $k^\alpha$, every depth-first preorder has a single $k$-cordial labeling on all its prefixes. Both the tree order and the number and degrees of its branching vertices are unrestricted.
