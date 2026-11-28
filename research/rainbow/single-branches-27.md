@@ -6,7 +6,7 @@ Translate the unique old surplus to zero and write $b$ for the old parent label.
 
 The new audit has 88,398,176 rooted trees, 170,277,064 witness rows and 2,386,750,752 literal boundary inputs. Together the two certificates cover all 97,055,181 rooted trees of order 22. The [native verifier](spine_verify.cpp) checks the actual tree, entering and internal weights, avoidance of zero, every old boundary color under multiplication by units, and the number of distinct canonical trees at each tip count. A [separate partition recurrence](check_single_branches.py) checks every manifest total. The generator bounds the number of nonleaves in each candidate subtree by the maximum for the requested component types. Every nonleaf of a descendant subtree is a nonleaf in the original tree, so the pruning preserves every requested shape.
 
-Consequently, if a least 27-label counterexample has order $27m+23$, neither side of any edge cut can have any of the exact orders **22 through 27**. For 22, the smaller remaining core has order one modulo 27 and the theorem applies. Orders 23 through 27 follow from the [affine and divisible cut theorems](../prime/four-deficits.md). This excludes particular edge cuts, and the unrestricted order-50 case is still open.
+Consequently, if a least 27-label counterexample has order $27m+23$, neither side of any edge cut can have any of the exact orders **22 through 27**. For 22, the smaller remaining core has order one modulo 27 and the theorem applies. Orders 23 through 27 follow from the [affine and divisible cut theorems](../prime/four-deficits.md). At order 50 the [centroid and two-cut proof](../census/order-fifty.md) also covers every tree that avoids these edges.
 
 ## A unit-orbit test at any modulus
 

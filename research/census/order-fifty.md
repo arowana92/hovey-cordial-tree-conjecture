@@ -34,6 +34,8 @@ The [Python checker](check_order_fifty.py) enumerates partitions of 49, then ass
 
 The [additional manifests](order-50-audits/) contain 1,195 component profiles, covering 95,001,506 rooted forests, 1,422,399,948 verified labeling rows and 475,272,311,022 literal boundary assignments. Streams were checked at generation by the independent [labeling verifier](../rainbow/spine_verify.cpp). The geometry checker separately recomputes the number of forests from rooted-tree multisets and the number of allowed boundary assignments. The earlier certificates it uses are the [leaf-profile audits](leaf-profile-audits/) through sixteen leaves at 50 and 51, fifteen at 52, fourteen at 53 and thirteen at 54.
 
+A separate checkout of the public commit rebuilt both labeling binaries and reproduced all geometry counts. It regenerated 29 complete streams for 1,985,506 rooted forests and matched all 29 published hashes. The sample took the smallest default stream. Among restart streams it took the smallest at each pair of total tip count and number of boundary assignments per forest, breaking ties by the sorted component profile.
+
 The [whole-tree replay](check_order_fifty_samples.py) joins each of three certified forests to three different 28-vertex caterpillars, with all 729 allowed boundary assignments on each forest. It recounts every bin of all 6,561 resulting trees of order 50. These examples have sixteen through twenty-two leaves.
 
 ~~~bash
