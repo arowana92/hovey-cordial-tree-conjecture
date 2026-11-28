@@ -10,7 +10,7 @@ At a prime modulus $p$ there is a stronger restriction on the **total** number $
 $$
 L < 2s-p-1 .
 $$
-In particular a smallest counterexample at an odd prime can only occur at remainders $s\ge(p+5)/2$. The convention $s=p$ denotes order divisible by $p$.
+In particular a smallest counterexample at an odd prime can only occur at remainders $s\ge(p+5)/2$. The convention $s=p$ denotes order divisible by $p$. For actual forbidden vertex and weight bins the [exact two-shift criterion](two-shift-holes.md) tests the next smaller leaf count as well.
 
 ## An extra row in the coefficient calculation
 
