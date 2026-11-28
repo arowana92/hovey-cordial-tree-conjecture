@@ -73,7 +73,7 @@ python3 -B -m research.census.check_order_fifty_two_frontier --through 19
 
 ## A finite checklist for all remaining leaf counts
 
-**Conditional reduction.** If the [2,568 listed forest profiles](order-52-frontier.profiles.gz) pass the ordered boundary test at 27 labels, every tree on 52 vertices is 27-cordial. The list contains only 24-vertex exteriors. Its profiles cover **360,580,312 distinct rooted forests** and **4,846,812,725,340 literal boundary assignments**. The geometry calculation is complete. The published receipts cover 575 entries. The remaining 1,993 tests are sufficient for the whole order.
+**Conditional reduction.** If the [2,568 listed forest profiles](order-52-frontier.profiles.gz) pass the ordered boundary test at 27 labels, every tree on 52 vertices is 27-cordial. The list contains only 24-vertex exteriors. Its profiles cover **360,580,312 distinct rooted forests** and **4,846,812,725,340 literal boundary assignments**. The geometry calculation is complete. The published receipts cover 575 entries. The remaining 1,993 entries suffice, and [alternative choices of cuts](#a-shorter-checklist) reduce the sufficient list to 1,815.
 
 For each remaining leaf count $L$, enumerate the branches at the unique centroid by order and number of rooted tips. The restrictions proved above continue to apply. Every branch has at most 21 vertices. No subcollection has total order 22 or 24, and two disjoint descendant subtrees in different branches cannot total 25. A subcollection with at most seven tips has total order at most 23. A single branch has at most $L-8$ tips, since otherwise the other branches could supply a 24-vertex ordered suffix with at most seven tips. The six longest guaranteed terminal paths total at most 23. These conditions are necessary for a counterexample. A profile surviving them may still have every represented tree cordial.
 
@@ -113,4 +113,26 @@ for stage in nineteen frontier; do
     python3 -B -m research.census.stream_leaf_profiles 27 "$out/$stage-known.profiles" "$out/generate" "$out/verify" "$out/$stage-known" --restarts --workers 2
     cmp "$out/$stage-known/manifest.txt" "$cert"
 done
+~~~
+
+## A shorter checklist
+
+**Conditional reduction.** Verifying the [1,815 indicated profiles](order-52-reduced.profiles.gz) suffices for every tree on 52 vertices to be 27-cordial. The first 289 alone suffice to extend the unconditional result to twenty leaves. The full list covers 263,558,863 rooted forests and 3,536,873,791,551 literal boundary assignments.
+
+Start with the earlier catalog and all 575 public receipts above. For each centroid profile, several selections of whole branches and a partial size-ordered branch can be available. Each choice requires its own set of exterior profiles. A forest test used in a different leaf-count stage of the original list may permit a cheaper selection at this centroid. For example, fifteen of the 289 tests in the new twenty-leaf stage originally appeared at higher leaf counts. Across all four stages the choice of cuts saves 178 tests and 53,595,256,689 literal boundary assignments.
+
+| Leaves | Additional profiles | Cumulative profiles | Additional forests | Additional boundary assignments |
+|---:|---:|---:|---:|---:|
+| 20 | 289 | 289 | 65,852,198 | 757,255,004,658 |
+| 21 | 415 | 704 | 56,177,338 | 732,523,076,424 |
+| 22 | 364 | 1,068 | 89,727,804 | 1,264,263,579,108 |
+| 23 | 747 | 1,815 | 51,801,523 | 782,832,131,361 |
+
+The [proof checker](check_order_fifty_two_frontier.py) starts afresh from the two numerical centroid enumerations. At each leaf count it tests every surviving profile with the published receipts and just the conditional entries available through that stage. For each successful cut all eligible exterior shapes and boundary changes are covered. The verification establishes sufficiency without requiring an optimal choice of cuts.
+
+~~~bash
+python3 -B -m research.census.check_order_fifty_two_frontier --reduced --through 20
+python3 -B -m research.census.check_order_fifty_two_frontier --reduced --write-pending "$out/reduced.profiles"
+python3 -B -m research.census.stream_leaf_profiles 27 "$out/reduced.profiles" "$out/generate" "$out/verify" "$out/reduced" --restarts --workers 2
+python3 -B -m research.census.check_order_fifty_two_frontier --reduced --receipts "$out/reduced/manifest.txt"
 ~~~

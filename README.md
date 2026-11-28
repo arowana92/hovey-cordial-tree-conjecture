@@ -4,7 +4,7 @@
 
 On any path in a smallest counterexample at modulus $k$, each residue of the cut-side order occurs at most $2^{\Omega(k)}$ times when measured from one end. At prime $p\ge7$ this gives at most $p(p-4)$ vertices. [Repeated cuts and consecutive period pieces](research/biased/period-chains.md)
 
-At 27 labels, every 52-vertex tree with at most nineteen leaves is cordial. An order-52 counterexample must have 20 through 23 leaves. The remaining order-52 question reduces to 1,993 specified forest tests. [Conditional reduction and reproducible checklist](research/census/order-fifty-two.md#a-finite-checklist-for-all-remaining-leaf-counts)
+At 27 labels, every 52-vertex tree with at most nineteen leaves is cordial. An order-52 counterexample must have 20 through 23 leaves. The remaining order-52 question reduces to 1,815 specified forest tests. The first 289 suffice for twenty leaves. [Conditional reduction and reproducible checklist](research/census/order-fifty-two.md#a-shorter-checklist)
 
 At every odd modulus, a harmonious cycle can contain any prescribed full arithmetic progression as consecutive vertices. This lets branches move between corresponding vertices on two copies of a path while preserving the original cordial labeling. [Construction, tree operation and Lean arithmetic check](research/census/cycle-progressions.md)
 

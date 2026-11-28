@@ -50,9 +50,22 @@ def inventory(leaves):
     return len(initial),possible
 
 
-def check(path,through,receipt_paths,pending_path=None):
-    groups = frontier(path)
+def check(path,through,receipt_paths,pending_path=None,reduced=False):
+    original = frontier(path)
+    directory = path.parent/'order-52-audits'
+    nineteen = read_rows(directory/'nineteen/24-restarts.txt',24)
+    further = read_rows(directory/'frontier/24-restarts.txt',24)
+    assert set(nineteen)==original[19]
+    assert set(further)<=set.union(*(original[h] for h in range(20,24)))
+    published_profiles = set(nineteen)|set(further)
     cat = published()
+    groups = original
+    if reduced:
+        groups = frontier(path.with_name('order-52-reduced.profiles.gz'))
+        candidates = set.union(*groups.values())
+        assert not groups[19] and candidates<=set.union(*original.values())-published_profiles
+        cat.known[24].update(published_profiles)
+        print('starting forest profiles with published receipts',len(published_profiles))
     old_cut = cut_checker(cat,24,common_or_pair)
     totals = Counter()
     needed = set()
@@ -73,12 +86,6 @@ def check(path,through,receipt_paths,pending_path=None):
         print(level,'leaves; numerical, surviving, outside earlier catalog, added tests',
               numeric,len(possible),len(gaps),len(current),flush=True)
     print('sufficient tests',dict(totals))
-    directory = path.parent/'order-52-audits'
-    nineteen = read_rows(directory/'nineteen/24-restarts.txt',24)
-    further = read_rows(directory/'frontier/24-restarts.txt',24)
-    assert set(nineteen)==groups[19]
-    assert set(further)<=set.union(*(groups[h] for h in range(20,24)))
-    published_profiles = set(nineteen)|set(further)
     remaining = needed-published_profiles
     print('published receipts used',len(needed & published_profiles),
           'remaining by leaf count',{h:len(groups[h] & remaining) for h in range(19,through+1)})
@@ -106,6 +113,7 @@ if __name__=='__main__':
     cli = argparse.ArgumentParser(description=__doc__)
     cli.add_argument('--through',type=int,choices=range(19,24),default=23)
     cli.add_argument('--receipts',nargs='+',type=Path)
+    cli.add_argument('--reduced',action='store_true',help='use alternative cuts with the published receipts as a base')
     cli.add_argument('--write-pending',type=Path,help='write remaining profiles in generator format')
     args = cli.parse_args()
-    check(Path(__file__).with_name('order-52-frontier.profiles.gz'),args.through,args.receipts,args.write_pending)
+    check(Path(__file__).with_name('order-52-frontier.profiles.gz'),args.through,args.receipts,args.write_pending,args.reduced)
