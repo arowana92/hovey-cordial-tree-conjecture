@@ -10,6 +10,8 @@ Use the [tree insertion theorem](port-parity.md) with $t$ entering edges on a fr
 | Arbitrary multiplicities | $t=o(k^{1/3})$ |
 | Arbitrary multiplicities and at least two leaves with $m_v=0$ | $t=o(\sqrt{k})$ |
 
+The [sharp threshold theorem](port-threshold.md) strengthens the arbitrary-multiplicity cases to $c_D\sqrt{k}$ entries for all free tree shapes, with path obstructions at every large modulus.
+
 The last row always admits an extension since a nonport leaf has odd augmented degree. In every positive case each histogram needs at most one transfer. The power $1/2$ in the two-leaf row is best possible for arbitrary multiplicities: the examples below fail at $t=3\sqrt{k}$, even on a free path and for infinitely many odd moduli.
 
 ## Changes to the positive proof

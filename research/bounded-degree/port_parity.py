@@ -153,6 +153,12 @@ def build(edges,ports,old,removed,edge_high,vertex_high,rng):
                  if joint_label is not None and v in positive}
         gap[0] = dup[0] = next(x for x in range(k) if x not in avoid)
     labels = marks(k,adj,ports,old,positive,total,joint_label,gap[1],gap[0],rng,leaf)
+    return finish(edges,adj,ports,old,removed,dup,gap,labels)
+
+
+def finish(edges,adj,ports,old,removed,dup,gap,labels):
+    """Realize compatible pinned sums by disjoint degree-two windows."""
+    k = len(adj)
     segments = windows(adj,set(labels),len(ports)+(gap[1] is not None))
     used = set(labels.values())
     if gap[1] is not None:
