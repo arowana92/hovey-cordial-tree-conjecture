@@ -2,6 +2,8 @@
 from itertools import combinations
 from math import gcd
 
+from research.rainbow.surplus_prime_powers import grow
+
 
 def witnesses(k,t):
     """Map each attainable offset to (far hub label, connector label, hub neighbors)."""
@@ -69,5 +71,49 @@ def check():
     print('literal offset inputs',residues,'independent subset comparisons',small,'full labeled trees',whole)
 
 
+def two_connectors():
+    joins=prefixes=0
+    for k in (4,5,8,9,16,25,27,32):
+        biases=range(k) if k<=9 else (0,1,2,3,k//2,k-1)
+        for s,t in ((2,2),(2,k-2),(k-2,2),(k+1,k-1),(2*k,2*k+1)):
+            for a in biases:
+                for b in biases:
+                    labels=[0]
+                    hubs={}
+                    edges=[]
+                    vertex,weight=[1]+[0]*(k-1),[0]*k
+                    for side,x in grow(k,s,t,a,b):
+                        parent=hubs.get(side,0)
+                        offset=0 if parent else (a,b)[side]
+                        v=len(labels)
+                        weight[(labels[parent]+x+offset)%k]+=1
+                        vertex[x]+=1
+                        assert max(vertex)-min(vertex)<=1 and max(weight)-min(weight)<=1
+                        if parent:
+                            edges.append((parent,v))
+                        else:
+                            hubs[side]=v
+                        labels.append(x)
+                    assert len(labels)==s+t+1
+                    prefixes+=len(labels)
+                    # Restore each connector as an ordinary k-vertex star with
+                    # entering vertex zero, leaving from its prescribed residue.
+                    for side,d in enumerate((a,b)):
+                        start=len(labels)
+                        labels.extend(range(k))
+                        edges.extend((start,start+i) for i in range(1,k))
+                        edges.extend(((0,start),(start+d,hubs[side])))
+                    vcounts,ecounts=[0]*k,[0]*k
+                    for x in labels:
+                        vcounts[x]+=1
+                    for u,v in edges:
+                        ecounts[(labels[u]+labels[v])%k]+=1
+                    assert len(edges)==len(labels)-1 and max(vcounts)-min(vcounts)<=1
+                    assert max(ecounts)-min(ecounts)<=1
+                    joins+=1
+    print('two independent connector expansions',joins,'adjusted prefixes',prefixes)
+
+
 if __name__=='__main__':
     check()
+    two_connectors()

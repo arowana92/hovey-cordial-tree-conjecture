@@ -39,14 +39,14 @@ def destinations(k,p,weights,selected):
     return result
 
 
-def feasible(k,weights,selected):
+def feasible(k,weights,selected,*,any_nonzero=False):
     # Each destination bin has mandatory and optional slots. Dummy edges may fill
     # only optional slots, so a perfect matching enforces both histogram bounds.
     q,r = divmod(len(weights),k)
     marked = set(selected)
     kept = Counter(w for i,w in enumerate(weights) if i not in marked)
     slots = [(z,i<q-kept[z]) for z in range(k) for i in range(q+bool(r)-kept[z])]
-    candidates = [[j for j,(z,_) in enumerate(slots) if gcd(z-weights[i],k)==1]
+    candidates = [[j for j,(z,_) in enumerate(slots) if (z!=weights[i] if any_nonzero else gcd(z-weights[i],k)==1)]
                   for i in selected]
     candidates.extend([[j for j,(_,must) in enumerate(slots) if not must]]
                       *(len(slots)-len(selected)))
@@ -139,6 +139,49 @@ def expansions():
     print('expansions',dict(totals))
 
 
+def packing_threshold():
+    rng=Random(271992)
+    joins=rejected=0
+    for k in (2,3,4,5,6,8,9,10,25,27,29):
+        for q in range(5):
+            for r in sorted({1,k-1}):
+                # Give a star a balanced complete labeling on its original vertices.
+                labels=[i%k for i in range(q*k+r+1)]
+                weights=labels[1:]
+                m=2*(q+1)-1
+                for _ in range(5):
+                    selected=rng.sample(range(len(weights)),m)
+                    targets=destinations(k,k,weights,selected)
+                    assert targets is not None and feasible(k,weights,selected,any_nonzero=True)
+                    f=labels[:]
+                    edges=[]
+                    for i,w in enumerate(weights):
+                        if i not in targets:
+                            edges.append((0,i+1))
+                            continue
+                        diff=(targets[i]-w)%k
+                        assert diff
+                        start=len(f)
+                        f.extend(range(k))
+                        edges.extend((start,start+j) for j in range(1,k))
+                        edges.extend(((0,start),(start+diff,i+1)))
+                    assert len(edges)==len(f)-1
+                    for hist in (Counter(f),Counter((f[u]+f[v])%k for u,v in edges)):
+                        bins=[hist[x] for x in range(k)]
+                        assert max(bins)-min(bins)<=1
+                    joins+=1
+            if q:
+                weights=[i%k for i in range(1,q*k+2)]
+                inside=[i for i,w in enumerate(weights) if w==1]
+                outside=[i for i,w in enumerate(weights) if w!=1]
+                selected=inside+outside[:q-1]
+                assert len(selected)==2*q
+                assert not feasible(k,weights,selected,any_nonzero=True)
+                rejected+=1
+    print('threshold expansions',joins,'sharp fixed-core examples',rejected)
+
+
 if __name__=='__main__':
     profiles()
     expansions()
+    packing_threshold()

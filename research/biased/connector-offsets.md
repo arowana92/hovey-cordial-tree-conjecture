@@ -4,6 +4,8 @@
 
 Equivalently for ordinary cordiality, that chosen edge can be replaced by any chain of trees of orders divisible by $k$, each supplied with an ordinary $k$-cordial labeling and two arbitrary attachment vertices. The aggregate effective offset can be prescribed on the edge before restoring the chain. The conclusion for the expanded tree concerns its final counts. [Expansion identity](period-chains.md)
 
+**Two independent connector offsets.** At those prime powers one may in fact prescribe offsets on both $UA$ and $AB$ independently, prescribe the label at $A$, and start the growth order there. This follows from the earlier two-star fixed-core theorem. Normalize $A$ to zero. The two components of $T-A$ are both nontrivial stars. Attach their centers to the two effective boundary colors on a surrogate one-surplus star, and replace that surrogate by $A$ when reading the labeling. The only exceptional two-star shape at a power of two has a singleton component. At an odd prime power there are no exceptions. Consequently one may insert arbitrary chains of cordially labeled divisible pieces on **both** connecting edges. The single-offset calculation below also gives necessary conditions at moduli with distinct prime factors. [Two-star theorem](../rainbow/surplus-prime-powers.md) · [Surrogate-core equivalence](one-edge-exceptions.md#allowing-independent-offsets-on-all-edges-at-one-vertex)
+
 ## Exact test at every modulus on one period
 
 Take the order to be $k$. Name the three consecutive vertices $U,A,B$, put offset $d$ on $UA$, and let $t$ be the degree of $B$, counting its neighbor $A$. The construction has $t-1$ pendant leaves at $B$ and $k-t-2$ at $U$. Allow $1\le t\le k-2$. Normalize the label of $U$ to zero.
@@ -30,7 +32,7 @@ For $k=2p$ with $p\ge5$ an odd prime and $2\le t\le k-2$, the **only** failure i
 
 More generally, for even $k$ and $d=k/2$, at $t=2$ the test succeeds exactly when $3\mid k$ or $4\mid k$. At $t=3$ it succeeds exactly when $3\mid k$ or $8\mid k$. To see this, an odd order $h$ can work only with $h\le t$ and $j\ne h-1$, since $d$ is outside the subgroup. For even $h=2s$, one has $d=sb$. Order two fails, and for $s\ge2$ the candidate slots work exactly when $s-1\le j\le2s-2$. Substituting $t=2,3$ gives the divisibility tests. At ten labels these are the two additional exceptional marked trees beyond the double stars. [Complete small-modulus classification](one-edge-exceptions.md)
 
-The [checker and witness construction](connector_offsets.py) directly chose the actual neighbors of the far hub as a subset through modulus 14. All 803 literal comparisons agreed with the orbit criterion. Through modulus 100 it evaluated 328,248 inputs, reconstructed 326,225 full labeled trees and recounted every ordinary and adjusted weight.
+The [checker and witness construction](connector_offsets.py) directly chose the actual neighbors of the far hub as a subset through modulus 14. All 803 literal comparisons agreed with the orbit criterion. Through modulus 100 it evaluated 328,248 inputs, reconstructed 326,225 full labeled trees and recounted every ordinary and adjusted weight. A separate two-connector replay rebuilt 1,650 ordinary trees after inserting a full star on each connector, checking 43,540 adjusted growth prefixes before expansion.
 
 ~~~bash
 python3 -B -m research.biased.connector_offsets
