@@ -10,6 +10,8 @@ At 27 labels, every 52-vertex tree with 21 through 23 leaves at 21 or more disti
 
 Every tree on $h\ge3$ vertices can be made super edge-magic by adding at most $h-3$ leaves at original vertices. The construction identifies two sites that can then take arbitrary further leaf populations, with one integer labeling working at every modulus. [Construction and prescribed-population corollary](research/hub/linear-leaf-host.md)
 
+For any rooted forest with prescribed parent labels, any specified set of vertex residues can be assigned with at most two edges of each weight, including the entering edges. At every modulus this gives a reduction for trees with two leaves at every original vertex to the bijective case on $k$ vertices. It settles this family at 27 labels for every order. [Forest construction, reduction and Lean check](research/hub/prescribed-forest-labels.md)
+
 For every sufficiently large modulus $k$, attaching at least two new leaves at every vertex of any tree of order $h\ge k$ gives a $k$-cordial tree. Two also suffice at explicit moduli in several size ranges. Three suffice for every $k$ and $h\ge k$. [Two-leaf proof](research/hub/two-private-leaves.md) · [Breadth-first construction](research/hub/breadth-first-leaves.md)
 
 At every $k\ge2$, adding leaves at $P\ge8\sqrt{hk\log(8k)}$ distinct vertices of any $h$-vertex tree gives a cordial tree even with arbitrary independent edge offsets. One leaf per vertex suffices at $h\ge64k\log(8k)$. [Sparse-site proof and prescribed-count construction](research/hub/sparse-leaf-sites.md)
