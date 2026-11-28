@@ -1,6 +1,6 @@
 # Ordinary 27-cordiality at order 51
 
-**Computer-assisted theorem.** Every tree on 51 vertices is 27-cordial. Together with the [order-50 theorem](order-fifty.md), this proves 27-cordiality for every tree through order 51. A smallest counterexample, if one exists, has **52 through 216 vertices**. The subsequent order-52 calculation raises the minimum there to 18 leaves. [Seventeen-leaf proof](order-fifty-two.md) [Order bounds](ring-order.md) · [Sixteen-leaf theorem](sixteen-leaf-corridor.md)
+**Computer-assisted theorem.** Every tree on 51 vertices is 27-cordial. Together with the [order-50 theorem](order-fifty.md), this proves 27-cordiality for every tree through order 51. A smallest counterexample, if one exists, has **52 through 216 vertices**. At order 52 the minimum is now 21 leaves. [Twenty-leaf proof](order-fifty-two.md#twenty-leaves) [Order bounds](ring-order.md) · [Sixteen-leaf theorem](sixteen-leaf-corridor.md)
 
 For order 51, the sixteen-leaf theorem supplies the lower leaf counts. If a tree has at least 23 leaves, delete 23 of its original leaves and use the Hall extension on the resulting 28-vertex core. The proof below covers the six intermediate leaf counts, 17 through 22.
 

@@ -4,7 +4,7 @@
 
 On any path in a smallest counterexample at modulus $k$, each residue of the cut-side order occurs at most $2^{\Omega(k)}$ times when measured from one end. At prime $p\ge7$ this gives at most $p(p-4)$ vertices. [Repeated cuts and consecutive period pieces](research/biased/period-chains.md)
 
-At 27 labels, every 52-vertex tree with at most nineteen leaves is cordial. An order-52 counterexample must have 20 through 23 leaves. The remaining order-52 question reduces to 1,047 outstanding forest tests. Of those, 139 suffice for twenty leaves. The new reduction excludes any collection of branches totaling 23 vertices at a single vertex. [Conditional reduction and reproducible checklist](research/census/order-fifty-two.md#using-the-23-vertex-forest-and-an-independent-leaf)
+At 27 labels, every 52-vertex tree with at most twenty leaves is cordial. A counterexample at that order would have **21, 22 or 23 leaves**. A checklist of 793 further forest tests suffices for the whole order, and its first 134 suffice for twenty-one leaves. [Twenty-leaf proof and remaining cases](research/census/order-fifty-two.md#twenty-leaves)
 
 At 27 labels, every 52-vertex tree with 21 through 23 leaves at 21 or more distinct parents is cordial. A counterexample with 23 leaves would need eight through twenty different parents. The proof classifies all zero-sum matchings with five missing residues on each side and also gives parent bounds at orders 53 and 54. [Leaf extension and certificates](research/biased/five-hole-matchings.md)
 

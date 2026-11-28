@@ -65,7 +65,8 @@ def inventory(leaves, allowed=allowed_sizes):
     return len(initial),possible
 
 
-def check(path,through,receipt_paths,pending_path=None,reduced=False,independent_leaf=False):
+def check(path,through,receipt_paths,pending_path=None,reduced=False,independent_leaf=False,completed_twenty=False):
+    independent_leaf = independent_leaf or completed_twenty
     original = frontier(path)
     directory = path.parent/'order-52-audits'
     nineteen = read_rows(directory/'nineteen/24-restarts.txt',24)
@@ -86,9 +87,21 @@ def check(path,through,receipt_paths,pending_path=None,reduced=False,independent
         confirmed.update(extra)
         allowed = avoiding_23
         covers_shape = independent_leaf_or_pair
+    if completed_twenty:
+        complete = read_rows(directory/'completed-twenty/24-restarts.txt',24)
+        assert set(complete) == original[20]-confirmed
+        confirmed.update(complete)
+        assert original[19]|original[20] <= confirmed
+        progress = read_rows(directory/'after-twenty/24-restarts.txt',24)
+        assert set(progress) <= set.union(*original.values())-confirmed
+        confirmed.update(progress)
     if reduced or independent_leaf:
         name = 'order-52-independent-leaf.profiles.gz' if independent_leaf else 'order-52-reduced.profiles.gz'
+        if completed_twenty:
+            name = 'order-52-after-twenty.profiles.gz'
         groups = frontier(path.with_name(name))
+        if completed_twenty:
+            assert not groups[20]
         candidates = set.union(*groups.values())
         assert not groups[19] and candidates<=set.union(*original.values())-published_profiles
         base_receipts = confirmed if independent_leaf else published_profiles
@@ -144,8 +157,9 @@ if __name__=='__main__':
     cli.add_argument('--through',type=int,choices=range(19,24),default=23)
     cli.add_argument('--receipts',nargs='+',type=Path)
     mode = cli.add_mutually_exclusive_group()
+    mode.add_argument('--completed-twenty',action='store_true',help='use all receipts for twenty leaves and the subsequent checklist')
     mode.add_argument('--independent-leaf',action='store_true',help='use the 23-vertex common forest with one independent leaf')
     mode.add_argument('--reduced',action='store_true',help='use alternative cuts with the published receipts as a base')
     cli.add_argument('--write-pending',type=Path,help='write remaining profiles in generator format')
     args = cli.parse_args()
-    check(Path(__file__).with_name('order-52-frontier.profiles.gz'),args.through,args.receipts,args.write_pending,args.reduced,args.independent_leaf)
+    check(Path(__file__).with_name('order-52-frontier.profiles.gz'),args.through,args.receipts,args.write_pending,args.reduced,args.independent_leaf,args.completed_twenty)

@@ -1,6 +1,6 @@
-# Through nineteen leaves at order 52
+# Through twenty leaves at order 52
 
-**Theorem (computer-assisted).** Every tree on 52 vertices with at most seventeen leaves is 27-cordial. The [nineteen-leaf proof below](#nineteen-leaves) narrows a possible 52-vertex counterexample to **20 through 23 leaves**. The smaller leaf counts follow from the sixteen-leaf theorem. At least 24 leaves allow 24 of them to be restored on a 28-vertex core by Hall's theorem. All smaller tree orders already admit 27-cordial labelings. [Sixteen-leaf theorem](sixteen-leaf-corridor.md) · [Leaf restoration](../counterexample-bound.md#removing-leaves) · [Through order 51](order-fifty-one.md)
+**Theorem (computer-assisted).** Every tree on 52 vertices with at most twenty leaves is 27-cordial. A possible counterexample at this order has **21 through 23 leaves**. The first centroid calculation below covers seventeen leaves and the [completed twenty-leaf stage](#twenty-leaves) gives the current bound. The smaller leaf counts follow from the sixteen-leaf theorem. At least 24 leaves allow 24 of them to be restored on a 28-vertex core by Hall's theorem. All smaller tree orders already admit 27-cordial labelings. [Sixteen-leaf theorem](sixteen-leaf-corridor.md) · [Leaf restoration](../counterexample-bound.md#removing-leaves) · [Through order 51](order-fifty-one.md)
 
 At 21 through 23 leaves, at least 21 different leaf parents suffice for 27-cordiality. A possible failure with 23 leaves has eight through twenty distinct parents. [Five-hole matching and restoration](../biased/five-hole-matchings.md)
 
@@ -143,7 +143,7 @@ python3 -B -m research.census.check_order_fifty_two_frontier --reduced --receipt
 
 ## Using the 23-vertex forest and an independent leaf
 
-**Conditional reduction.** The [new checklist](order-52-independent-leaf.profiles.gz) has **1,047** outstanding tests. The **139** in the twenty-leaf stage suffice for every tree at that leaf count. They are sufficient tests and the unconditional bound remains nineteen leaves.
+**Conditional reduction.** The [new checklist](order-52-independent-leaf.profiles.gz) has **1,047** outstanding tests. The **139** in the twenty-leaf stage suffice for every tree at that leaf count. These were sufficient tests at this stage. The [subsequent computation](#twenty-leaves) settles twenty leaves using a different sufficient list.
 
 The [23-vertex forest theorem](../rainbow/common-leaf-23.md) gives two changes to the geometry. First, a centroid subcollection of order 23 can be restored along with a leaf removed from its connected complement. Second, consider the exterior of a size-ordered cut with 24 vertices. If its only possible change of boundary color follows a singleton, the 23 remaining vertices have a common parent color and the singleton has an arbitrary parent color. The previously proved case in which a color change follows the first two vertices still applies. Both changes cannot occur in the same sorted size sequence, since a break after a singleton requires that the next component already have order at least two.
 
@@ -165,4 +165,34 @@ awk -F '  ' '{print $3}' "$cert" > "$out/independent-known.profiles"
 python3 -B -m research.census.stream_leaf_profiles 27 "$out/independent-known.profiles" \
     "$out/generate" "$out/verify" "$out/independent-known" --restarts --workers 2
 cmp "$out/independent-known/manifest.txt" "$cert"
+~~~
+
+## Twenty leaves
+
+**Theorem (computer-assisted).** Every tree on 52 vertices with twenty leaves is 27-cordial. The [469 additional receipts](order-52-audits/completed-twenty/24-restarts.txt) fill every gap in the original twenty-leaf checklist. They cover 11,680,311 rooted forests, 907,183,799 labeling rows and 327,111,825,033 literal boundary assignments. The original nineteen- and twenty-leaf stages together require 962 profiles and every one now has a receipt. Independently, the newer cut calculation finds a certified cut in each of the 8,965 twenty-leaf centroid profiles surviving the complementary-side conditions.
+
+The generator and verifier processed the complete streams. A separate build regenerated seven streams covering 3,350 forests and 102,863 witness rows and reproduced all seven digests. A separate whole-tree checker expanded all 171 forests of the profile $(3,2),(7,1),(7,3),(7,3)$ on actual 28-vertex cores. It verified 373,977 ordinary 52-vertex joins and the histograms at every restoration step, including 62,073 joins with exactly twenty leaves.
+
+At 21 through 23 leaves, [nine further completed profiles](order-52-audits/after-twenty/24-restarts.txt) contribute 13,200,138 forests, 425,820,030 witness rows and 89,522,388,270 boundary assignments. With these receipts the [remaining sufficient list](order-52-after-twenty.profiles.gz) has 793 profiles. It represents 149,173,039 forests and 1,728,826,092,567 literal boundary assignments. Each row below may use all earlier stages.
+
+| Leaves | Surviving centroid profiles | Outside the verified catalog | Additional tests |
+| ---: | ---: | ---: | ---: |
+| 20 | 8,965 | 0 | 0 |
+| 21 | 11,721 | 104 | 134 |
+| 22 | 14,906 | 591 | 207 |
+| 23 | 18,327 | 1,684 | 452 |
+
+The [checker](check_order_fifty_two_frontier.py) verifies both the complete original twenty-leaf list and the geometry of the new cuts. Run from the repository root, using the generator and verifier compiled above.
+
+~~~bash
+python3 -B -m research.census.check_order_fifty_two_frontier --completed-twenty
+for stage in completed-twenty after-twenty; do
+    cert="research/census/order-52-audits/$stage/24-restarts.txt"
+    awk -F '  ' '{print $3}' "$cert" > "$out/$stage.profiles"
+    python3 -B -m research.census.stream_leaf_profiles 27 "$out/$stage.profiles" \
+        "$out/generate" "$out/verify" "$out/$stage" --restarts --workers 2
+    cmp "$out/$stage/manifest.txt" "$cert"
+done
+"$out/generate" 27 0 1 "$out/twenty-sample" --typed-restarts 3,2 7,1 7,3 7,3
+python3 -B -m research.census.check_order_fifty_samples "$out/twenty-sample" --order 52
 ~~~
