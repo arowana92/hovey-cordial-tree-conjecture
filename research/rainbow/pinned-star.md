@@ -81,9 +81,12 @@ The earlier distinct-parent bound supplies enough parents to select. The strippe
 
 At modulus 27 with the maximum possible leaf count $t-1$, the two busiest parents together support at most **11** original leaves at residue 23 and **12** at residue 24, since $3(r_1+r_2)\le2(2r_1+r_2)$. At residue 25 the busiest parent supports at most **10**. In particular a 51-vertex counterexample has exactly 22 leaves and $2r_1+r_2\le19$. The checker built 19,683 complete trees of order 51 with four center children, seven and three leaves at the two chosen old colors, and eight further singleton leaves. It tested every triple of entering and chosen colors and used the second placement in 18,954 cases.
 
+The [Lean 4.36 proof](HallCenter.lean) takes the Hall permutation as input. Under the cardinality hypothesis it selects a center, discards the displaced forbidden source and extracts distinct rows with exactly the requested multiset of leaf shifts. It also verifies both translations in $\mathbb Z_k$ and the actual center-edge weight after either placement.
+
 The [independent checks](check_star_parent_counts.py) enumerate every permutation and every proper nonempty choice of spare rows through modulus six. They verify 160,120 instances of the cardinality criterion and 82,862 further instances of the coset criterion by trying the center sources directly. Constructing and recounting whole trees through modulus 60 checked 7,980 ordinary attachments, including 788 beyond the earlier bound on the number of shifts, and 8,346 attachments using the coset criterion with prescribed shifts.
 
 ~~~sh
+lean +leanprover/lean4:v4.36.0 research/rainbow/HallCenter.lean
 python3 -B -m research.rainbow.check_star_parent_counts
 ~~~
 
