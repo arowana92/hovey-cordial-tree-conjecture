@@ -1,6 +1,6 @@
-# Seventeen leaves at order 52
+# Seventeen and eighteen leaves at order 52
 
-**Theorem (computer-assisted).** Every tree on 52 vertices with at most seventeen leaves is 27-cordial. A 52-vertex counterexample would therefore have **18 through 23 leaves**. The smaller leaf counts follow from the sixteen-leaf theorem. At least 24 leaves allow 24 of them to be restored on a 28-vertex core by Hall's theorem. All smaller tree orders already admit 27-cordial labelings. [Sixteen-leaf theorem](sixteen-leaf-corridor.md) · [Leaf restoration](../counterexample-bound.md#removing-leaves) · [Through order 51](order-fifty-one.md)
+**Theorem (computer-assisted).** Every tree on 52 vertices with at most seventeen leaves is 27-cordial. The [eighteen-leaf proof below](#eighteen-leaves) further narrows a 52-vertex counterexample to **19 through 23 leaves**. The smaller leaf counts follow from the sixteen-leaf theorem. At least 24 leaves allow 24 of them to be restored on a 28-vertex core by Hall's theorem. All smaller tree orders already admit 27-cordial labelings. [Sixteen-leaf theorem](sixteen-leaf-corridor.md) · [Leaf restoration](../counterexample-bound.md#removing-leaves) · [Through order 51](order-fifty-one.md)
 
 ## The centroid calculation
 
@@ -32,4 +32,29 @@ for cert in research/census/order-52-audits/*.txt; do
     python3 -B -m research.census.stream_leaf_profiles 27 "$out/$id.profiles" "$out/generate" "$out/verify" "$out/$id" --workers 2 --restarts
     cmp "$out/$id/manifest.txt" "$cert"
 done
+~~~
+
+## Eighteen leaves
+
+**Theorem (computer-assisted).** Every tree on 52 vertices with eighteen leaves is 27-cordial. Together with the preceding result, this leaves **19 through 23 leaves** for a possible counterexample of order 52.
+
+Use the unique centroid and record the orders and tip counts of its branches. Every branch has size at most 21. No subset of the branch orders may sum to 22 or 24, by the independent-pair and common-parent extensions. Two disjoint edge sides cannot have orders summing to 25, since their common middle would have 27 vertices and could be compressed to one edge on a 25-vertex tree. The seven-tip and six-terminal-path bounds from the preceding proof still apply. In particular, each branch has at most ten tips. The size-partition and branch-multiset enumerations agree on 18,105 numerical possibilities. [Independent pair](../rainbow/common-pair-22.md) · [Common-parent extension](../rainbow/common-site-24.md) · [One-edge offset on 25 vertices](../biased/one-offset-25.md)
+
+The two-cut restriction also applies below the centroid. Each branch of order $s$ contains descendant subtrees of orders 1 and $s$. If the branch has just one tip, it is a path and contains every order through $s$. For any forced order $a$ in a different branch, forbid a descendant subtree of order $25-a$. A multiset recurrence counts possible tip numbers using only the remaining subtree orders. Independently, for each branch type, enumerate the inclusion-minimal sets of descendant orders. At a new root, take the union of the child sets and add the order of the whole tree. Supersets can be discarded because every cross-branch restriction forbids the simultaneous presence of two orders. Select one set per branch, rejecting complementary orders in different branches. These two calculations retain exactly the same **14,689** numerical profiles. Each deletion uses two disjoint actual sides in every tree with the rejected profile.
+
+For the remaining profiles choose exterior mass 24 on a 28-vertex core, as in the preceding proof. If its ordered component sizes prohibit every change of parent color, use the 24-vertex common-parent theorem. If they permit a change only after the first two vertices, those vertices form one two-vertex path or two singleton components with a common parent color. The other 22 vertices have one common parent color. The independent-pair theorem covers both choices. The existing typed catalogs, including the 14-leaf order-54 and 15-leaf order-53 certificates, leave 201 profiles requiring an additional restoration. The [334 new forest types](order-52-audits/eighteen/24-restarts.txt) supply a successful cut in every one of those cases. [Full geometry and manifest checker](check_order_fifty_two_eighteen.py)
+
+These certificates cover **60,880,962** rooted forests, **2,466,494,372** witness rows and **716,742,396,252** literal boundary assignments. All streams were verified during generation. A separate build regenerated all 35 types with at most 128 forests, reproducing the digests and counts for 1,925 forests, 169,801 rows and 39,646,179 assignments. A whole-tree replay reconstructed 42,930 ordinary 52-vertex trees, including 8,500 with exactly eighteen leaves, from ten sampled forests and three actual 28-vertex cores. It recounted all 1,030,320 nonempty restoration prefixes.
+
+Use the same compiled generator and verifier as above. Run the following from the repository root.
+
+~~~bash
+python3 -B -m research.census.check_order_fifty_two_eighteen
+cert=research/census/order-52-audits/eighteen/24-restarts.txt
+awk -F '  ' '{print $3}' "$cert" > "$out/eighteen.profiles"
+python3 -B -m research.census.stream_leaf_profiles 27 "$out/eighteen.profiles" \
+    "$out/generate" "$out/verify" "$out/eighteen" --workers 2 --restarts
+cmp "$out/eighteen/manifest.txt" "$cert"
+"$out/generate" 27 0 1 "$out/sample18" --typed-restarts 1,1 3,1 5,1 5,1 5,2 5,2
+python3 -B -m research.census.check_order_fifty_samples "$out/sample18" --order 52
 ~~~

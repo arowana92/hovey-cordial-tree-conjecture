@@ -69,7 +69,7 @@ def check(path, order=50, limit=None):
                 for histogram in (vertex,edge):
                     bins = [histogram[x] for x in range(27)]
                     assert max(bins)-min(bins) <= 1
-                if order>=53:
+                if order>=52:
                     vertex_bins = [old.count(c) for c in range(27)]
                     edge_bins = [1]*27
                     for u,v in joined[len(edges):]:
