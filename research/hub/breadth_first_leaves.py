@@ -61,11 +61,19 @@ def label_tree(k, parents, populations):
     q, r = divmod(h, k)
     leaves = 2 if q >= 2 or r == 0 else 3
     assert min(populations) >= leaves
-    labels = [-1]*(h+sum(populations))
+    labels = [-1]*h
     for i, v in enumerate(breadth_first(parents)):
         labels[v] = i % k
     weights = [(labels[p]+labels[i]) % k for i, p in enumerate(parents, 1)]
     batches, rows = helpers(k, h, leaves, weights)
+    return finish_batches(k, labels, populations, weights, batches, rows)
+
+
+def finish_batches(k, core, populations, weights, batches, rows):
+    """Apply the exact batch criterion to the given labeled core and helpers."""
+    h = len(core)
+    labels = list(core) + [-1]*sum(populations)
+    weights = list(weights)
     # Leaf numbers are consecutive per original site in the caller's numbering.
     starts = list(accumulate([h]+list(populations)))
     slots = defaultdict(list)
