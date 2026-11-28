@@ -188,12 +188,13 @@ struct Cover {
         std::array<Word,k> need_path, need_siblings;
         need_path.fill(pairs.full);
         need_siblings.fill(pairs.full);
-        for (int trial=0; trial<5000; ++trial) {
-            budget = trial<300 ? 180 : 800;
-            label[0]=0;
+        for (int trial=0; trial<(n == 23 ? 100000 : 5000); ++trial) {
+            if (trial>=5000 && trial%200==0) orient(random()%n);
+            budget = trial<300 ? 180 : trial<5000 ? 800 : 1600;
+            label[order[0]]=0;
             if (!place(1,all^1,all)) continue;
             Mask holes=all, shifted[k];
-            for (int i=1; i<n; ++i) holes ^= Mask(1)<<((label[i]+label[parent[i]])%k);
+            for (int i=0; i<n; ++i) if (parent[i]>=0) holes ^= Mask(1)<<((label[i]+label[parent[i]])%k);
             for (int x=0; x<k; ++x) shifted[x]=rotate(holes,(k-x)%k);
 
             // Before translating away the surplus, collect all second-parent

@@ -6,6 +6,8 @@
 
 For order 21, remove the union and root the retained tree at its joint. This rooted tree has at least three vertices. Choose a deepest vertex with children. If it has two or more children, remove two of its leaf children. If it has one child, remove that vertex and its child. In the latter case the vertex has a parent since the retained tree has at least three vertices. Either deletion preserves the joint and gives a connected core of order one modulo 27. Label the smaller core and apply the theorem. The [independent-leaf result](common-leaf-22.md) treats 22 and 23. Orders 24 through 27 follow from the [affine and divisible joins](../prime/four-deficits.md).
 
+The [order-23 marked census](common-pair-22.md) extends the main forest to 22 vertices and gives the corresponding restriction at residue 25.
+
 ## What a witness certifies
 
 Translate the old surplus residue to zero. The old edge frequencies are equal. Add a temporary root to the main forest with 21 free vertices, joining it to each component root. A witness row labels the resulting 22-vertex tree injectively with distinct edge weights modulo 27. Mark its temporary root, with label $r$. Write $V$ and $E$ for the unused vertex labels and edge weights.
