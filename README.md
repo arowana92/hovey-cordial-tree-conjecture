@@ -8,6 +8,8 @@ At order 52, the remaining 27-label question reduces to 2,568 specified forest t
 
 At 27 labels, **every prescribed connected order** of a tree with at most five leaves admits one labeling cordial on every prefix. With six leaves any order starting at a leaf works. A matching lift gives 54-cordiality for six-leaf trees under an explicit deficiency and order condition. [Prescribed-order theorem, certificates and lift](research/rainbow/prescribed-five-tips-27.md)
 
+At 27 labels, **every depth-first preorder** works when the four shortest terminal arms total at least 24 edges, with arbitrarily many leaves. At sufficiently large moduli the same conclusion holds when all but at most $k^{1-\beta}$ terminal arms have length at least $k^\alpha$, for fixed $0<\alpha,\beta<1$. [Interval bound, proof and checks](research/rainbow/terminal-arm-orders.md)
+
 At 27 labels, two rooted trees with at most seven tips between them can be added at independently chosen vertices of any fixed cordial core of order zero or one modulo 27. Either root can start, and every prefix of the growth order stays cordial, even with prescribed offsets on both entering edges. [Two-tree extension theorem and certificates](research/rainbow/two-rooted-trees.md)
 
 At 27 labels, every tree with at most seven leaves admits a labeling cordial on every connected prefix of a suitable order even when one edge has a prescribed offset. A 27-vertex piece with at most seven leaves can also be inserted on any edge of a rainbow core through order 27, simultaneously on several edges. [Two-port certificate and growth theorem](research/biased/period-ports-27.md)
