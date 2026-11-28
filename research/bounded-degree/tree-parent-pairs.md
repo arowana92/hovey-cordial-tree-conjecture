@@ -22,6 +22,8 @@ The enlarged tree has two unpinned leaves, since the original tree had two leave
 
 Finally, $h$ divides both $k$ and $\sum_{v\ne r}(d_F(v)-1)=k-2-d_F(r)$, hence $h\mid d_F(r)+2$. In particular $d_F(r)+1$ is a unit modulo $h$, and $h\le D+2$. Every pair $b,c$ therefore permits a choice of nonzero $x$ when $k$ is sufficiently large.
 
+The [prescribed forest spectrum](forest-spectrum.md#changing-one-parent-without-relabeling-the-forest) extends the two-parent criterion to sublinear total degree excess and arbitrary additional rooted components with their own boundary labels.
+
 ## Exact row counts
 
 With $x$ fixed, let $m=k/h$, $t=-(d_F(r)+1)x\bmod h$, and $f=|\{j\bmod h:2j=t\}|$. The minimum number of permutations covering all $k$ parent labels is
