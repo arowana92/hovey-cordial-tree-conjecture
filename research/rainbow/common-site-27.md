@@ -6,6 +6,8 @@
 
 In particular, at order $27m+23$ a least counterexample cannot have **any collection of branches at one vertex totaling precisely 22 vertices**. Deleting such branches leaves a connected smaller core of order one modulo 27, and restoring them is a common-parent extension. This strengthens the [single-branch edge-cut exclusion](single-branches-27.md). At every multiple $k$ of 27, the same extension works on a prescribed core of order one modulo $k$ even when the old parents merely have congruent labels modulo 27. Normalize the old surplus to zero modulo $k$. Lift the free labels from their representatives modulo 27. Distinct free labels and weights modulo 27 lift to distinct residues modulo $k$, and the lifted free labels avoid the old surplus.
 
+The [order-25 census](common-site-24.md) extends the marked-vertex theorem through order 25 and the common-parent forest bound through 24.
+
 ## From one tree labeling to many prescriptions
 
 Let $f$ be an injective labeling with distinct edge sums, let $v$ be the mark and let $z$ be unused. Under $x\mapsto u(x-z)$ the unused residue becomes zero and the marked label becomes $u(f(v)-z)$. The units modulo 27 have three orbits on nonzero differences, with gcds 1, 3 and 9. A family of witnesses covering all three orbits at every vertex therefore realizes any prescribed nonzero mark with zero unused. Translation gives every pair of distinct prescribed residues.
