@@ -11,3 +11,31 @@ The restriction on the forests in the [rainbow test](README.md) matters for comp
 If $b=0$, take $x=1$, label the star leaves $-1,-2,\ldots,-(s-1)$, and again give the singleton leaves the remaining nonzero labels other than 1. The star-leaf weights are $0,-1,\ldots,-(s-2)$ when $s\ge2$ and the center edge weighs 1. The resulting weights are distinct, also for $s=1$.
 
 For $k=9$, the choices $s=3,6$ and $3\nmid b$ give twelve impossible pinned inputs. In every one the forest has seven vertices without children. The nine-label proof needs only forests with at most five. The obstruction concerns this stronger pinned extension requirement. The ordinary nine-label theorem allows the core and its coloring to be chosen.
+
+## A sharp bound for shorter attachments at every composite modulus
+
+**Theorem.** On a prescribed cordial core of order one modulo $k$, add a star by its center and any number of singleton leaves with one common old parent color. The center's old parent color is arbitrary. If the total number $t$ of new vertices is at most $k-2$, the labeling always extends and works on every parent-first prefix. At every composite $k$ the bound is sharp for a guarantee through order $t$. Indeed the full-size proposition above fails when the star has order a proper divisor of $k$ greater than one and its entering parent differs from the surplus by one. At primes the [prime star theorem](prime-star.md) covers $k-1$ vertices even with independently chosen singleton-parent colors.
+
+Translate the old surplus to zero. Write $a$ for the center's parent color, $b$ for the singleton-parent color, and $j$ for the number of star children. We need $t$ distinct nonzero labels and $t$ distinct edge weights. If $b\ne0$, put $b$ on the center. Give all other new vertices distinct labels outside $\{0,b,a\}$. There are at least $k-3\ge t-1$ available. Their edge weights are their labels plus $b$, and all avoid the entering weight $a+b$.
+
+If $b=0$, put 1 on the center. Start with the child labels $C_0=\{-1,-2,\ldots,-j\}$ in $\mathbb Z_k$. If $a\notin C_0$, use $C=C_0$ and reserve $a+1$ from the singleton labels. The child weights are in $C\cup\{0\}$ and avoid $a+1$. If $a\in C_0$, use
+$$
+                 C=(\{-1,-2,\ldots,-j-1\}\setminus\{a\})
+$$
+and reserve $a$ from the singleton labels. Now $C+1\subseteq C\cup\{0,a\}$, and $a+1\in C\cup\{0\}$. No child edge weighs $a+1$, since $a\notin C$. In both cases $j\le k-3$ ensures that $C$ avoids 0 and 1. Choose the $t-1-j$ singleton labels outside $C$, zero, one and the reserved value. At least $k-j-3$ labels are available. Their weights equal their labels. This proves both balance conditions on every prefix.
+
+## Several singleton-parent colors
+
+Suppose one free vertex has children and the other free vertices are leaves. Prescribe a nonzero center label $x$ after normalizing the old surplus. Each new noncenter vertex has an effective shift $g$, its parent color plus any edge offset. Its weight is its own label plus $g$. If these shifts use at most $k-t-1$ different values, the labeling extends with the prescribed $x$. The center's entering edge may also have any prescribed shift.
+
+To prove this, write a row for each of the $t$ vertices. Pad the list of shifts to length $k$, including one dummy of each noncenter shift. At least one further dummy remains whose shift can make the total zero. Hall's prescribed-differences theorem gives distinct sources and distinct destinations for all $k$ rows. Translate both permutations to put source $x$ at the center. If a real row now has source zero, it is a noncenter row. Exchange its source with that of the dummy having the same shift. This also exchanges their destinations. Removing all dummy rows leaves the requisite distinct nonzero labels and distinct weights. [Marshall Hall Jr., 1952](https://doi.org/10.1090/S0002-9939-1952-0050579-7)
+
+**Leaf-parent restriction.** Write the order of a smallest counterexample as $mk+1+t$ with $1\le t<k$. If it has exactly $t-1$ leaves and $d=k-t\ge2$, those leaves have **at least $d+1$ different parents**. For example, at order 51 and modulus 27, any counterexample with 22 leaves must have at least five leaf parents. The conclusion applies as well at every order in the same residue, for a smallest failure.
+
+Indeed, suppose the leaves have at most $d$ parents. Remove all leaves and then a leaf of the remaining tree, which has order $mk+2\ge2$. This last removed vertex had at least one original leaf child, and its neighbor toward the remaining core survives. The exterior is one star and singleton leaves whose parents number at most $d-1$. Label the smaller core by minimality. For $d=2$ all singleton parents have a common color, so the short star theorem applies. For $d\ge3$, if any singleton parent has a nonzero color, give the center one such color. The child shifts then belong to the existing singleton shifts, and there are at most $d-1$ effective shifts in total outside the center. If all singleton parents have color zero or there are none, use center color one. There are then at most two shifts, again at most $d-1$. Apply the dummy-row construction.
+
+The [whole-tree checker](check_short_stars.py) implements both constructions and rebuilds all edge weights from their endpoints. It checks all 56,420 pairs of prescribed colors and child-count cases at maximum short length for $3\le k\le22$, as well as 4,959 further trees using varied shifts and prescribed center labels through modulus 60.
+
+~~~bash
+python3 -B -m research.rainbow.check_short_stars
+~~~
