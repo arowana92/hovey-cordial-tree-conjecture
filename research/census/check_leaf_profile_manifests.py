@@ -32,7 +32,7 @@ def read_rows(path, mass):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("order", type=int, choices=range(50, 55))
-    parser.add_argument("leaves", type=int, choices=(12, 13))
+    parser.add_argument("leaves", type=int, choices=(11, 12, 13))
     parser.add_argument("geometry", type=Path)
     parser.add_argument("manifests", nargs="+", type=Path)
     args = parser.parse_args()

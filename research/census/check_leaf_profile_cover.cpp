@@ -117,7 +117,7 @@ struct Test {
 int main(int argc,char** argv) {
     if (argc != 4) return 2;
     int n = std::stoi(argv[1]), l = std::stoi(argv[2]);
-    if (n < 50 || n > 54 || l < 12 || l > 13) return 2;
+    if (n < 50 || n > 54 || l < 11 || l > 13) return 2;
     Test test{n,l,n-28,std::string(argv[3]) == "--candidates"};
     if (!test.inventory) {
         std::ifstream file(argv[3]);

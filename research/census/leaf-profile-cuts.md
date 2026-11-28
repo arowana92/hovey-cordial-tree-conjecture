@@ -1,12 +1,12 @@
-# Centroid cuts for twelve and thirteen leaves at 27 labels
+# Cordial growth for trees with at most twelve leaves at 27 labels
 
-**Verified orders.** Every tree with at most thirteen leaves and at most 53 vertices is 27-cordial. A designated leaf may receive a most-frequent vertex residue. Order 54 is under audit.
+**Theorem (computer-assisted).** Every finite tree with at most twelve leaves has one labeling that is 27-cordial on every prefix of a connected vertex order. A specified leaf may lie in the last block of 27 vertices (or the final shorter block) and receive a most-frequent vertex residue. Every tree with thirteen leaves and at most 53 vertices also satisfies these assertions. For thirteen leaves, order 54 is the remaining finite test for an all-orders theorem.
 
 The earlier results cover [every tree through 49 vertices](../rainbow/twenty-one-free.md) and [at most eleven leaves at every order](eleven-leaves.md). By the [six-terminal theorem](../rainbow/few-leaves.md#a-finite-reduction-for-eleven-leaves), a smallest counterexample within either new class must have order at most 54. This leaves five orders to verify for an all-orders theorem.
 
 ## Selecting a cut from the numerical branch data
 
-Fix $50\le n\le54$, $t=n-28$, and $L=12$ or $13$. At a leaf centroid $v$, each branch of $T-v$ has at most $\lfloor L/2\rfloor=6$ original leaves. Such a vertex exists by walking toward any side containing more than half the leaves. With $L>2$ it is an internal vertex. Describe a whole branch by its order $s$ and number $h$ of rooted tips. Its tips are precisely its original leaves. We have $h\le\max(1,s-1)$, with equality possible at $s=1$.
+Fix $50\le n\le54$, $t=n-28$, and $L\in\{11,12,13\}$. At a leaf centroid $v$, each branch of $T-v$ has at most $\lfloor L/2\rfloor\le6$ original leaves. Such a vertex exists by walking toward any side containing more than half the leaves. With $L>2$ it is an internal vertex. Describe a whole branch by its order $s$ and number $h$ of rooted tips. Its tips are precisely its original leaves. We have $h\le\max(1,s-1)$, with equality possible at $s=1$.
 
 If some selection of whole branches has at most six tips and total order at least $t$, retain $v$ and the other branches. Traverse the selected branches in size-ordered preorder from $v$, stopping when exactly $t$ vertices remain. The resulting forest has at most six tips. Its actual boundary colors satisfy the ordered-cut inequalities. Pad a largest component at a tip to reach total order 26 and use the existing [six-terminal certificate](../rainbow/few-leaves.md). The retained core has order 28. Translate its unique surplus label to zero. Injective nonzero labels and distinct new weights on the exterior then maintain cordiality.
 
@@ -18,6 +18,14 @@ In every remaining numerical case each branch has order less than $t$. Choose a 
 Thus in either case the actual assignment satisfies the [sharp ordered-cut conditions](../rainbow/ordered-cut.md#which-colored-forests-actually-occur). These conditions use the canonically sorted list of component sizes. Tied sizes cannot change color. Whole branches with equal size may therefore be sorted by their canonical bracket words.
 
 Enumerate every possible multiset of pairs $(s,h)$ for the suffix within $B$, with total order $z$ and at most $h_B$ tips. Adjoin the fixed pairs of $W$. For every resulting profile, either there are at most six tips, or the exact profile must occur in the verified dictionary for this order. This condition proves the cut works without choosing a labeling of the core in advance. For a mark in the core, give its leaf the surplus by deleting it before labeling the remaining 27-vertex tree and then filling the deficient edge weight. A mark outside the core receives an incremented label. The marked base through order 49 for these leaf counts uses the 21-vertex exterior certificate with at most thirteen tips. [Marked cut and order-one argument](marked-ring.md)
+
+## One labeling for all connected prefixes
+
+Use the existing [prefix induction](../rainbow/cut-growth.md) for at most ten leaves. For eleven and twelve leaves, the integer base gives distinct labels and edge weights through order 27. At order one modulo 27, delete the marked leaf, or any leaf if unmarked, apply induction, then append it with the label that fills the deficient edge bin. For the remaining orders through 49 use the [21-vertex exterior certificate](../rainbow/twenty-one-free.md) on the size-ordered cut, which has at most thirteen tips. From 50 through 54 the two numerical checkers below certify a cut to a 28-vertex core. For exactly eleven leaves they accept all 64, 81, 100, 120 and 140 exceptional numerical cases, respectively, using the twelve-leaf manifests. Above 54 the [three-group argument](../rainbow/few-leaves.md#a-finite-reduction-for-eleven-leaves) supplies a cut with at most six tips.
+
+Each core is connected, has order one modulo 27 and has at most as many leaves as the original tree. Apply induction to the core, retaining the mark if it lies there. Its final block is a singleton, so a retained mark has the unique surplus color. The exterior receives distinct colors avoiding this surplus, with distinct new edge weights. Append its vertices in any parent-first order. Every prefix increments only distinct low vertex bins and distinct initially equal edge bins. The final block consists of the last core vertex and the exterior. Its residues are all most frequent. The same induction through order 53 works for thirteen leaves by the corresponding rows below.
+
+The [matching lift and marked-leaf deletion](marked-ring.md#matching-consequence-and-verification) now prove 54-cordiality for any tree with at most twelve leaves and a perfect or near-perfect matching. Matching contraction and the temporary-leaf construction in that argument preserve the required leaf bound.
 
 ## Independent enumeration and labeling checks
 
@@ -35,6 +43,7 @@ Each **13** row below includes the corresponding twelve-leaf streams. A thirteen
 | 12 | 51 | 559 | 168 | 1,872,577 | 70,755,366 | 17,300,096,559 |
 | 12 | 52 | 778 | 223 | 4,360,159 | 248,375,882 | 43,615,436,499 |
 | 12 | 53 | 1,058 | 244 | 8,482,500 | 462,878,824 | 81,174,030,444 |
+| 12 | 54 | 1,389 | 321 | 16,670,448 | 1,688,748,176 | 189,852,628,734 |
 | 13 | 50 | 1,394 | 180 | 4,547,618 | 77,339,210 | 18,767,082,942 |
 | 13 | 51 | 2,355 | 335 | 9,020,220 | 225,561,628 | 55,271,031,804 |
 | 13 | 52 | 3,921 | 460 | 16,539,837 | 634,532,366 | 108,112,875,093 |
@@ -63,6 +72,9 @@ for manifest in "$c"/leaf-profile-audits/*.txt; do
   if [[ $n == 53 ]]; then flags+=(--restarts); fi
   python3 -B "$c/stream_leaf_profiles.py" 27 "$out/$name.profiles" "$out/generate" "$out/verify" "$out/$name" --workers 4 "${flags[@]}"
   cmp "$manifest" "$out/$name/manifest.txt"
+  if [[ $leaves == 12 ]]; then
+    python3 -B -m research.census.check_leaf_profile_manifests "$n" 11 "$out/geometry" "$manifest"
+  fi
   proof=("$manifest")
   if [[ $leaves == 13 ]]; then proof+=("$c/leaf-profile-audits/12-$n.txt"); fi
   python3 -B -m research.census.check_leaf_profile_manifests "$n" "$leaves" "$out/geometry" "${proof[@]}"

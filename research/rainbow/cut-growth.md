@@ -1,6 +1,6 @@
 # Cordial growth through 26 labels
 
-**Theorem.** For every $1\le k\le26$, each nonempty finite tree admits a connected vertex order and a single labeling that is $k$-cordial on **every prefix**. A specified leaf can be put in the final block, where blocks have $k$ vertices except possibly the last. The same assertions hold at 27 for trees with at most ten leaves and at 28 through 30 for trees with at most eight leaves.
+**Theorem.** For every $1\le k\le26$, each nonempty finite tree admits a connected vertex order and a single labeling that is $k$-cordial on **every prefix**. A specified leaf can be put in the final block, where blocks have $k$ vertices except possibly the last. The same assertions hold at 27 for [trees with at most twelve leaves](../census/leaf-profile-cuts.md) and at 28 through 30 for trees with at most eight leaves.
 
 For the same labeling, any vertex in the first $\min(n,k)$-vertex block can start the order. Indeed, the vertices of that connected block have distinct labels and its edges have distinct sums. Reorder it in any connected fashion, then resume the existing order. At eight and nine the separate fixed-core theorem allows a starting vertex anywhere in the tree. At every composite modulus some specified connected orders obstruct prefix cordiality. [Prescribed start and prescribed-order obstructions](../eight/growth-orders.md)
 
