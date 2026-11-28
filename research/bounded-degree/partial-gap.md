@@ -14,6 +14,8 @@ For each $v\in I$ use a variable $X_v$. On $P\cup I$ form the list of all vertex
 
 In particular, with at least three unpinned branching vertices in the second case, only the divisibility $\gcd(k,d_v:v\in I)\mid T$ remains after the initial pin test. A comparison has at most two positive and two negative unit coefficients, whereas $u$ has at least three positive entries. Constant comparisons either come from the initial data or from edges sharing an unpinned endpoint and having different pinned neighbors. The latter have distinct sums by injectivity of the pins.
 
+With two unpinned leaves the same test allows unbounded degrees. A caterpillar gives a sharp square-root scale for arbitrary pin placements. [Degree reduction and obstruction](excess-pins.md)
+
 ## Two or more free leaves
 
 Subtracting the sum of all vertex labels from the edge sum yields $\sum(d_U-1)x=-w$. This proves necessity of the first gcd condition. Reserve two unpinned leaves. Some degree $2\le d\le D$ occurs linearly often, since $\sum(d_U-1)=k-2$. Put $g=\gcd(k,d-1)$. For each nonzero residue of $c_v$ modulo $g$ among unpinned vertices choose a representative. Some ordinary degree-$d$ vertex is unpinned, so the coefficient gcd with $g$ is the divisor in the criterion. Choose representative label residues modulo $g$ to realize the missing coefficient sum modulo $g$. Lift their labels greedily within their residue classes. A new vertex must avoid occupied labels and previously used or forbidden colors at its boundedly many neighbors. Two simultaneously formed edges have different sums because the previously labeled neighbors are distinct. Each step excludes $O_D(|P|+1)$ of the $k/g$ possible labels.

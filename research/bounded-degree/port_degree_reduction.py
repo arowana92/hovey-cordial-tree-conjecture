@@ -2,7 +2,8 @@
 from check import adjacency
 
 
-def reduce_degree(edges,marked,*,root=None,degree_bound=3,reserved=(),site_degree=2):
+def reduce_degree(edges,marked,*,root=None,degree_bound=3,reserved=(),site_degree=2,
+                  paired_buffers=False):
     k = len(edges)+1
     graph = adjacency(k,edges)
     if root is None:
@@ -21,12 +22,15 @@ def reduce_degree(edges,marked,*,root=None,degree_bound=3,reserved=(),site_degre
     retained = [e for e in edges if frozenset(e) not in cut_set]
     blocked = {v for e in cut for v in e}|{root}|set(marked)|reserved
     extra = []
-    for a,b in retained:
-        if a not in blocked and b not in blocked:
+    extra_count = len(cut) if paired_buffers else 5
+    for a,b in retained if extra_count else ():
+        low = not paired_buffers or max(len(graph[a]),len(graph[b])) < degree_bound
+        if low and a not in blocked and b not in blocked:
             extra.append((a,b) if parent[b]==a else (b,a))
             blocked.update((a,b))
-            if len(extra)==5: break
-    assert len(extra)==5
+            if len(extra)==extra_count: break
+    assert len(extra)==extra_count
+    original_cuts = cut[:]
     cut.extend(extra)
     cut_set.update(frozenset(e) for e in extra)
     kept = [e for e in retained if frozenset(e) not in cut_set]
@@ -55,8 +59,16 @@ def reduce_degree(edges,marked,*,root=None,degree_bound=3,reserved=(),site_degre
                 return True
         return False
 
-    assert all(place(r,set()) for r in priority[1:])
-    prescribed = {r:cut[i] for i,r in matched.items()}
+    if paired_buffers:
+        prescribed = {}
+        for old,fresh in zip(original_cuts,extra):
+            prescribed[old[1]] = fresh
+            prescribed[fresh[1]] = old
+        if priority[0] != root:
+            prescribed[root] = prescribed.pop(priority[0])
+    else:
+        assert all(place(r,set()) for r in priority[1:])
+        prescribed = {r:cut[i] for i,r in matched.items()}
     sites = {}
     available = pools[priority[0]][:]
     for r in priority[1:]:
