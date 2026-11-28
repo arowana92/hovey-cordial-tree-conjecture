@@ -6,6 +6,8 @@ On any path in a smallest counterexample at modulus $k$, each residue of the cut
 
 At order 52, the remaining 27-label question reduces to 2,568 specified forest tests. The centroid calculation covers all remaining leaf counts. The witness census is in progress. [Conditional reduction and reproducible checklist](research/census/order-fifty-two.md#a-finite-checklist-for-all-remaining-leaf-counts)
 
+At every odd modulus, a harmonious cycle can contain any prescribed full arithmetic progression as consecutive vertices. This lets branches move between corresponding vertices on two copies of a path while preserving the original cordial labeling. [Construction, tree operation and Lean arithmetic check](research/census/cycle-progressions.md)
+
 At 27 labels, **every prescribed connected order** of a tree with at most five leaves admits one labeling cordial on every prefix. With six leaves any order starting at a leaf works. A matching lift gives 54-cordiality for six-leaf trees under an explicit deficiency and order condition. [Prescribed-order theorem, certificates and lift](research/rainbow/prescribed-five-tips-27.md)
 
 At 27 labels, **every depth-first preorder** works when every terminal arm has at least five edges, or when the four shortest total at least 24. The number of leaves is unrestricted. At sufficiently large moduli the same conclusion holds when all but at most $k^{1-\beta}$ terminal arms have length at least $k^\alpha$, for fixed $0<\alpha,\beta<1$. [Interval bound, proof and checks](research/rainbow/terminal-arm-orders.md)
