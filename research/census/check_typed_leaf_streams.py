@@ -2,7 +2,7 @@
 import argparse
 from collections import defaultdict
 from pathlib import Path
-from struct import unpack_from
+from struct import pack, unpack_from
 import subprocess
 from tempfile import TemporaryDirectory
 
@@ -85,6 +85,21 @@ def check(generator, verifier, temp, mass):
         # The whole-tree description has a different component decomposition.
         wrong = [f"{mass},1"]
         assert subprocess.run([verifier,str(k),"--typed",file,*wrong], capture_output=True).returncode != 0
+    # A high-tip typed slice requires all old colors, even when an ordinary
+    # shard would only check zero. No one row covers every color on these stars.
+    file = temp / "star"
+    part = f"{mass},{mass-1}"
+    cmd = [verifier, str(k), "--typed", file, part]
+    for mode in (["--typed", "--typed-restarts"] if mass < k-1 else ["--typed"]):
+        generate(file, [mode, part])
+        subprocess.run(cmd, check=True, stdout=subprocess.DEVNULL)
+        [(actual, word, data, shape)] = records(file)
+        parents, roots, sizes, active = shape
+        assert actual == ((mass,mass-1),) and parents == [-1]+[0]*(mass-1) and not active
+        assert direct(k, parents, roots, sizes, True, data) == k
+        header = file.read_bytes()[:6 if mass < k-1 else 5]
+        file.write_bytes(header + pack("<QI", word, 1) + data[:mass])
+        assert subprocess.run(cmd, capture_output=True).returncode != 0
     return cases, trees, assignments, sum(map(len,stems.values()))
 
 

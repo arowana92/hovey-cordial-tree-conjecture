@@ -297,7 +297,7 @@ struct Audit {
             else if (bits) bits->insert(s);
             else check(seen.insert(word).second, "repeated forest");
             const Profile& p = profiles.try_emplace(s.sizes, k, s).first->second;
-            const bool active = s.leaves <= 2*(k-2)/3;
+            const bool active = type || s.leaves <= 2*(k-2)/3;
             int count = active ? p.representatives : 1;
             Count stored = in.rest(in.byte(),4);
             if (version == '1') check(stored == static_cast<Count>(count), "wrong record count");

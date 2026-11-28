@@ -2,6 +2,7 @@
 #pragma once
 #include <algorithm>
 #include <cstdint>
+#include <limits>
 #include <vector>
 
 class TipForests {
@@ -35,10 +36,12 @@ class TipForests {
     }
 
 public:
-    TipForests(int order, int max_tips): trees(order+1, Layer(max_tips+1)), limit(max_tips) {
+    TipForests(int order, int max_tips, int max_nonleaves = std::numeric_limits<int>::max())
+        : trees(order+1, Layer(max_tips+1)), limit(max_tips) {
         trees[1][1].push_back(2);
         for (int size = 2; size <= order; ++size) {
             forest(size-1, limit, 1, 0, 0, 0, [&](Word children, int tips) {
+                if (size-tips > max_nonleaves) return;
                 trees[size][tips].push_back((Word(1) << (2*size-1)) | (children << 1));
             });
             for (auto& words : trees[size]) std::sort(words.begin(), words.end());

@@ -10,7 +10,6 @@ struct ForestType {
     std::vector<std::pair<int,int>> parts;
     int stem = 0; // vertices on the path ending at the first branching vertex
     int mass = 0;
-    int tips = 0;
     ForestType(int k, int count, char** names) {
         if (!count) throw std::invalid_argument("empty forest type");
         std::string first(names[0]);
@@ -34,10 +33,8 @@ struct ForestType {
                 leaves > std::max(1,size-1)) throw std::invalid_argument("invalid component type");
             parts.emplace_back(size,leaves);
             mass += size;
-            tips += leaves;
             if (mass >= k) throw std::invalid_argument("forest type too large");
         }
-        if (tips > 2*(k-2)/3) throw std::invalid_argument("outside ordered-cut tip bound");
         std::sort(parts.begin(),parts.end());
     }
 };

@@ -200,7 +200,7 @@ class Generator {
         }
     }
 
-    void forest(Code code) {
+    void forest(Code code, bool require_all = false) {
         ++selected;
         std::array<int, 32> p{}, stack{}, labels{}, group{};
         std::vector<int> roots, gaps;
@@ -234,7 +234,7 @@ class Generator {
             std::stable_sort(order.begin(),order.begin()+mass,[&](int a,int b){ return size[a] > size[b]; });
         }
         const auto& colors = assignments(gaps);
-        int count = leaves <= 2*(k-2)/3 ? static_cast<int>(colors.size()) : 1;
+        int count = (require_all || leaves <= 2*(k-2)/3) ? static_cast<int>(colors.size()) : 1;
         number(code, 8);
         if (!cover) number(count, 4);
         const auto* orbit = cover ? &orbits(static_cast<int>(gaps.size())) : nullptr;
@@ -269,9 +269,12 @@ class Generator {
     }
 
     void typed_forests(const ForestType& type) {
-        int max_tips = 0;
-        for (auto part : type.parts) max_tips = std::max(max_tips,part.second);
-        TipForests trees(type.parts.back().first,max_tips);
+        int max_tips = 0, max_nonleaves = 0;
+        for (auto [size,tips] : type.parts) {
+            max_tips = std::max(max_tips,tips);
+            max_nonleaves = std::max(max_nonleaves,size-tips);
+        }
+        TipForests trees(type.parts.back().first,max_tips,max_nonleaves);
         std::vector<std::pair<int,Code>> selected_parts;
         auto visit = [&](auto& self, std::size_t i, std::size_t start) -> void {
             if (i == type.parts.size()) {
@@ -282,7 +285,7 @@ class Generator {
                 for (int s = type.mass-type.stem+1; s <= type.mass; ++s)
                     code = (Code(1) << (2*s-1)) | (code << 1);
                 ++shapes;
-                forest(code);
+                forest(code,true);
                 return;
             }
             auto [size,tips] = type.parts[i];
