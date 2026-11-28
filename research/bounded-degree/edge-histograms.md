@@ -20,7 +20,7 @@ When the tree is a path and $r$ is an endpoint, also require $2a\ne C$. With ord
 | One | $A\ne S$ |
 | At least two | $\gcd(k,c_v:v\in V(F))\mid A$ |
 
-The prescribed cycle label introduces no additional congruence. For a unicyclic graph $\sum c_v=k$, so the gcd with $k$ is unchanged on deleting any one coefficient. The uniform target specializes to the [harmonious census by leaf count](shifted-rings.md). For trees the single-omission ordinary case specializes to the [root and missing-weight theorem](rooted-gap.md).
+The [all-divisor extension](spectrum-projection.md) allows sparse original ring offsets and proves the exact two-edge-tail condition for a forced repeated weight. The prescribed cycle label introduces no additional congruence. For a unicyclic graph $\sum c_v=k$, so the gcd with $k$ is unchanged on deleting any one coefficient. The uniform target specializes to the [harmonious census by leaf count](shifted-rings.md). For trees the single-omission ordinary case specializes to the [root and missing-weight theorem](rooted-gap.md).
 
 ## Moments and construction
 

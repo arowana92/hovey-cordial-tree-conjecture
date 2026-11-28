@@ -15,8 +15,6 @@ def construct(edges, opening, anchor, label, omitted, extra, rng, cap=3, offsets
     k = len(edges) if ring else len(edges)+1
     graph = adjacency(k, edges)
     offsets = {edge(*pair): b % k for pair,b in (offsets or {}).items() if b % k}
-    if ring and offsets:
-        raise ValueError("ring spectra here use ordinary edge weights")
     if not ring and not omitted:
         raise ValueError("a tree must omit at least one edge weight")
     gap = None if ring else omitted[-1]
@@ -46,9 +44,28 @@ def construct(edges, opening, anchor, label, omitted, extra, rng, cap=3, offsets
     if not ring and len(movable) == 1 and (correction-2*label) % k == 0:
         return None
 
+    biases = offsets.copy()
+    forced = []
+    if ring and len(ends) == 1:
+        y = ends[0]
+        junction = next(v for v,ns in enumerate(graph) if len(ns) == 3)
+        middle = next(iter(graph[y]))
+        tip_edge = edge(y,middle)
+        joint_edge = edge(junction,middle)
+        if middle in graph[junction] and (correction+offsets.get(tip_edge,0)-offsets.get(joint_edge,0)) % k == 0:
+            if not extra:
+                return None
+            # Both true tail weights must agree. Assign that repeated bin here.
+            forced = [tip_edge]
+            middle_sum = extra[0]-offsets.get(joint_edge,0)
+            biases[tip_edge] = (offsets.get(tip_edge,0)+paired[0]-extra[0]) % k
+            protected.update((y,middle,junction))
+            paired, extra = paired[1:], extra[1:]
+
     tree = [pair for pair in edges if edge(*pair) != opening]
     tree_graph = adjacency(k, tree)
-    cuts, remaining = cap_tree(tree_graph, offsets, cap)
+    tree_bias = {pair:d for pair,d in biases.items() if pair != opening}
+    cuts, remaining = cap_tree(tree_graph, tree_bias, cap)
     fixed = protected | {v for pair in cuts for v in pair}
     reserved = [v for v in movable if v not in fixed][:2]
     site_degree = None
@@ -81,7 +98,6 @@ def construct(edges, opening, anchor, label, omitted, extra, rng, cap=3, offsets
         remaining[b].remove(a)
     if len(donors) != len(paired):
         raise ValueError("insufficient remote edges")
-    biases = offsets.copy()
     biases.update({pair: (q-p) % k for pair, q, p in zip(donors, paired, extra)})
     kept, sites, private, order = move_pairs(tree, tree_graph, remaining, cuts, fixed, reserved, site_degree)
 
@@ -90,6 +106,8 @@ def construct(edges, opening, anchor, label, omitted, extra, rng, cap=3, offsets
     residues = dict(zip(reps.values(), residue_sums(modulus,reps,target)))
     special = set(selected)
     dependent = {b for a, b in donors}
+    if forced:
+        dependent.add(middle)
     ordinary = fixed - private - special - dependent - {anchor}
     variables = [v for v in order if v in ordinary] + sorted(private)
     if len(special) == 2:
@@ -98,6 +116,8 @@ def construct(edges, opening, anchor, label, omitted, extra, rng, cap=3, offsets
     forms[anchor] = expression(constant=label)
     for (a, b), value in zip(donors, extra):
         forms[b] = expression(*[(i, -c) for i, c in forms[a].items()], constant=value)
+    if forced:
+        forms[middle] = expression(*[(i,-c) for i,c in forms[junction].items()], constant=middle_sum)
     if special:
         y = selected[-1]
         terms = [(i, (len(graph[v])-2)*c) for v, form in forms.items()
@@ -119,7 +139,7 @@ def construct(edges, opening, anchor, label, omitted, extra, rng, cap=3, offsets
         gap = evaluate(weight(opening))
     labels = build(kept, pins, gap, rng)
     assert labels is not None
-    return (kept, opening, gap, pins, labels), donors, biases
+    return (kept, opening, gap, pins, labels), forced+donors, biases
 
 
 def uniform_transfers(k, leaf_counts):
