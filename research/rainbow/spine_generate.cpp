@@ -1,6 +1,7 @@
 // Generate a binary witness stream for the size-ordered cut test.
 #include "ranked_forest.hpp"
 #include "tip_forests.hpp"
+#include "forest_type.hpp"
 #include <algorithm>
 #include <array>
 #include <cstdint>
@@ -23,6 +24,7 @@ struct Tree { int size; Code code; };
 class Generator {
     int k, mass, shard, shards;
     bool cover;
+    bool short_restarts = false;
     std::ofstream file;
     std::ostream& out;
     std::map<int,std::vector<int>> orbit_codes;
@@ -155,6 +157,42 @@ class Generator {
         return visit(visit,0,all^1,all);
     }
 
+    // Visiting large subtrees first postpones the terminal choices. Bounded
+    // deterministic restarts avoid committing to a difficult early residue.
+    bool restart_witness(const std::array<int,32>& parents, std::array<int,32>& labels,
+                         const std::array<int,32>& order, std::uint32_t seed) const {
+        using Mask = std::uint64_t;
+        const Mask all = (Mask(1)<<k)-1;
+        int budget = 0;
+        auto visit = [&](auto& self, int j, Mask vertices, Mask weights) -> bool {
+            if (j == mass) return true;
+            if (--budget < 0) return false;
+            int i = order[j];
+            int a = parents[i] < 0 ? -1-parents[i] : labels[parents[i]];
+            Mask choices = vertices & ((weights >> a) | (weights << (k-a)));
+            seed ^= seed << 13;
+            seed ^= seed >> 17;
+            seed ^= seed << 5;
+            Mask below = (Mask(1) << (seed % k))-1;
+            for (Mask block : {choices & ~below, choices & below}) {
+                while (block) {
+                    int x = __builtin_ctzll(block);
+                    block &= block-1;
+                    labels[i] = x;
+                    if (self(self,j+1,vertices^(Mask(1)<<x),weights^(Mask(1)<<((x+a)%k)))) return true;
+                    if (budget < 0) return false;
+                }
+            }
+            return false;
+        };
+        for (int trial = 0; trial < 24; ++trial) {
+            budget = trial < 12 ? 70 : 600;
+            if (visit(visit,0,all^1,all)) return true;
+            if (budget >= 0) return false;
+        }
+        return short_witness(parents,labels);
+    }
+
     void number(Code value, int bytes) {
         for (int i = 0; i < bytes; ++i) {
             out.put(static_cast<char>(value & 255));
@@ -187,6 +225,14 @@ class Generator {
             group[at] = static_cast<int>(gaps.size())-1;
         }
         // A zero boundary on every component is the base case at the dummy root.
+        std::array<int,32> order{};
+        if (short_restarts && mass < k-1) {
+            std::array<int,32> size{};
+            size.fill(1);
+            for (int i = mass-1; i >= 0; --i) if (p[i] >= 0) size[p[i]] += size[i];
+            std::iota(order.begin(),order.begin()+mass,0);
+            std::stable_sort(order.begin(),order.begin()+mass,[&](int a,int b){ return size[a] > size[b]; });
+        }
         const auto& colors = assignments(gaps);
         int count = leaves <= 2*(k-2)/3 ? static_cast<int>(colors.size()) : 1;
         number(code, 8);
@@ -198,7 +244,8 @@ class Generator {
             if (cover && stamp[encode(pattern)] == selected) continue;
             for (int root : roots) p[root] = -1-pattern[group[root]];
             bool found = mass == k-1 ? rainbow_witness(k, p.data(), labels.data()) == 1
-                                     : short_witness(p, labels);
+                       : short_restarts ? restart_witness(p,labels,order,static_cast<std::uint32_t>(code + 2*j)|1U)
+                                        : short_witness(p,labels);
             if (!found) {
                 std::cerr << "Failed forest " << code << " parents";
                 for (int i = 0; i < n; ++i) std::cerr << ' ' << p[i];
@@ -221,6 +268,33 @@ class Generator {
                                                << " shapes, " << cases << " witnesses\n";
     }
 
+    void typed_forests(const ForestType& type) {
+        int max_tips = 0;
+        for (auto part : type.parts) max_tips = std::max(max_tips,part.second);
+        TipForests trees(type.parts.back().first,max_tips);
+        std::vector<std::pair<int,Code>> selected_parts;
+        auto visit = [&](auto& self, std::size_t i, std::size_t start) -> void {
+            if (i == type.parts.size()) {
+                auto sorted = selected_parts;
+                std::sort(sorted.begin(), sorted.end());
+                Code code = 0;
+                for (auto [size,word] : sorted) code = (code << (2*size)) | word;
+                ++shapes;
+                forest(code);
+                return;
+            }
+            auto [size,tips] = type.parts[i];
+            const auto& words = trees.branches(size,tips);
+            bool repeat = i+1 < type.parts.size() && type.parts[i+1] == type.parts[i];
+            for (std::size_t j = start; j < words.size(); ++j) {
+                selected_parts.emplace_back(size,words[j]);
+                self(self,i+1,repeat ? j : 0);
+                selected_parts.pop_back();
+            }
+        };
+        visit(visit,0,0);
+    }
+
 public:
     Generator(int mod, int free_vertices, int part, int total, const char* path, bool packed):
         k(mod), mass(free_vertices), shard(part), shards(total), cover(packed),
@@ -229,11 +303,14 @@ public:
         if (!out) throw std::runtime_error("cannot open output");
     }
 
-    void run(bool ranked, int tip_limit, bool listed = false) {
+    void run(bool ranked, int tip_limit, bool listed = false, const ForestType* type = nullptr, bool restart = false) {
+        short_restarts = restart;
         out.write(mass < k-1 ? "SPN3" : cover ? "SPN2" : "SPN1", 4);
         out.put(static_cast<char>(k));
         if (mass < k-1) out.put(static_cast<char>(mass));
-        if (listed) {
+        if (type) {
+            typed_forests(*type);
+        } else if (listed) {
             Code word;
             while (std::cin >> word) {
                 if ((word >> (2*mass)) != 0) throw std::runtime_error("oversized forest word");
@@ -274,13 +351,20 @@ public:
         if (!out) throw std::runtime_error("write failed");
         auto& report = &out==&file ? std::cout : std::cerr;
         report << "shard " << shard << ": " << selected << " shapes, " << cases
-                  << " witnesses, " << (listed ? "listed catalog " : tip_limit ? "tip-limited catalog " : "full catalog ") << shapes << '\n';
+                  << " witnesses, " << (type ? "component type catalog " : listed ? "listed catalog " : tip_limit ? "tip-limited catalog " : "full catalog ") << shapes << '\n';
     }
 };
 }
 
 int main(int argc, char** argv) {
     std::ios::sync_with_stdio(false);
+    if (argc >= 7 && (std::string(argv[5]) == "--typed" || std::string(argv[5]) == "--typed-restarts")) {
+        int k = std::stoi(argv[1]);
+        if (k < 5 || k > 27 || std::string(argv[2]) != "0" || std::string(argv[3]) != "1") return 2;
+        ForestType type(k,argc-6,argv+6);
+        Generator(k,type.mass,0,1,argv[4],true).run(false,0,false,&type,std::string(argv[5]) == "--typed-restarts");
+        return 0;
+    }
     if (argc < 5 || argc > 8) return 2;
     std::string mode = argc >= 6 ? argv[5] : "";
     bool partial = mode == "--short", limited = partial || mode == "--tips";

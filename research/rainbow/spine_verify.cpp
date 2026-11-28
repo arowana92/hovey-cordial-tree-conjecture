@@ -17,6 +17,7 @@
 #include <unordered_set>
 #include <vector>
 #include "shape_rank.hpp"
+#include "forest_type.hpp"
 
 namespace {
 using Count = std::uint64_t;
@@ -246,7 +247,7 @@ struct Audit {
         visit(visit, 0, internal, 0, 1);
     }
 
-    void verify(const char* path, int tip_limit=0, int short_mass=0) {
+    void verify(const char* path, int tip_limit=0, int short_mass=0, const ForestType* type=nullptr) {
         Reader in(path);
         for (char c : std::string("SPN")) check(in.byte() == c, "bad header");
         int version = in.byte();
@@ -257,6 +258,18 @@ struct Audit {
             Count word = in.rest(first,8);
             Shape s(short_mass ? short_mass+1 : k,word);
             check(!tip_limit || s.leaves <= tip_limit, "too many tips in restricted catalog");
+            if (type) {
+                std::array<bool,32> parent{};
+                for (int v : s.parents) if (v >= 0) parent[v] = true;
+                std::vector<std::pair<int,int>> actual;
+                for (std::size_t j = 0; j < s.roots.size(); ++j) {
+                    int first = s.roots[j], size = s.sizes[j];
+                    int tips = std::count(parent.begin()+first,parent.begin()+first+size,false);
+                    actual.emplace_back(size,tips);
+                }
+                std::sort(actual.begin(),actual.end());
+                check(actual == type->parts, "wrong component order or tip count");
+            }
             if (bits) bits->insert(s);
             else check(seen.insert(word).second, "repeated forest");
             const Profile& p = profiles.try_emplace(s.sizes, k, s).first->second;
@@ -374,6 +387,26 @@ int main(int argc, char** argv) {
     int max_modulus = partial ? 40 : limited ? 30 : 27;
     if (k < 5 || k > max_modulus) return 2;
     try {
+        if (std::string(argv[2]) == "--typed") {
+            if (argc < 5) return 2;
+            ForestType type(k,argc-4,argv+4);
+            Audit audit(k);
+            audit.verify(argv[3],0,type.mass < k-1 ? type.mass : 0,&type);
+            Count expected = 1;
+            for (std::size_t i = 0; i < type.parts.size();) {
+                auto [size,tips] = type.parts[i];
+                Count trees = size == 1 ? 1 : tip_count(size,tips) - (tips == 1 ? 0 : tip_count(size,tips-1));
+                std::size_t j = i+1;
+                while (j < type.parts.size() && type.parts[j] == type.parts[i]) ++j;
+                Count choices = 1;
+                for (Count c = 0; c < j-i; ++c) choices = choices*(trees+c)/(c+1);
+                expected *= choices;
+                i = j;
+            }
+            check(audit.seen.size() == expected && audit.eligible == expected, "incomplete component type");
+            std::cout << "forests=" << expected << " rows=" << audit.rows << " assignments=" << audit.colorings << '\n';
+            return 0;
+        }
         if (std::string(argv[2]) == "--listed") {
             if (argc < 5) return 2;
             std::ifstream expected(argv[3]);
