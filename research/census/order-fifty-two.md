@@ -73,7 +73,7 @@ python3 -B -m research.census.check_order_fifty_two_frontier --through 19
 
 ## A finite checklist for all remaining leaf counts
 
-**Conditional reduction.** If the [2,568 listed forest profiles](order-52-frontier.profiles.gz) pass the ordered boundary test at 27 labels, every tree on 52 vertices is 27-cordial. The list contains only 24-vertex exteriors. Its profiles cover **360,580,312 distinct rooted forests** and **4,846,812,725,340 literal boundary assignments**. The geometry calculation is complete. The published receipts cover 575 entries. The remaining 1,993 entries suffice, and [alternative choices of cuts](#a-shorter-checklist) reduce the sufficient list to 1,815.
+**Conditional reduction.** If the [2,568 listed forest profiles](order-52-frontier.profiles.gz) pass the ordered boundary test at 27 labels, every tree on 52 vertices is 27-cordial. The list contains only 24-vertex exteriors. Its profiles cover **360,580,312 distinct rooted forests** and **4,846,812,725,340 literal boundary assignments**. The geometry calculation is complete. The first 575 receipts reduced the list to 1,993 entries. [Alternative choices of cuts and further receipts](#a-shorter-checklist) leave 1,792 outstanding.
 
 For each remaining leaf count $L$, enumerate the branches at the unique centroid by order and number of rooted tips. The restrictions proved above continue to apply. Every branch has at most 21 vertices. No subcollection has total order 22 or 24, and two disjoint descendant subtrees in different branches cannot total 25. A subcollection with at most seven tips has total order at most 23. A single branch has at most $L-8$ tips, since otherwise the other branches could supply a 24-vertex ordered suffix with at most seven tips. The six longest guaranteed terminal paths total at most 23. These conditions are necessary for a counterexample. A profile surviving them may still have every represented tree cordial.
 
@@ -93,7 +93,7 @@ As a check on the restoration, one forest from each of five proposed profiles wa
 
 A three-edge cut also gives unconditional labelings when the 27-vertex middle closes to a unicyclic graph with zero or two through six leaves. Explicit examples cover each remaining leaf count and avoid the two-side and whole-branch size tests. [Three-side theorem and original-tree witnesses](three-side-cuts.md)
 
-The [240 additional receipts](order-52-audits/frontier/24-restarts.txt) for the later leaf counts cover 39,200,909 forests and 433,608,260,157 literal boundary assignments. A separate build reproduced 24 of their stream hashes. Together with the nineteen-leaf stage these leave **1,993 sufficient profiles**, representing **267,342,448 forests** and **3,590,469,048,240 literal boundary assignments**. The incremental numbers still to certify at 20, 21, 22 and 23 leaves are 555, 327, 736 and 375. These numbers count sufficient tests.
+The [240 additional receipts](order-52-audits/frontier/24-restarts.txt) for the later leaf counts cover 39,200,909 forests and 433,608,260,157 literal boundary assignments. A separate build reproduced 24 of their stream hashes. Together with the nineteen-leaf stage these initially left **1,993 sufficient profiles**, representing **267,342,448 forests** and **3,590,469,048,240 literal boundary assignments**. At that point the incremental counts at 20, 21, 22 and 23 leaves were 555, 327, 736 and 375. These numbers count sufficient tests.
 
 Run the geometry separately from the potentially much longer witness census. The generator and verifier build commands are given above. Each line in the compressed list begins with the leaf count that first uses the profile.
 
@@ -104,10 +104,10 @@ python3 -B research/census/stream_leaf_profiles.py 27 "$out/frontier.profiles" "
 python3 -B -m research.census.check_order_fifty_two_frontier --receipts "$out/frontier/manifest.txt"
 ~~~
 
-To regenerate either newly published manifest in full, extract its profiles and use the restart generator and independent verifier described above.
+To regenerate the three manifests, extract their profiles and use the restart generator and independent verifier described above.
 
 ~~~bash
-for stage in nineteen frontier; do
+for stage in nineteen frontier twenty; do
     cert="research/census/order-52-audits/$stage/24-restarts.txt"
     awk -F '  ' '{print $3}' "$cert" > "$out/$stage-known.profiles"
     python3 -B -m research.census.stream_leaf_profiles 27 "$out/$stage-known.profiles" "$out/generate" "$out/verify" "$out/$stage-known" --restarts --workers 2
@@ -127,6 +127,8 @@ Start with the earlier catalog and all 575 public receipts above. For each centr
 | 21 | 415 | 704 | 56,177,338 | 732,523,076,424 |
 | 22 | 364 | 1,068 | 89,727,804 | 1,264,263,579,108 |
 | 23 | 747 | 1,815 | 51,801,523 | 782,832,131,361 |
+
+**Verified portion.** A [further 23 receipts](order-52-audits/twenty/24-restarts.txt) cover 13,801,306 forests, 532,345,037 witness rows and 136,330,653,042 boundary assignments. All fifteen tests borrowed from higher leaf counts for the twenty-leaf stage passed. The receipts cover 22 of the first 289 entries and one of the next 415. This leaves **267 tests for twenty leaves** and **1,792 for all leaf counts**, the latter covering 249,757,557 forests and 3,400,543,138,509 literal boundary assignments. A separate build regenerated eight of the 23 streams, covering 35,496 forests and 2,689,620 witness rows. All eight hashes matched.
 
 The [proof checker](check_order_fifty_two_frontier.py) starts afresh from the two numerical centroid enumerations. At each leaf count it tests every surviving profile with the published receipts and just the conditional entries available through that stage. For each successful cut all eligible exterior shapes and boundary changes are covered. The verification establishes sufficiency without requiring an optimal choice of cuts.
 

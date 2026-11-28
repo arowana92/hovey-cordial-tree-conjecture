@@ -86,8 +86,11 @@ def check(path,through,receipt_paths,pending_path=None,reduced=False):
         print(level,'leaves; numerical, surviving, outside earlier catalog, added tests',
               numeric,len(possible),len(gaps),len(current),flush=True)
     print('sufficient tests',dict(totals))
-    remaining = needed-published_profiles
-    print('published receipts used',len(needed & published_profiles),
+    later = read_rows(directory/'twenty/24-restarts.txt',24)
+    assert set(later)<=set.union(*original.values())-published_profiles
+    confirmed = published_profiles|set(later)
+    remaining = needed-confirmed
+    print('published receipts used',len(needed & confirmed),
           'remaining by leaf count',{h:len(groups[h] & remaining) for h in range(19,through+1)})
     if receipt_paths:
         accepted = set()
