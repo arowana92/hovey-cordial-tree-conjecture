@@ -18,6 +18,8 @@ Thus the 27 new vertices contribute one of each label. The internal middle edges
 
 The same calculation works for any modulus whenever the closed graph contributes the same positive number of copies to every vertex and edge bin and the compressed tree is cordial with that one offset. At 27 the compressed tree may have **any order** if it has at most seven leaves. [One offset on trees with at most seven leaves](../biased/period-ports-27.md)
 
+The [two prescribed vertex theorem](ring-differences.md) also handles three sides totaling 26 or 27 when the closure has zero, two or three leaves, using an ordinary injective labeling on the exterior.
+
 ## Recognizing cuts
 
 * If the three ports are distinct and $U$ has four through six leaves, some port pair is nonadjacent since $U$ is a tree. Closing it removes at most two leaves and leaves between two and six.
