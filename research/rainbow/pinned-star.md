@@ -39,3 +39,21 @@ The [whole-tree checker](check_short_stars.py) implements both constructions and
 ~~~bash
 python3 -B -m research.rainbow.check_short_stars
 ~~~
+
+## A two-vertex path and 24 leaves at modulus 27
+
+**Computer-assisted theorem.** On a prescribed cordial core of order one modulo 27, attach a path on two new vertices by one end to any old vertex. Also attach 24 independent leaves at old vertices using at most two prescribed parent colors. The coloring extends and is cordial on every parent-first prefix of the additions. Padding by singleton leaves and restricting proves the same for any smaller number of singletons. The result lifts to a multiple of 27 on a core of order one modulo that modulus when the singleton-parent labels take at most two values after reduction modulo 27.
+
+Normalize the old surplus to zero. Let $a,b$ be the old colors for the singleton leaves and $p$ the old parent color for the path. Let $j$ of the 24 leaves use the second parent color. A row supplies the labels $x,y$ for the path in order from the root and a set of $j$ labels for the second group. All other nonzero labels go to the first group. The [verifier](check_chain_two_colors.py) reconstructs each of the 26 actual endpoint sums for all $27^3\cdot25=492{,}075$ literal inputs. Every row uses all 26 nonzero labels and has 26 different edge weights.
+
+To generate a witness, try $x,y$ nonzero and distinct with $y\ne p$. Subtract $a$ from the weights of both leaf groups. On the cycles of adding $b-a$, the available leaf labels are every residue except $0,x,y$. In a consecutive segment of available labels ending just before a hole, the second group can use a suffix: the successor of any shifted label must also be shifted if it is available. An intact cycle can stay fixed or move in its entirety. The [generator](chain_two_colors.cpp) tries each suffix, discards collisions with the two path weights, and combines the resulting counts. At equal shifts it assigns any required subset to the second group. The existence proof only needs the verified rows.
+
+The reproducible stream has five little-endian bytes per row. The lowest five bits encode $x$, the next five encode $y$, and the remaining bits give the second group's labels. The nesting order is $a,b,p,j$. Its SHA-256 is `c900058a5719c449270d518f3bb60bb491294d1569e4b3d5b2dc3b1cb5df0cba`.
+
+~~~bash
+set -euo pipefail
+out=$(mktemp -d)
+c++ -std=c++17 -O3 research/rainbow/chain_two_colors.cpp -o "$out/generate"
+"$out/generate" "$out/chain"
+python3 -B -m research.rainbow.check_chain_two_colors "$out/chain"
+~~~
