@@ -60,7 +60,7 @@ def verify_forest(k, parents, inputs):
     return weights
 
 
-def extend(k, base, base_parents, forest, sites, strategy):
+def extend(k, base, base_parents, forest, sites):
     """Replay on a divisible base, keeping its labels. Sites are real vertex indices."""
     n = len(base)
     r = len(forest)
@@ -88,10 +88,7 @@ def extend(k, base, base_parents, forest, sites, strategy):
         normalized = [w for w in range(k) for _ in range(effective[w]-a+1)]
         outputs = helper_weights(k, normalized, k-r)
         xs = list(range(r,k))
-        if strategy == "distinct":
-            rows = distinct_shifts(k, xs, outputs)
-        else:
-            rows = [((y-x) % k,x) for x,y in zip(xs, sorted(outputs,reverse=True))]
+        rows = distinct_shifts(k, xs, outputs)
         populations = Counter(sites)
         labels = finish_batches(k, f, [populations[v] for v in range(n+r)], old, 1, rows)
         assert sites == sorted(sites)
@@ -129,12 +126,32 @@ def checks():
             n = len(base)
             for r in sorted({1,k//2,k//2+1,k-2,k-1}):
                 forest = [rng.randrange(n+v) for v in range(r)]
-                for strategy in (["sorted","distinct"] if k%2 else ["sorted"]):
-                    extra = 1 if strategy=="sorted" and 2*r>k else 0
-                    sites = sorted(v for v in range(k) for _ in range(2+extra*int(0<v<k-r)))
-                    extend(k, base, [0]*(n-1), forest, sites, strategy)
-                    joins += 1
-    print(f'{forests} prescribed sets, {repeated} prescribed multisets, {joins} fixed-core tree extensions')
+                sites = sorted(v for v in range(k) for _ in range(2))
+                extend(k, base, [0]*(n-1), forest, sites)
+                joins += 1
+
+    prefix_joins = 0
+    for k in (8,12,15,21,27,28,29,30,31,32,33):
+        for r in range(k//2+1, (4*k+4)//5):
+            # An interval-labeled prefix on r+1 vertices, followed by k-1 vertices.
+            for is_path in (False, True):
+                bisector = (r+2)//2
+                prefix = [i//2 + (bisector if i%2 else 0) for i in range(r+1)] if is_path else list(range(r+1))
+                parents = list(range(r)) if is_path else [0]*r
+                suffix = [rng.randrange(r+1+i) for i in range(k-1)]
+                relative = [-1-prefix[p] if p<=r else p-r-1 for p in suffix]
+                f = prefix + assign(k, relative, [x for x in range(k) if x!=r])
+                parents += suffix
+                old = [(f[v]+f[p]) % k for v,p in enumerate(parents,1)]
+                rows = distinct_shifts(k, range(r,k), helper_weights(k, old, k-r))
+                populations = [2+rng.randrange(2) for _ in f]
+                result = finish_batches(k, f, populations, old, 1, rows)
+                full = parents+[v for v,n in enumerate(populations) for _ in range(n)]
+                assert len(result)==len(full)+1 and all(0<=x<k for x in result)
+                for hist in (Counter(result),Counter((result[v]+result[p]) % k for v,p in enumerate(full,1))):
+                    assert max(hist.values())-min(hist[x] for x in range(k))<=1
+                prefix_joins += 1
+    print(f'{forests} prescribed sets, {repeated} prescribed multisets, {joins} fixed-core extensions, {prefix_joins} short-prefix extensions')
 
 
 if __name__ == '__main__':
