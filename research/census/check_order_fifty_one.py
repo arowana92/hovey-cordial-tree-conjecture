@@ -17,30 +17,30 @@ def admissible_sizes(sizes):
     return sizes[-1] <= 20 and not reached & ((1 << 21) | (1 << 22))
 
 
-def short_arms(parts):
+def short_arms(parts, target=23):
     lengths = []
     for size, tips in parts:
         lengths.extend([size] if tips == 1 else [1]*tips)
-    return sum(sorted(lengths)[-6:]) < 23
+    return sum(sorted(lengths)[-6:]) < target
 
 
-def centroid_profiles(leaves):
+def centroid_profiles(leaves, order=51, target=23, allowed_sizes=admissible_sizes):
     def assign(sizes, i, left, parts, maximum):
         if i == len(sizes):
-            if left == 0 and short_arms(parts):
+            if left == 0 and short_arms(parts,target):
                 yield parts
             return
         s = sizes[i]
         lo = parts[-1][1] if i and sizes[i-1] == s else 1
         hi = min(leaves-8, max(1, s-1), left-(len(sizes)-1-i))
         for h in range(lo, hi+1):
-            if h <= 7 and s+maximum[7-h] >= 23:
+            if h <= 7 and s+maximum[7-h] >= target:
                 continue
             next_max = maximum[:h] + tuple(max(maximum[j], s+maximum[j-h]) for j in range(h,8))
             yield from assign(sizes, i+1, left-h, parts+((s,h),), next_max)
 
-    for sizes in partitions(50):
-        if len(sizes) <= leaves and admissible_sizes(sizes):
+    for sizes in partitions(order-1):
+        if len(sizes) <= leaves and allowed_sizes(sizes):
             yield from assign(sizes, 0, leaves, (), (0,)*8)
 
 
@@ -56,19 +56,19 @@ def two_sites(parts):
     return True
 
 
-def cut_checker(catalog):
+def cut_checker(catalog, target=23, covered_shape=two_sites):
     @lru_cache(None)
     def covers(whole, z, h):
         if sum(j for _,j in whole)+min(z,h) <= 7:
             return True
         for suffix in suffix_shapes(z, min(z,h)) if z else ((),):
             exterior = tuple(sorted(whole+suffix))
-            if sum(j for _,j in exterior) > 7 and not two_sites(exterior) and exterior not in catalog:
+            if sum(j for _,j in exterior) > 7 and not covered_shape(exterior) and exterior not in catalog:
                 return False
         return True
 
     def accepts(parts):
-        if sum(s for s,h in parts if h == 1) >= 23:
+        if sum(s for s,h in parts if h == 1) >= target:
             return True
         total_tips = sum(h for _,h in parts)
         # Visit submultisets directly; many centroid branches can have identical type.
@@ -94,7 +94,7 @@ def cut_checker(catalog):
                         return True
             return False
 
-        return choose(0,(),23,0)
+        return choose(0,(),target,0)
     return accepts
 
 
