@@ -2,7 +2,7 @@
 
 **Theorem (computer-assisted).** Every finite tree with at most eight leaves is $k$-cordial for every $1\le k\le30$. The proof covers arbitrary tree orders. At $26\le k\le30$, it combines five-terminal extension certificates with a separate order-$k$ base. The [unrestricted modulus proofs](../../README.md) supply the smaller moduli.
 
-At 26 and 27 labels every finite tree with at most ten leaves is cordial, by the six-terminal certificates below. The [full 26-label theorem](twenty-six.md) now covers every leaf count. The [subsequent eleven-leaf theorem](../census/eleven-leaves.md) excludes one further leaf count at 27. A smallest ordinary counterexample would have at least twelve leaves at 27 and at least nine at 28 through 30. At every modulus its order residue $s$ also satisfies $s\ge22$. [Twenty-vertex extension](twenty-free.md)
+At 26 and 27 labels every finite tree with at most ten leaves is cordial, by the six-terminal certificates below. The [full 26-label theorem](twenty-six.md) now covers every leaf count. The [centroid-cut certificates](../census/leaf-profile-cuts.md) cover at most thirteen leaves at 27. A smallest ordinary counterexample would have at least fourteen leaves at 27 and at least nine at 28 through 30. At every modulus its order residue $s$ also satisfies $s\ge22$. [Twenty-vertex extension](twenty-free.md)
 
 ## The cut with a bound on terminal vertices
 
@@ -30,7 +30,7 @@ A separate build replayed all witness rows. Regenerating shard 11 with stride 65
 
 The full stream covers 23,665,913 forests, 394,996,404 witness rows and 28,035,301,149 boundary assignments. A separately built native verifier replayed the entire stream. An independent generator reproduced all 362 records from shard 11 at stride 65,537 byte for byte. A Python scan checked 13 selected forests across all four run counts, 1,933 rows and 554,229 literal boundary assignments.
 
-Together with the complete order-27 base, the six-terminal reduction proves every tree with at most ten leaves is 27-cordial. The three-group argument reduces the class with at most thirteen leaves to checking orders through 54. The [eleven-leaf proof](../census/eleven-leaves.md) settles the first of those remaining leaf counts. A smallest 27-label counterexample in that class would have twelve or thirteen leaves and order between 50 and 54. [Order restrictions](twenty-one-free.md)
+Together with the complete order-27 base, the six-terminal reduction proves every tree with at most ten leaves is 27-cordial. The three-group argument reduces the class with at most thirteen leaves to checking orders through 54. The [order-50 through order-54 profile checks](../census/leaf-profile-cuts.md) settle all of those cases. The [seven-tip audit](seven-tip-27.md) extends the same three-group reduction through fifteen leaves.
 
 ## Five-terminal certificates
 

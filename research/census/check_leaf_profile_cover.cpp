@@ -15,11 +15,11 @@ namespace {
 using Part = std::pair<int,int>; // order, tips
 using Parts = std::vector<Part>;
 using Key = std::pair<Part,Parts>;
-using Capacity = std::array<int,7>;
+using Capacity = std::array<int,8>;
 constexpr int k = 27;
 
 struct Test {
-    int n, leaves, t;
+    int n, leaves, t, budget;
     bool inventory;
     std::set<Parts> accepted;
     std::map<Key,bool> resolved;
@@ -27,7 +27,7 @@ struct Test {
 
     bool suffixes(int mass,int tips,Part least,Parts& added,const Parts& whole,int whole_tips) {
         if (!mass) {
-            if (whole_tips <= 6) return true;
+            if (whole_tips <= budget) return true;
             Parts key = whole;
             key.insert(key.end(),added.begin(),added.end());
             std::sort(key.begin(),key.end());
@@ -46,7 +46,7 @@ struct Test {
     }
 
     bool certified(int z,int cap,Parts whole,int h) {
-        if (h+cap <= 6) return true;
+        if (h+cap <= budget) return true;
         std::sort(whole.begin(),whole.end());
         Key key{{z,cap},whole};
         auto it = resolved.find(key);
@@ -100,7 +100,7 @@ struct Test {
                 // Maximum order selectable from the branches so far with a tip budget.
                 Capacity next = used;
                 bool easy = false;
-                if (h <= 6) for (int j = h; j <= 6; ++j) {
+                if (h <= budget) for (int j = h; j <= budget; ++j) {
                     next[j] = std::max(used[j],s+used[j-h]);
                     if (next[j] >= t) easy = true;
                 }
@@ -117,8 +117,8 @@ struct Test {
 int main(int argc,char** argv) {
     if (argc != 4) return 2;
     int n = std::stoi(argv[1]), l = std::stoi(argv[2]);
-    if (n < 50 || n > 54 || l < 11 || l > 13) return 2;
-    Test test{n,l,n-28,std::string(argv[3]) == "--candidates"};
+    if (n < 50 || n > 54 || l < 11 || l > 15) return 2;
+    Test test{n,l,n-28,l >= 14 ? 7 : 6,std::string(argv[3]) == "--candidates"};
     if (!test.inventory) {
         std::ifstream file(argv[3]);
         if (!file) throw std::runtime_error("cannot open certified profiles");

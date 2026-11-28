@@ -6,10 +6,10 @@ from research.rainbow.spine_counts import partitions, rooted
 
 
 def numerical(n, leaves):
-    return numerical_branches(n-1, leaves, leaves//2, n-28)
+    return numerical_branches(n-1, leaves, leaves//2, n-28, 7 if leaves >= 14 else 6)
 
 
-def numerical_branches(order, tips, cap, limit):
+def numerical_branches(order, tips, cap, limit, budget=6):
 
     def visit(mass, left, previous, attainable, parts):
         if not mass:
@@ -26,12 +26,12 @@ def numerical_branches(order, tips, cap, limit):
             for h in range(lower, upper+1):
                 # Bit j of a mask means a subcollection has exactly j vertices.
                 masks = attainable[:h] + tuple(attainable[a] | (attainable[a-h]<<s)
-                                               for a in range(h, 7))
+                                               for a in range(h, budget+1))
                 if any(mask >> limit for mask in masks[h:]):
                     continue
                 yield from visit(mass-s, left-h, (s, h), masks, parts+[(s, h)])
 
-    return visit(order, tips, (limit-1, cap), (1, 0, 0, 0, 0, 0, 0), [])
+    return visit(order, tips, (limit-1, cap), (1,) + (0,)*budget, [])
 
 
 @lru_cache(None)
@@ -53,14 +53,14 @@ def suffix_shapes(mass, cap):
     return found
 
 
-def cut_test(target, proved):
+def cut_test(target, proved, budget=6):
 
     @lru_cache(None)
     def covers(whole, z, cap):
         count = sum(h for s, h in whole)
-        if count+cap <= 6:
+        if count+cap <= budget:
             return True
-        return all(count+sum(h for s, h in sub) <= 6 or tuple(sorted(whole+sub)) in proved
+        return all(count+sum(h for s, h in sub) <= budget or tuple(sorted(whole+sub)) in proved
                    for sub in suffix_shapes(z, cap))
 
     def found(parts):
@@ -80,7 +80,7 @@ def cut_test(target, proved):
 
 
 def check_geometry(n, leaves, proved):
-    found = cut_test(n-28, proved)
+    found = cut_test(n-28, proved, 7 if leaves >= 14 else 6)
     hard = set(numerical(n, leaves))
     for p in hard:
         assert found(p), f"uncovered case at order {n}: {p}"

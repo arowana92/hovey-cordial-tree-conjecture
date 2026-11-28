@@ -2,7 +2,7 @@
 
 **Finite reduction.** Suppose the order-$k$ base and the ordered-cut forest certificate with at most $q$ tips are valid, where $q\ge2$ and $k\ge5$. Within trees with at most $2q+2$ leaves, a least counterexample has order at most $4k$ for odd $k$ and at most $5k$ for even $k$. If $q$ is even, a least counterexample above $2k$ in this class has exactly $2q+2$ leaves and a path of edges, each of which splits its leaves equally.
 
-At 27 labels this gives 108 as an initial upper bound for fourteen leaves. With the [six-tip and numerical profile certificates](leaf-profile-cuts.md), a least failure among trees with at most fourteen leaves can occur only at orders **50–54 or 81**. This is a necessary condition. The proof below separately excludes 104–108 using the six-tip certificate alone.
+At 27 labels this gives 108 as an initial upper bound for fourteen leaves. With the [six-tip and numerical profile certificates](leaf-profile-cuts.md), a least failure among trees with at most fourteen leaves can occur only at orders **50–54 or 81**. The later [seven-tip theorem](../rainbow/seven-tip-27.md) excludes order 81 by the three-group argument, and [centroid profiles](leaf-profile-cuts.md) further narrow the range. The proof below separately excludes 104–108 using six tips alone.
 
 ## The edges splitting $2q+2$ leaves equally
 

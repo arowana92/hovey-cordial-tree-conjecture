@@ -2,6 +2,7 @@
 import argparse
 from collections import Counter
 from math import comb, prod
+import gzip
 from pathlib import Path
 import re
 import subprocess
@@ -13,7 +14,8 @@ from research.rainbow.spine_counts import boundaries, rooted
 
 def read_rows(path, mass):
     rows = {}
-    for line in path.read_text().splitlines():
+    data = gzip.decompress(path.read_bytes()).decode() if path.suffix == ".gz" else path.read_text()
+    for line in data.splitlines():
         match = re.fullmatch(r"([0-9a-f]{64})  forests=(\d+) rows=(\d+) assignments=(\d+)  (.+)", line)
         assert match, f"invalid manifest row in {path}"
         digest, forests, witnesses, inputs, parts = match.groups()
@@ -32,7 +34,7 @@ def read_rows(path, mass):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("order", type=int, choices=range(50, 55))
-    parser.add_argument("leaves", type=int, choices=(11, 12, 13))
+    parser.add_argument("leaves", type=int, choices=range(11,16))
     parser.add_argument("geometry", type=Path)
     parser.add_argument("manifests", nargs="+", type=Path)
     args = parser.parse_args()

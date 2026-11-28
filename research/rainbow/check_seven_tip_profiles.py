@@ -6,6 +6,8 @@ import re
 
 from research.rainbow.seven_tip_profiles import count, single_trees
 from research.rainbow.spine_counts import rooted
+from research.census.leaf_profile_geometry import suffix_shapes
+from research.census.check_leaf_profile_manifests import read_rows
 
 
 def verify(path):
@@ -26,9 +28,31 @@ def verify(path):
                 totals[i]+=n
     assert seen == expected and totals[0] == rooted(26)[7]
     print(f"profiles={len(seen)} forests={totals[0]} rows={totals[1]} assignments={totals[2]}")
+    return totals
+
+
+def check_multiple(paths, singles):
+    expected = {parts for parts in suffix_shapes(26,7) if len(parts)>1 and sum(h for _,h in parts)==7}
+    seen = {}
+    for path in paths:
+        records = read_rows(path,26)
+        for parts,values in records.items():
+            if len(parts)>1 and sum(h for _,h in parts)==7:
+                assert parts not in seen
+                seen[parts] = values
+    assert set(seen)==expected, f"missing {len(expected-seen.keys())} profiles"
+    totals = tuple(map(sum,zip(*seen.values())))
+    assert totals[0]+singles[0]==rooted(27)[7]
+    combined = [a+b for a,b in zip(singles,totals)]
+    print(f"multiple profiles={len(seen)} forests={totals[0]} rows={totals[1]} assignments={totals[2]}")
+    print(f"seven-tip forests={combined[0]} rows={combined[1]} assignments={combined[2]}")
 
 
 if __name__=="__main__":
     parser=ArgumentParser(description=__doc__)
     parser.add_argument("manifest",type=Path)
-    verify(parser.parse_args().manifest)
+    parser.add_argument("--multiple", nargs="+", type=Path)
+    args=parser.parse_args()
+    single_totals=verify(args.manifest)
+    if args.multiple:
+        check_multiple(args.multiple,single_totals)
