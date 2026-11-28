@@ -24,6 +24,8 @@ For an interval of length at most 26 the hypothesis rules out seven or more tips
 
 Starting from the chosen root label, take the next 26 vertices, or as many as remain. These distinct labels fill previously low vertex bins while the distinct weights start from uniform edge bins. Every initial segment is cordial. At divisible order the next vertex takes the unique label that fills the deficient edge bin. Repeat with the next interval. A short batch with at most five tips can be padded by extending a tip and restricted after labeling. The same proof preserves any fixed cordial prefix of order zero or one modulo 27 in the given preorder. It also allows arbitrary independent offsets on edges entering each batch from an earlier one.
 
+The completed [six-tip independent-boundary theorem](prescribed-five-tips-27.md#six-tips-and-seven-leaf-lifts) also gives every preorder whenever the five shortest arms total at least 25. A batch with seven tips would require at least 27 vertices. This includes the case of five edges on every arm, which has the separate certificate proof below.
+
 ## Five edges on every terminal arm at 27
 
 Every prescribed depth-first order still works when **every terminal arm has length at least five**. Seven tips in a batch would use at least $2+5\cdot5=27$ vertices. In a batch with six tips the four middle tips carry four disjoint pendant chains of at least five vertices. Extend any tip to pad the forest to 26 vertices. Delete the last four vertices from each of those four chains. This leaves a forest on ten vertices with six tips. Reversing the operation lists every possible padded forest needed in the proof.
