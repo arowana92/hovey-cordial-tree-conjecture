@@ -12,6 +12,8 @@ Every tree on $h\ge3$ vertices can be made super edge-magic by adding at most $h
 
 At every modulus $k$, attaching at least three leaves at every vertex of any tree of order $h\ge k$ gives a $k$-cordial tree. Two leaves per vertex suffice if $h\ge2k$ or $k$ divides $h$. [Breadth-first construction and exact completion criterion](research/hub/breadth-first-leaves.md)
 
+At every $k\ge2$, adding leaves at $P\ge8\sqrt{hk\log(8k)}$ distinct vertices of any $h$-vertex tree gives a cordial tree even with arbitrary independent edge offsets. One leaf per vertex suffices at $h\ge64k\log(8k)$. [Sparse-site proof and prescribed-count construction](research/hub/sparse-leaf-sites.md)
+
 For all sufficiently large $k$, take any tree with $(1\pm\delta)k$ vertices for a sufficiently small absolute $\delta>0$. Attaching leaves at $(1-\delta)k$ or more different vertices gives a $k$-cordial tree. If the original order is any positive multiple of $k$, at least one new leaf at every vertex suffices. [Proof and uniform forest attachment](research/hub/private-leaves.md)
 
 At every odd modulus, a harmonious cycle can contain any prescribed full arithmetic progression as consecutive vertices. This lets branches move between corresponding vertices on two copies of a path while preserving the original cordial labeling. [Construction, tree operation and Lean arithmetic check](research/census/cycle-progressions.md)
