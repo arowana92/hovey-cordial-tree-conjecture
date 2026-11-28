@@ -13,6 +13,7 @@ constexpr int harmonious = -3, transfer = -2, uniform_edges = -1;
 struct Search {
     int k,cycle,kind,vertices,budget;
     int pin=-1, prescribed=0;
+    int missing_edge=-1, junction_minus_tip=0;
     std::uint32_t seed;
     Mask all;
     std::vector<int> label,order,ports;
@@ -35,6 +36,8 @@ struct Search {
         int v=order[i];
         Mask choices=ports[v] ? free&weights : free;
         if (v==pin) choices&=Mask(1)<<prescribed;
+        if (missing_edge>=0 && v==k-1)
+            choices &= Mask(1)<<((label[0]+k-junction_minus_tip)%k);
         if (kind==harmonious && v==0) choices&=Mask(1)<<(k/2);
         Mask available=weights|Mask(spare_zero);
         for (int u:before[v]) {
@@ -77,6 +80,14 @@ struct Search {
         order={start};
         std::vector<int> rank(vertices,-1);
         rank[start]=0;
+        if (missing_edge>=0) {
+            // All three vertices are distinct. Assign the regular anchor, junction
+            // and tip first, so the prescribed difference is available at the tip.
+            rank[0]=1;
+            rank[k-1]=2;
+            order.push_back(0);
+            order.push_back(k-1);
+        }
         for (int i=0;i<vertices;++i) {
             int a=order[i];
             before[a].clear();
@@ -89,7 +100,8 @@ struct Search {
             }
         }
         budget=3000;
-        if (!place(0,kind==transfer ? all : all-1,all,kind>=0)) return false;
+        Mask weights = missing_edge<0 ? all : all^(Mask(1)<<missing_edge);
+        if (!place(0,kind==transfer ? all : all-1,weights,kind>=0)) return false;
         if (kind==harmonious) label.back()=0;
         else if (kind!=transfer) label.back()=k-label[0];
         return true;
@@ -234,7 +246,25 @@ void transfer_spectrum(int k, int cycle) {
         }
         if (used) search.emit();
     }
-    if (missing) throw std::runtime_error("regular-port transfer spectrum incomplete");
+    for (int v=1; v<=cycle/2 && missing; ++v) for (int id=0; id<orbits && missing; ++id) {
+        if (seen[v][id]) continue;
+        int pair = std::find(orbit.begin(),orbit.end(),id)-orbit.begin();
+        int p=pair/k, q=pair%k;
+        // Delete one cycle edge, omit q on the remaining tree and prescribe
+        // x_junction-x_tip. The incidence sum forces the restored weight to p.
+        search.pin=v;
+        search.missing_edge=q;
+        search.junction_minus_tip=(p-q-sum+2*k)%k;
+        bool found=false;
+        for (int trial=0; trial<300000 && !found; ++trial) found=search.next();
+        if (!found) throw std::runtime_error("uncovered regular-port transfer at k=" +
+            std::to_string(k) + ", cycle=" + std::to_string(cycle) + ", anchor=" + std::to_string(v));
+        auto bins=search.counts();
+        if (search.label[v]!=0 || bins[p]!=2 || bins[q]!=0 ||
+            std::count(bins.begin(),bins.end(),1)!=k-2) throw std::logic_error("target mismatch");
+        search.emit();
+        --missing;
+    }
     if (sum) vertex_witnesses(k,cycle,harmonious);
 }
 
@@ -262,12 +292,17 @@ void six_triangle() {
 }
 
 int main(int argc,char** argv) {
-    bool spectrum = argc==3 && std::string(argv[2])=="--spectrum";
+    bool spectrum = (argc==3 || argc==4) && std::string(argv[2])=="--spectrum";
     if (argc!=2 && !spectrum) return 2;
     int k=std::stoi(argv[1]);
     if (k<4 || k>63) return 2;
     if (spectrum && k<10 && k!=7) return 2;
-    for (int c=3;c<k;++c) {
+    int first=3, last=k-1;
+    if (argc==4) {
+        first=last=std::stoi(argv[3]);
+        if (first<3 || first>=k) return 2;
+    }
+    for (int c=first;c<=last;++c) {
         if (spectrum) {
             transfer_spectrum(k,c);
         } else if (k==6 && c==3) {

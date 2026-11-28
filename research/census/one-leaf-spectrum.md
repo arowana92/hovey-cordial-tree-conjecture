@@ -1,6 +1,6 @@
 # Prescribing an edge-frequency change on a path with one side branch
 
-**Theorem (computer-assisted).** Fix $7\le k\le54$. Replace an edge of any labeled tree by a path with $c\ge3$ new internal vertices, and attach a pendant path with $k-c\ge1$ more vertices at any of those internal vertices. Keep both old endpoint labels. Write $G$ for the vector of ones, $[w]$ for a unit in bin $w$, and $S=\sum_{x\in\mathbb Z_k}x$. For any $p,q\in\mathbb Z_k$ the new vertices can use every residue once with net edge increments
+**Theorem (computer-assisted).** Fix $7\le k\le63$. Replace an edge of any labeled tree by a path with $c\ge3$ new internal vertices, and attach a pendant path with $k-c\ge1$ more vertices at any of those internal vertices. Keep both old endpoint labels. Write $G$ for the vector of ones, $[w]$ for a unit in bin $w$, and $S=\sum_{x\in\mathbb Z_k}x$. For any $p,q\in\mathbb Z_k$ the new vertices can use every residue once with net edge increments
 $$
                               G+[p]-[q]
 $$
@@ -10,7 +10,7 @@ if and only if $p-q\ne S$. When $p=q$ the target is uniform. Thus odd moduli all
 
 Close the free main path to a cycle, giving a graph with a degree-three junction $J$ and tip $Y$. The sum of the net edge weights, including both entering edges and subtracting the deleted old edge, is $2S+x_J-x_Y$. Hence $p-q=S+x_J-x_Y$ and bijectivity forces the stated inequality on every opening.
 
-Open a closed cycle edge $uv$ and attach $u,v$ respectively to old labels $a,b$. If $x_v=a$, the first entering weight replaces the closed weight, and the second replaces the old weight. The roles reverse when $x_u=b$. At $k=7$ and $10\le k\le54$ the certificates realize every allowed histogram with **any regular cycle vertex** fixed. Translate to put its label at zero, multiply by any unit and reflect the cycle about the junction. Translating back to the specified old label shifts both target bins by twice that label. Each cycle edge has a regular endpoint.
+Open a closed cycle edge $uv$ and attach $u,v$ respectively to old labels $a,b$. If $x_v=a$, the first entering weight replaces the closed weight, and the second replaces the old weight. The roles reverse when $x_u=b$. At $k=7$ and $10\le k\le63$ the certificates realize every allowed histogram with **any regular cycle vertex** fixed. Translate to put its label at zero, multiply by any unit and reflect the cycle about the junction. Translating back to the specified old label shifts both target bins by twice that label. Each cycle edge has a regular endpoint.
 
 At eight and nine labels we also test the openings themselves. Normalize $a=0$ by translating old and free labels together. First enumerate closed labelings up to translation and try both anchors. Whenever that leaves a target uncovered, enumerate all permutations on the open graph and count its actual increments. For example, at $k=8$, take the five-cycle $0,1,2,3,4$ with the side path $0,5,6,7$ (these numbers index vertices). Open edge $2,3$ between old endpoints both labeled zero. The free labels in index order
 $$
@@ -44,14 +44,16 @@ In particular two such pieces always permit uniform total increments, including 
 
 ## Verification
 
-The 46 [hashed witness streams](one-leaf-spectrum.sha256) contain 216,132 permutations. A [separate verifier](check_one_leaf_spectrum.py) recomputes all vertex labels and closed edge bins, then expands the symmetries and tests all 43,218,496 normalized regular-anchor targets. Together with the direct checks at eight and nine this covers 2,057,388,000 normalized opening targets from seven through 54. A separate enumeration compared the routing formulas above with sums of actual allowed steps in 159,254 cases.
+The 55 [hashed witness streams](one-leaf-spectrum.sha256) contain 364,974 permutations. A [separate verifier](check_one_leaf_spectrum.py) recomputes all vertex labels and closed edge bins, then expands the symmetries and tests all 94,317,582 normalized regular-anchor targets. Together with the direct checks at eight and nine this covers 5,197,817,492 normalized opening targets from seven through 63. A separate enumeration compared the routing formulas above with sums of actual allowed steps in 159,254 cases.
+
+At 63 labels a targeted search completes the remaining regular-anchor orbits. Delete a cycle edge, set the regular anchor to zero, omit $q$ among the remaining weights and prescribe $x_J-x_Y=p-q-S$. By the incidence sum the restored edge must have weight $p$. The verifier independently counts every weight after closure. Passing a cycle length after `--spectrum` reproduces just that part of the stream.
 
 ~~~bash
 set -eu
 src="$PWD/research/census"
 out=$(mktemp -d)
 c++ -O3 -std=c++17 "$src/one_leaf_period.cpp" -o "$out/generate"
-for k in 7 {10..54}; do
+for k in 7 {10..63}; do
   "$out/generate" "$k" --spectrum > "$out/period-spectrum-$k.txt"
   python3 -B "$src/check_one_leaf_spectrum.py" --modulus "$k" --stream "$out/period-spectrum-$k.txt"
 done
