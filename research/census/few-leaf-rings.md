@@ -1,6 +1,6 @@
 # Replacing an edge by a tree with a few side leaves
 
-**Finite theorem.** For $11\le k\le30$, every simple connected unicyclic graph on $k$ vertices with two or three leaves has a bijection to $\mathbb Z_k$ whose $k$ edge sums are also a bijection. At even $k$ in this range the same holds with one leaf. At $k=26,27$ it also holds with four or five leaves, and at $k=26$ with six leaves. Pendant trees may have arbitrary shapes. The independent certificate checks cover 76,162,087 graphs.
+**Finite theorem.** For $11\le k\le30$, every simple connected unicyclic graph on $k$ vertices with two or three leaves has a bijection to $\mathbb Z_k$ whose $k$ edge sums are also a bijection. At even $k$ in this range the same holds with one leaf. At $k=26,27$ it also holds with four, five or six leaves. Pendant trees may have arbitrary shapes. The independent certificate checks cover 160,875,241 graphs.
 
 | Number of leaves | Orders tested | Nonisomorphic graphs |
 |---:|---|---:|
@@ -9,7 +9,7 @@
 | 3 | 11 through 30 | 603,596 |
 | 4 | 26 and 27 | 2,093,931 |
 | 5 | 26 and 27 | 21,247,688 |
-| 6 | 26 | 52,196,452 |
+| 6 | 26 and 27 | 136,909,606 |
 
 These bijections are harmonious labelings of unicyclic graphs. Barrientos proves the odd-girth case for cycles with pendant edges, and Barrientos and Minion give constructions from trees with $\alpha$-labelings. The finite check here groups graphs by leaf count and allows branching in the attached trees. [Barrientos, Theorem 3.1](https://www.ijc.or.id/index.php/ijc/article/download/121/83) · [Barrientos and Minion, section 3](https://www.ejgta.org/index.php/ejgta/article/download/1200/pdf_184)
 
@@ -31,7 +31,7 @@ A cycle site carries an unordered rooted forest. The generator enumerates the ch
 
 On the first witness for each nonempty cycle-length class, the checker also tries every oriented cut edge and all differences of old endpoint labels. It counts the actual increments after subtracting the deleted edge, then checks complete three- and five-sheeted covers. [Generator](few_leaf_rings.py) · [Burnside count](count_few_leaf_rings.py) · [Independent verifier](check_few_leaf_rings.cpp) · [Stream hashes](few-leaf-rings.sha256)
 
-Run from the repository root in Bash. A separate SSH checkout regenerated the first 52 streams, for one through four leaves, matching every hash and verifier total. For five leaves the independent checker verified 8,581,063 graphs at 26 and 12,666,625 at 27, matching the independent counts in all 39 nonempty cycle-length classes. At 26 vertices the six-leaf verifier checked 52,196,452 graphs in the 18 nonempty girths from three through twenty, matching the independent Burnside count at each girth. The streams may be checked one at a time.
+Run from the repository root in Bash. A separate SSH checkout regenerated the first 52 streams, for one through four leaves, matching every hash and verifier total. For five leaves the independent checker verified 8,581,063 graphs at 26 and 12,666,625 at 27, matching the independent counts in all 39 nonempty cycle-length classes. At 26 vertices the six-leaf verifier checked 52,196,452 graphs in the 18 nonempty girths from three through twenty, matching the independent Burnside count at each girth. At 27 vertices the verifier checked 84,713,154 six-leaf graphs in the 19 nonempty girths from three through twenty-one. A separate SSH checkout reproduced the corresponding Burnside counts. The streams may be checked one at a time.
 
 ~~~bash
 set -euo pipefail
