@@ -1,6 +1,6 @@
-# Seventeen and eighteen leaves at order 52
+# Through nineteen leaves at order 52
 
-**Theorem (computer-assisted).** Every tree on 52 vertices with at most seventeen leaves is 27-cordial. The [eighteen-leaf proof below](#eighteen-leaves) further narrows a 52-vertex counterexample to **19 through 23 leaves**. The smaller leaf counts follow from the sixteen-leaf theorem. At least 24 leaves allow 24 of them to be restored on a 28-vertex core by Hall's theorem. All smaller tree orders already admit 27-cordial labelings. [Sixteen-leaf theorem](sixteen-leaf-corridor.md) · [Leaf restoration](../counterexample-bound.md#removing-leaves) · [Through order 51](order-fifty-one.md)
+**Theorem (computer-assisted).** Every tree on 52 vertices with at most seventeen leaves is 27-cordial. The [nineteen-leaf proof below](#nineteen-leaves) narrows a possible 52-vertex counterexample to **20 through 23 leaves**. The smaller leaf counts follow from the sixteen-leaf theorem. At least 24 leaves allow 24 of them to be restored on a 28-vertex core by Hall's theorem. All smaller tree orders already admit 27-cordial labelings. [Sixteen-leaf theorem](sixteen-leaf-corridor.md) · [Leaf restoration](../counterexample-bound.md#removing-leaves) · [Through order 51](order-fifty-one.md)
 
 ## The centroid calculation
 
@@ -36,7 +36,7 @@ done
 
 ## Eighteen leaves
 
-**Theorem (computer-assisted).** Every tree on 52 vertices with eighteen leaves is 27-cordial. Together with the preceding result, this leaves **19 through 23 leaves** for a possible counterexample of order 52.
+**Theorem (computer-assisted).** Every tree on 52 vertices with eighteen leaves is 27-cordial. This was the starting bound for the nineteen-leaf calculation below.
 
 Use the unique centroid and record the orders and tip counts of its branches. Every branch has size at most 21. No subset of the branch orders may sum to 22 or 24, by the independent-pair and common-parent extensions. Two disjoint edge sides cannot have orders summing to 25, since their common middle would have 27 vertices and could be compressed to one edge on a 25-vertex tree. The seven-tip and six-terminal-path bounds from the preceding proof still apply. In particular, each branch has at most ten tips. The size-partition and branch-multiset enumerations agree on 18,105 numerical possibilities. [Independent pair](../rainbow/common-pair-22.md) · [Common-parent extension](../rainbow/common-site-24.md) · [One-edge offset on 25 vertices](../biased/one-offset-25.md)
 
@@ -59,9 +59,21 @@ cmp "$out/eighteen/manifest.txt" "$cert"
 python3 -B -m research.census.check_order_fifty_samples "$out/sample18" --order 52
 ~~~
 
+## Nineteen leaves
+
+**Theorem (computer-assisted).** Every tree on 52 vertices with nineteen leaves is 27-cordial. Since 24 or more leaves already suffice for leaf restoration, an order-52 counterexample must have **20, 21, 22 or 23 leaves**.
+
+The two centroid enumerations give 28,781 numerical profiles at nineteen leaves. The descendant-order test retains 23,366. Of these, 246 need a cut outside the eighteen-leaf catalog. The geometry checker verifies that the 335 additional ordered forest profiles cover every one of those 246 profiles. All 335 now have [native verifier receipts](order-52-audits/nineteen/24-restarts.txt). They cover 54,036,955 rooted forests, 2,564,633,294 witness rows and 822,735,416,943 literal boundary assignments. The verifier checks vertex labels, internal sums and entering weights at the actual parent colors. The surviving 28-vertex core has a cordial labeling by the smaller-order theorem. Its forest certificate therefore extends it to the whole tree.
+
+A separate build reproduced 32 stream hashes and verifier counts, covering 2,433 forests and 98,182 witness rows. Recounting all labels and edge sums gave 13,122 complete joins on 52 vertices, including 2,604 with exactly nineteen leaves, and verified all 314,928 nonempty restoration prefixes. The following command checks the nineteen-leaf stage from its published receipts.
+
+~~~sh
+python3 -B -m research.census.check_order_fifty_two_frontier --through 19
+~~~
+
 ## A finite checklist for all remaining leaf counts
 
-**Conditional reduction.** If the [2,568 listed forest profiles](order-52-frontier.profiles.gz) pass the ordered boundary test at 27 labels, every tree on 52 vertices is 27-cordial. The list contains only 24-vertex exteriors. Its profiles cover **360,580,312 distinct rooted forests** and **4,846,812,725,340 literal boundary assignments**. The geometry calculation is complete. The witness census for this list is in progress.
+**Conditional reduction.** If the [2,568 listed forest profiles](order-52-frontier.profiles.gz) pass the ordered boundary test at 27 labels, every tree on 52 vertices is 27-cordial. The list contains only 24-vertex exteriors. Its profiles cover **360,580,312 distinct rooted forests** and **4,846,812,725,340 literal boundary assignments**. The geometry calculation is complete. The published receipts cover 575 entries. The remaining 1,993 tests are sufficient for the whole order.
 
 For each remaining leaf count $L$, enumerate the branches at the unique centroid by order and number of rooted tips. The restrictions proved above continue to apply. Every branch has at most 21 vertices. No subcollection has total order 22 or 24, and two disjoint descendant subtrees in different branches cannot total 25. A subcollection with at most seven tips has total order at most 23. A single branch has at most $L-8$ tips, since otherwise the other branches could supply a 24-vertex ordered suffix with at most seven tips. The six longest guaranteed terminal paths total at most 23. These conditions are necessary for a counterexample. A profile surviving them may still have every represented tree cordial.
 
@@ -75,18 +87,30 @@ Two enumerations give the same numerical inventories. One first partitions 51 by
 | 22 | 77,866 | 65,496 | 10,166 | 776 | 94,095,197 |
 | 23 | 97,391 | 82,864 | 18,901 | 434 | 52,714,481 |
 
-The last two columns are incremental. A row can use all forest types from earlier rows. The [checker](check_order_fifty_two_frontier.py) starts from the published cut catalogs, including the eighteen-leaf certificates. For each profile still outside those catalogs it exhibits the existence of a cut by trying subcollections of whole branches, with an optional size-ordered suffix of one further branch. For that cut it requires coverage of **every** possible exterior order-and-tip profile and of all permitted parent colors. The 28-vertex connected core is already known to be 27-cordial. Verifying the proposed additional rows would therefore complete the proof at this order. The unconditional result above still covers at most eighteen leaves.
+The last two columns are incremental. A row can use all forest types from earlier rows. The [checker](check_order_fifty_two_frontier.py) starts from the published cut catalogs, including the eighteen-leaf certificates. For each profile still outside those catalogs it exhibits the existence of a cut by trying subcollections of whole branches, with an optional size-ordered suffix of one further branch. For that cut it requires coverage of **every** possible exterior order-and-tip profile and of all permitted parent colors. The 28-vertex connected core is already known to be 27-cordial. Verifying the proposed additional rows would therefore complete the proof at this order. The nineteen-leaf stage now has complete receipts.
 
 As a check on the restoration, one forest from each of five proposed profiles was joined to three explicit 28-vertex trees. Recounting all labels and sums directly verified 10,935 52-vertex joins. These examples test the construction on actual trees.
 
 A three-edge cut also gives unconditional labelings when the 27-vertex middle closes to a unicyclic graph with zero or two through six leaves. Explicit examples cover each remaining leaf count and avoid the two-side and whole-branch size tests. [Three-side theorem and original-tree witnesses](three-side-cuts.md)
 
+The [240 additional receipts](order-52-audits/frontier/24-restarts.txt) for the later leaf counts cover 39,200,909 forests and 433,608,260,157 literal boundary assignments. A separate build reproduced 24 of their stream hashes. Together with the nineteen-leaf stage these leave **1,993 sufficient profiles**, representing **267,342,448 forests** and **3,590,469,048,240 literal boundary assignments**. The incremental numbers still to certify at 20, 21, 22 and 23 leaves are 555, 327, 736 and 375. These numbers count sufficient tests.
+
 Run the geometry separately from the potentially much longer witness census. The generator and verifier build commands are given above. Each line in the compressed list begins with the leaf count that first uses the profile.
 
 ~~~bash
 set -euo pipefail
-python3 -B -m research.census.check_order_fifty_two_frontier
-gzip -dc research/census/order-52-frontier.profiles.gz | cut -d' ' -f2- > "$out/frontier.profiles"
+python3 -B -m research.census.check_order_fifty_two_frontier --write-pending "$out/frontier.profiles"
 python3 -B research/census/stream_leaf_profiles.py 27 "$out/frontier.profiles" "$out/generate" "$out/verify" "$out/frontier" --restarts --workers 2
 python3 -B -m research.census.check_order_fifty_two_frontier --receipts "$out/frontier/manifest.txt"
+~~~
+
+To regenerate either newly published manifest in full, extract its profiles and use the restart generator and independent verifier described above.
+
+~~~bash
+for stage in nineteen frontier; do
+    cert="research/census/order-52-audits/$stage/24-restarts.txt"
+    awk -F '  ' '{print $3}' "$cert" > "$out/$stage-known.profiles"
+    python3 -B -m research.census.stream_leaf_profiles 27 "$out/$stage-known.profiles" "$out/generate" "$out/verify" "$out/$stage-known" --restarts --workers 2
+    cmp "$out/$stage-known/manifest.txt" "$cert"
+done
 ~~~

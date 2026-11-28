@@ -50,7 +50,7 @@ def inventory(leaves):
     return len(initial),possible
 
 
-def check(path,through,receipt_paths):
+def check(path,through,receipt_paths,pending_path=None):
     groups = frontier(path)
     cat = published()
     old_cut = cut_checker(cat,24,common_or_pair)
@@ -73,21 +73,39 @@ def check(path,through,receipt_paths):
         print(level,'leaves; numerical, surviving, outside earlier catalog, added tests',
               numeric,len(possible),len(gaps),len(current),flush=True)
     print('sufficient tests',dict(totals))
+    directory = path.parent/'order-52-audits'
+    nineteen = read_rows(directory/'nineteen/24-restarts.txt',24)
+    further = read_rows(directory/'frontier/24-restarts.txt',24)
+    assert set(nineteen)==groups[19]
+    assert set(further)<=set.union(*(groups[h] for h in range(20,24)))
+    published_profiles = set(nineteen)|set(further)
+    remaining = needed-published_profiles
+    print('published receipts used',len(needed & published_profiles),
+          'remaining by leaf count',{h:len(groups[h] & remaining) for h in range(19,through+1)})
     if receipt_paths:
         accepted = set()
-        for path in receipt_paths:
-            rows = read_rows(path,24)
+        for receipt in receipt_paths:
+            rows = read_rows(receipt,24)
             assert not accepted.intersection(rows)
             accepted.update(rows)
-        assert needed.issubset(accepted), f'missing {len(needed-accepted)} requested test receipts'
-        print('all required profiles have receipts with matching shape and boundary counts')
+        remaining -= accepted
+        assert not remaining, f'missing {len(remaining)} requested test receipts'
+    if remaining:
+        shapes = {p:count(p) for p in remaining}
+        inputs = sum(n*boundaries(tuple(s for s,h in p),27) for p,n in shapes.items())
+        print('conditional tests',len(remaining),'forests',sum(shapes.values()),'assignments',inputs)
     else:
-        print('conditional coverage; witness receipts were not supplied')
+        print('all required profiles have receipts with matching shape and boundary counts')
+    if pending_path:
+        lines = [' '.join(f'{s},{h}' for s,h in p) for level in range(19,through+1)
+                 for p in sorted(groups[level] & remaining)]
+        pending_path.write_text(''.join(line+'\n' for line in lines))
 
 
 if __name__=='__main__':
     cli = argparse.ArgumentParser(description=__doc__)
     cli.add_argument('--through',type=int,choices=range(19,24),default=23)
     cli.add_argument('--receipts',nargs='+',type=Path)
+    cli.add_argument('--write-pending',type=Path,help='write remaining profiles in generator format')
     args = cli.parse_args()
-    check(Path(__file__).with_name('order-52-frontier.profiles.gz'),args.through,args.receipts)
+    check(Path(__file__).with_name('order-52-frontier.profiles.gz'),args.through,args.receipts,args.write_pending)
