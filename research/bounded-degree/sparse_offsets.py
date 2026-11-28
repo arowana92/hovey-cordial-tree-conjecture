@@ -19,11 +19,8 @@ def closed(graph, vertices):
     return blocked
 
 
-def reduction(edges, offsets, cap, rng):
-    """Return the auxiliary tree, missing weight, prescribed labels and degree core."""
-    k = len(edges) + 1
-    graph = adjacency(k, edges)
-    offsets = {edge(a, b): d % k for (a, b), d in offsets.items() if d % k}
+def cap_tree(graph, offsets, cap):
+    """Remove the shifted edges and enough ordinary edges to reach the cap."""
     main = set(offsets)
     remaining = [row.copy() for row in graph]
 
@@ -38,14 +35,12 @@ def reduction(edges, offsets, cap, rng):
             cut(u, v)
             main.add(edge(u, v))
 
-    fixed = {v for pair in main for v in pair}
-    leaves = [v for v, row in enumerate(graph) if len(row) == 1]
-    free = [v for v in leaves if v not in fixed]
-    sparse_leaves = len(free) < 2
-    reserved = leaves[:2] if sparse_leaves else free[:2]
-    if sparse_leaves:
-        fixed.update(v for v, row in enumerate(graph) if len(row) != 2)
+    return main, remaining
 
+
+def move_pairs(edges, graph, remaining, main, fixed, reserved, site_degree=None):
+    """Reconnect a cut tree in pairs and add the private endpoints to fixed."""
+    k = len(graph)
     blocked = closed(graph, fixed | set(reserved))
     private = []
     for u, v in edges:
@@ -54,7 +49,8 @@ def reduction(edges, offsets, cap, rng):
         if u in blocked or v in blocked:
             continue
         private.append(edge(u, v))
-        cut(u, v)
+        remaining[u].remove(v)
+        remaining[v].remove(u)
         blocked.update(closed(graph, (u, v)))
     if len(private) != len(main):
         raise ValueError("insufficient room for private edges")
@@ -72,7 +68,7 @@ def reduction(edges, offsets, cap, rng):
         vertices = [start]
         component[start] = i
         for v in vertices:
-            if v not in blocked:
+            if v not in blocked and (site_degree is None or len(graph[v]) == site_degree):
                 pools[i].append(v)
                 blocked.update(graph[v])
             for w in sorted(remaining[v]):
@@ -113,8 +109,27 @@ def reduction(edges, offsets, cap, rng):
         sites[s] = (assigned, r)
         available.extend(pools[i])
 
+    return kept, sites, buffers, order
+
+
+def reduction(edges, offsets, cap, rng):
+    """Return the auxiliary tree, missing weight, prescribed labels and degree core."""
+    k = len(edges) + 1
+    graph = adjacency(k, edges)
+    offsets = {edge(a, b): d % k for (a, b), d in offsets.items() if d % k}
+    main, remaining = cap_tree(graph, offsets, cap)
+    fixed = {v for pair in main for v in pair}
+    leaves = [v for v, row in enumerate(graph) if len(row) == 1]
+    free = [v for v in leaves if v not in fixed]
+    sparse_leaves = len(free) < 2
+    reserved = leaves[:2] if sparse_leaves else free[:2]
+    if sparse_leaves:
+        fixed.update(v for v, row in enumerate(graph) if len(row) != 2)
+
+    kept, sites, buffers, order = move_pairs(edges, graph, remaining, main, fixed, reserved)
     late = set(reserved) if sparse_leaves else set()
-    variables = [v for v in order if v in fixed - buffers - late] + sorted(buffers) + sorted(late)
+    ordinary = fixed - buffers - late
+    variables = [v for v in order if v in ordinary] + sorted(buffers) + sorted(late)
     index = {v: i for i, v in enumerate(variables)}
     forms = {v: expression((i, 1)) for v, i in index.items()}
     for s, ((a, b), r) in sites.items():
