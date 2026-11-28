@@ -4,7 +4,7 @@
 
 On any path in a smallest counterexample at modulus $k$, each residue of the cut-side order occurs at most $2^{\Omega(k)}$ times when measured from one end. At prime $p\ge7$ this gives at most $p(p-4)$ vertices. [Repeated cuts and consecutive period pieces](research/biased/period-chains.md)
 
-At 27 labels, every tree with at most six leaves admits a labeling cordial on every connected prefix of a suitable order even when one edge has a prescribed offset. A 27-vertex piece with at most six leaves can also be inserted on any edge of a rainbow core through order 27, simultaneously on several edges. [Two-port certificate and growth theorem](research/biased/period-ports-27.md)
+At 27 labels, every tree with at most seven leaves admits a labeling cordial on every connected prefix of a suitable order even when one edge has a prescribed offset. A 27-vertex piece with at most seven leaves can also be inserted on any edge of a rainbow core through order 27, simultaneously on several edges. [Two-port certificate and growth theorem](research/biased/period-ports-27.md)
 
 At eight, nine and ten labels the trees that fail with one prescribed edge offset have a complete classification. At eight and nine every such failure is a double star on exactly one period. [Exceptional trees and offsets](research/biased/one-edge-exceptions.md) At every prime power, subdividing the joining edge of a double star once permits independently prescribed offsets on both resulting edges, for any positive pendant leaf populations at the two hubs. [Connector theorem](research/biased/connector-offsets.md)
 
