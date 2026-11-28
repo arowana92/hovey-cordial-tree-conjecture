@@ -58,7 +58,7 @@ def matching_at_leaves(parent):
     return mate
 
 
-def label(parent, m):
+def label(parent, m, *, ordered_quotient=None):
     """Label a tree when its number of unmatched vertices fits in the last quotient block."""
     n = len(parent)
     if n == 1:
@@ -81,8 +81,12 @@ def label(parent, m):
         if a != b:
             adj[a].append((b,l,r))
             adj[b].append((a,r,l))
-    # Pair zero is ordinary. Postpone the exposed leaves and their dummy partners.
-    order, previous = [0], {0:None}
+    # Postpone all exposed pairs. A leaf start saves one rooted tip when the
+    # supplied quotient constructor has a bound on the number of tips.
+    start = 0
+    if ordered_quotient is not None:
+        start = next((v for v in range(ordinary) if len(adj[v])==1),0)
+    order, previous = [start], {start:None}
     last = []
     for u in order:
         for v,l,r in adj[u]:
@@ -97,7 +101,9 @@ def label(parent, m):
         u,l,r = previous[v]
         qp.append(pos[u])
         joins.append((l,r))
-    if len(exposed) <= 1 and m not in (3,5,7,11,13):
+    if ordered_quotient is not None:
+        qlabels = ordered_quotient(qp,m)
+    elif len(exposed) <= 1 and m not in (3,5,7,11,13):
         qlabels = marked_leaf_labels(qp,m,s-1 if exposed else None)
     else:
         qlabels = prefix_labels(qp,m)

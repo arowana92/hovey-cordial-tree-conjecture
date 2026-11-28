@@ -145,6 +145,7 @@ struct Profile {
         canonical.assign(total,-1);
         std::vector<int> digits(groups);
         for (int raw = 0; raw < total; ++raw) {
+            if (independent && canonical[raw] >= 0) { ++assignments; continue; }
             int x = raw;
             for (int j = 0; j < groups; ++j) { digits[j] = x%k; x /= k; }
             // Check the sharp cut using actual runs of *component* colors.
@@ -268,7 +269,7 @@ struct Audit {
         int version = in.byte();
         check(short_mass ? version == '3' : version == '1' || version == '2', "unexpected stream version");
         check(in.byte() == k, "wrong modulus");
-        if (independent) check(version != '1', "expected packed two-root stream");
+        if (independent) check(version != '1', "expected packed independent-root stream");
         if (short_mass) check(in.byte() == short_mass, "wrong short forest order");
         for (int first; (first = in.next()) >= 0;) {
             Count word = in.rest(first,8);
@@ -422,12 +423,15 @@ int main(int argc, char** argv) {
                       << " rows=" << audit.rows << " assignments=" << audit.colorings << '\n';
             return 0;
         }
-        if (std::string(argv[2]) == "--typed" || std::string(argv[2]) == "--two-roots") {
+        if (std::string(argv[2]) == "--typed" || std::string(argv[2]) == "--two-roots" ||
+            std::string(argv[2]) == "--independent-roots") {
             if (argc < 5) return 2;
             ForestType type(k,argc-4,argv+4);
             Audit audit(k);
-            bool independent = std::string(argv[2]) == "--two-roots";
-            if (independent && (type.stem || type.parts.size() != 2)) return 2;
+            std::string mode = argv[2];
+            bool independent = mode == "--two-roots" || mode == "--independent-roots";
+            if (independent && (type.stem || type.parts.size() > 5)) return 2;
+            if (mode == "--two-roots" && type.parts.size() != 2) return 2;
             audit.verify(argv[3],0,type.mass < k-1 ? type.mass : 0,&type,nullptr,independent);
             Count expected = 1;
             for (std::size_t i = 0; i < type.parts.size();) {
@@ -441,7 +445,11 @@ int main(int argc, char** argv) {
                 i = j;
             }
             check(audit.seen.size() == expected && audit.eligible == expected, "incomplete component type");
-            if (independent) check(audit.colorings == expected*k*k, "missing two-root assignments");
+            if (independent) {
+                Count inputs = expected;
+                for (std::size_t i = 0; i < type.parts.size(); ++i) inputs *= k;
+                check(audit.colorings == inputs, "missing independent root assignments");
+            }
             std::cout << "forests=" << expected << " rows=" << audit.rows << " assignments=" << audit.colorings << '\n';
             return 0;
         }

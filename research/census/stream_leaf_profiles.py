@@ -7,13 +7,16 @@ import re
 import subprocess
 
 
-def audit(k, parts, generator, verifier, restarts, two_roots=False):
+def audit(k, parts, generator, verifier, restarts, two_roots=False, independent_roots=False):
     name = " ".join(parts)
-    mode = "--typed-restarts" if restarts else "--typed"
+    mode = "--typed"
     if two_roots:
         mode = "--two-roots"
-    make = [generator,str(k),"0","1","-",mode,*parts]
-    check = [verifier,str(k),"--two-roots" if two_roots else "--typed","/dev/stdin",*parts]
+    elif independent_roots:
+        mode = "--independent-roots"
+    search_mode = "--typed-restarts" if restarts and mode == "--typed" else mode
+    make = [generator,str(k),"0","1","-",search_mode,*parts]
+    check = [verifier,str(k),mode,"/dev/stdin",*parts]
     digest = hashlib.sha256()
     # Generator progress at every 100,000 records can go straight to the job log.
     with subprocess.Popen(make,stdout=subprocess.PIPE) as source:
@@ -47,14 +50,16 @@ def main():
     cli.add_argument("output",type=Path)
     cli.add_argument("--workers",type=int,default=1)
     cli.add_argument("--restarts",action="store_true",help="use bounded restarts in the short-forest search")
-    cli.add_argument("--two-roots",action="store_true",help="allow arbitrary independent colors at two roots")
+    modes = cli.add_mutually_exclusive_group()
+    modes.add_argument("--two-roots",action="store_true",help="allow arbitrary independent colors at two roots")
+    modes.add_argument("--independent-roots",action="store_true",help="allow independent colors at up to five roots")
     args = cli.parse_args()
     lines = args.profiles.read_text().splitlines()
     if not lines or len(lines) != len(set(lines)) or args.workers < 1:
         raise ValueError("expected distinct profiles and positive worker count")
     args.output.mkdir()
     def worker(i):
-        row = audit(args.modulus,lines[i].split(),args.generator.resolve(),args.verifier.resolve(),args.restarts,args.two_roots)
+        row = audit(args.modulus,lines[i].split(),args.generator.resolve(),args.verifier.resolve(),args.restarts,args.two_roots,args.independent_roots)
         (args.output/f"{i}.checked").write_text(row)
         return row
     with ThreadPoolExecutor(max_workers=args.workers) as pool:

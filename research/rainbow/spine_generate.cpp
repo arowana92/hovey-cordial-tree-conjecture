@@ -25,7 +25,7 @@ class Generator {
     int k, mass, shard, shards;
     bool cover;
     bool short_restarts = false;
-    bool two_roots = false;
+    bool independent_roots = false;
     std::ofstream file;
     std::ostream& out;
     std::map<int,std::vector<int>> orbit_codes;
@@ -52,6 +52,19 @@ class Generator {
         auto& result = inserted.first->second;
         if (!inserted.second) return result;
         Colors colors(gaps.size());
+        if (independent_roots) {
+            const auto& orbit = orbits(static_cast<int>(gaps.size()));
+            for (int x = 0; x < static_cast<int>(orbit.size()); ++x) {
+                if (orbit[x] != x) continue;
+                int value = x;
+                for (int j = static_cast<int>(colors.size())-1; j >= 0; --j) {
+                    colors[j] = value%k;
+                    value /= k;
+                }
+                result.push_back(colors);
+            }
+            return result;
+        }
         auto visit = [&](auto& self, std::size_t i, int runs) -> void {
             if (i == colors.size()) {
                 for (int unit = 2; unit < k; ++unit) {
@@ -87,9 +100,10 @@ class Generator {
         if (!table.empty()) return table;
         int total = 1;
         for (int i = 0; i < groups; ++i) total *= k;
-        table.resize(total);
+        table.assign(total,-1);
         for (int x = 0; x < total; ++x) {
-            int smallest = x;
+            if (table[x] >= 0) continue;
+            table[x] = x; // The first unseen tuple is the least member of its unit orbit.
             for (int unit = 2; unit < k; ++unit) {
                 if (std::gcd(unit,k) != 1) continue;
                 int y = x, image = 0, power = 1;
@@ -98,9 +112,8 @@ class Generator {
                     y /= k;
                     power *= k;
                 }
-                smallest = std::min(smallest,image);
+                table[image] = x;
             }
-            table[x] = smallest;
         }
         if (stamp.size() < table.size()) stamp.resize(table.size());
         return table;
@@ -222,7 +235,7 @@ class Generator {
         for (std::size_t j = 0; j < roots.size(); ++j) {
             int at = roots[j];
             int size = (j+1 < roots.size() ? roots[j+1] : n)-at;
-            if (two_roots) gaps.push_back(k); // Each root has its own unrestricted boundary color.
+            if (independent_roots) gaps.push_back(k); // Each root has its own unrestricted boundary color.
             else if (size > at) gaps.push_back(size-at);
             group[at] = static_cast<int>(gaps.size())-1;
         }
@@ -313,7 +326,7 @@ public:
     void run(bool ranked, int tip_limit, bool listed = false, const ForestType* type = nullptr, bool restart = false,
              bool independent = false) {
         short_restarts = restart;
-        two_roots = independent;
+        independent_roots = independent;
         out.write(mass < k-1 ? "SPN3" : cover ? "SPN2" : "SPN1", 4);
         out.put(static_cast<char>(k));
         if (mass < k-1) out.put(static_cast<char>(mass));
@@ -368,12 +381,14 @@ public:
 int main(int argc, char** argv) {
     std::ios::sync_with_stdio(false);
     if (argc >= 7 && (std::string(argv[5]) == "--typed" || std::string(argv[5]) == "--typed-restarts" ||
-                      std::string(argv[5]) == "--two-roots")) {
+                      std::string(argv[5]) == "--two-roots" || std::string(argv[5]) == "--independent-roots")) {
         int k = std::stoi(argv[1]);
         if (k < 5 || k > 27 || std::string(argv[2]) != "0" || std::string(argv[3]) != "1") return 2;
         ForestType type(k,argc-6,argv+6);
-        bool independent = std::string(argv[5]) == "--two-roots";
-        if (independent && (type.stem || type.parts.size() != 2)) return 2;
+        std::string mode = argv[5];
+        bool independent = mode == "--two-roots" || mode == "--independent-roots";
+        if (independent && (type.stem || type.parts.size() > 5)) return 2;
+        if (mode == "--two-roots" && type.parts.size() != 2) return 2;
         Generator(k,type.mass,0,1,argv[4],true).run(false,0,false,&type,std::string(argv[5]) != "--typed",independent);
         return 0;
     }
