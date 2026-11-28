@@ -2,6 +2,8 @@
 
 **Theorem (computer-assisted).** If a counterexample exists at 26 labels, one of least order has **49 through 208 vertices**. At 27 labels the corresponding interval is **50 through 243 vertices**. At both 26 and 27 labels, any six paths attached by their endpoints at arbitrary vertices of a prescribed cordial core of order zero or one modulo $k$ can grow in any prescribed interleaving. One labeling works on every prefix.
 
+The [subsequent unrestricted proof at 26](../rainbow/twenty-six.md) excludes that entire interval. The order bound at 27 remains relevant.
+
 Write the minimum order as $km+s$, $1\le s\le k$. The possible order lies in the interval in the corresponding cell and is congruent to its column heading modulo $k$.
 
 | $k$ | $s=23$ | $s=24$ | $s=25$ | $s=26$ | $s=27$ |

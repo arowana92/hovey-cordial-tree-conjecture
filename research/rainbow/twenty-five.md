@@ -59,7 +59,7 @@ shasum -a 256 pilot26.spn
 python3 -B "$src/check_spine_samples.py" pilot26.spn --stride 1
 ~~~
 
-At stride 4,096, shard 53 has 1,406,162 shapes and 90,562,434 rows (2,280,934,799 bytes). From a separate SSH checkout the regenerated file had SHA-256 `be107ef66279a8e91b1fd00bde3b4638cadd2d809572f32e3d5804ca5af61f41`. A separate native build finished all local checks and then reported the expected incomplete catalog. The Python checker sampled 33 shapes, 3,968 rows and 572,183 boundary assignments, spanning run counts zero through four. The full audit at 26 is in progress.
+At stride 4,096, shard 53 has 1,406,162 shapes and 90,562,434 rows (2,280,934,799 bytes). From a separate SSH checkout the regenerated file had SHA-256 `be107ef66279a8e91b1fd00bde3b4638cadd2d809572f32e3d5804ca5af61f41`. A separate native build finished all local checks and then reported the expected incomplete catalog. The Python checker sampled 33 shapes, 3,968 rows and 572,183 boundary assignments, spanning run counts zero through four. The [subsequent full audit](twenty-six.md) proves every finite tree is 26-cordial.
 
 ~~~sh
 ./generate 26 53 4096 shard26-53.spn --ranked-cover

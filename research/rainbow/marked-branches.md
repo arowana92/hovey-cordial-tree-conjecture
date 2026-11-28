@@ -6,7 +6,7 @@ Consequently every such tree with a perfect or near-perfect matching is $2m$-cor
 
 ## Retaining or removing the mark
 
-For moduli through 25 the [marked-leaf theorem](../marked-leaves.md) applies to arbitrary trees. For larger moduli use the [terminal-path certificates](terminal-paths.md). Fix a bound on the number of branching vertices and suppose a marked tree is a smallest failure in that class. Every smaller tree in the class has a cordial labeling, since it can be given any leaf mark. A singleton is immediate.
+For moduli through 26 the [marked-leaf theorem](../marked-leaves.md) applies to arbitrary trees. For larger moduli use the [terminal-path certificates](terminal-paths.md). Fix a bound on the number of branching vertices and suppose a marked tree is a smallest failure in that class. Every smaller tree in the class has a cordial labeling, since it can be given any leaf mark. A singleton is immediate.
 
 Write the order as $qk+1+t$ with $0\le t<k$. When $t=0$, delete the marked leaf, label the smaller tree, and give the leaf the label that fills the unique deficient edge weight. Its label is now the unique surplus vertex label. When the order is at most $k$, a bijective cordial labeling of an order-$k$ extension restricts to an injective labeling with distinct edge weights. Every used label is then most frequent. Extending a leaf by a path preserves the branching bound.
 
