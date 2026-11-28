@@ -83,6 +83,12 @@ def label_tree(k, parents, populations):
         labels[slots[s].pop()] = x
 
     spare = [(s, vertex) for s in range(k) for vertex in slots[s]]
+    finish_from_divisible(k, labels, spare, d)
+    return labels
+
+
+def finish_from_divisible(k, labels, spare, d):
+    """Fill leaf slots (parent color, vertex index) starting at deficient edge d."""
     for pos in range(0, len(spare), k):
         s, vertex = spare[pos]
         surplus = (d-s) % k
@@ -98,7 +104,6 @@ def label_tree(k, parents, populations):
         if len(rest) == k-1:
             used = {(s+labels[v]) % k for s, v in rest}
             d, = set(range(k))-used
-    return labels
 
 
 def verify(k, parents, populations):
