@@ -1,6 +1,6 @@
 # Reducing sixteen leaves to two orders at 27 labels
 
-**Theorem (computer-assisted).** Every tree with at most sixteen leaves and at most 52 vertices is 27-cordial. If any tree with at most sixteen leaves fails ordinary 27-cordiality, a least-order failure within that class has **53 or 54 vertices**. Within fifteen leaves only order 54 remains. The connected-prefix theorem covers every tree with at most fourteen leaves. [Leaf profile certificates](leaf-profile-cuts.md)
+**Theorem (computer-assisted).** Every tree with at most sixteen leaves and at most 52 vertices is 27-cordial. If any tree with at most sixteen leaves fails ordinary 27-cordiality, a least-order failure within that class has **53 or 54 vertices**. Such a failure must have exactly sixteen leaves. The connected-prefix theorem covers every tree with at most fifteen leaves. [Leaf profile certificates](leaf-profile-cuts.md)
 
 Write the least order as $27m+1+t$. The [short-forest proof](../rainbow/twenty-one-free.md) leaves $22\le t\le26$. Suppose the order exceeds 54. The [three-group reduction](../rainbow/few-leaves.md) and [seven-tip certificate](../rainbow/seven-tip-27.md) require exactly sixteen leaves. At every vertex, any union of branches with at most seven leaves has mass strictly below $t$, since its last $t$ vertices in size-ordered preorder would otherwise give a certified cut. A connected core has at most as many leaves as the original tree.
 

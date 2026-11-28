@@ -32,7 +32,9 @@ def core(run):
     return labels, edges
 
 
-def check(path, order=50, limit=None):
+def check(path, order=50, limit=None, lift_leaves=None):
+    if lift_leaves is None:
+        lift_leaves = {53:15,54:14}.get(order)
     mass = order-28
     runs = (2,3,4) if order>=53 else (4,5,6)
     cores = [core(r) for r in runs]
@@ -81,7 +83,7 @@ def check(path, order=50, limit=None):
                 degree = Counter(x for pair in joined for x in pair)
                 leaf_count = sum(n==1 for n in degree.values())
                 leaves[leaf_count] += 1
-                if order>=53 and leaf_count=={53:15,54:14}[order] and matches<24:
+                if order>=53 and leaf_count==lift_leaves and matches<24:
                     mark = next(v for v,d in degree.items()
                                 if d==1 and vertex[coloring[v]]==max(vertex.values()))
                     matching_check(coloring,joined,mark)
@@ -99,5 +101,6 @@ if __name__ == '__main__':
     parser.add_argument('stream', type=Path)
     parser.add_argument('--order', type=int, choices=range(50,55), default=50)
     parser.add_argument('--sample',type=int,help='maximum number of rooted forests to expand')
+    parser.add_argument('--lift-leaves',type=int,help='leaf count of the quotient trees to lift at orders 53 and 54')
     args = parser.parse_args()
-    check(args.stream,args.order,args.sample)
+    check(args.stream,args.order,args.sample,args.lift_leaves)
