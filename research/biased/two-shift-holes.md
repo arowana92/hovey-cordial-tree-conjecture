@@ -58,3 +58,20 @@ The [independent checker](check_two_shift_holes.py) enumerates matchings directl
 python3 -B -m research.biased.check_two_shift_holes
 python3 -B -m research.biased.check_two_parent_pruning
 ~~~
+
+## Every matching size for fixed forbidden sets
+
+The same two-shift graph gives an exact formula at **every** matching size. This permits a prescribed number of leaves at each of two parents even when the two pure shifts cannot both supply that many pairs.
+
+After deleting the forbidden vertices, let $d$ be the order of the shift difference and let $q$ be the number of intact alternating cycles. The capacity of a path on $v$ vertices is $\lfloor v/2\rfloor$. Write $F$ for the sum of capacities of odd-order paths. Each nonempty even-order path has a unique perfect matching, all of one shift. List the capacities of those paths in decreasing order for each forced shift, obtaining lists $A$ for the first and $B$ for the second. Let $A_{>l}, B_{>l}$ denote the sum after discarding the first $l$ entries of the respective list. Then the maximum matching size is $M=qd+F+A_{>0}+B_{>0}$.
+
+* At size $M$ the possible counts of the second shift are $B_{>0}+id+j$ for $0\le i\le q$, $0\le j\le F$. Each intact cycle uses one entire shift, while an odd-order path permits every count through its capacity.
+* At size $r=M-l$ with $l>0$, **every integer** from $B_{>l}$ through $r-A_{>l}$ occurs, and these are the exact endpoints.
+
+For the lower endpoint, at most $l$ of the even paths forced to the second shift can fall short of capacity. All other such paths contribute their whole capacities. Attain the bound by taking one fewer edge on the $l$ largest of those paths, or on every one of them if there are fewer than $l$. Each shortened path supports that many edges entirely of the first shift. On all other components take a maximum matching minimizing the second count. If further deletions are needed, all forced second paths have already been shortened, so simply drop more first-shift edges. Exchanging the roles of the two shifts gives the upper endpoint. The single-edge exchange lemma connects the two extremal size-$r$ matchings because $r<M$. Thus no count strictly between their two values is skipped.
+
+The [spectrum calculator](two_shift_spectrum.py) reads the two forbidden masks and locates consecutive surviving vertices on each alternating cycle. A separate search that skips or matches each individual source agrees on 2,835,040 choices of shifts, forbidden sets and requested sizes through modulus eight.
+
+~~~bash
+python3 -B -m research.biased.two_shift_spectrum
+~~~

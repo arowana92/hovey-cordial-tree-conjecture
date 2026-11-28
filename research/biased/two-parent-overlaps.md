@@ -42,7 +42,7 @@ python3 -B -m research.biased.check_two_parent_overlaps
 
 ## A stronger finite result at 27 labels
 
-**Computer-assisted theorem.** At residues 23 through 27, the combined leaf count at the two busiest parents of a smallest counterexample is at most **14, 16, 19, 22 and 25**, respectively. In the first four columns a finite strategy labels the additional high bins on a core containing the two parents. The long-path argument above covers all other positions of the parents.
+**Computer-assisted theorem.** At residues 23 through 27, the combined leaf count at the two busiest parents of a smallest counterexample is at most **14, 16, 19, 22 and 24**, respectively. In the first four columns a finite strategy labels the additional high bins on a core containing the two parents. The long-path argument above covers all other positions of the parents.
 
 | Order residue $s$ | Leaves $r$ to restore | Core additions $H$ after order one | Required overlap $t$ | Verified states across four differences | Off-path vertices besides the $r$ leaves, in the long-distance case |
 |---:|---:|---:|---:|---:|---:|
@@ -57,7 +57,7 @@ At the end of the $H$ additions, $|X|=H+1$, $|W|=H$, and $r=27-2H-1+t$. If the t
 
 There is one further accepting case **at the last step** for distinct shifts when both pure matchings have size exactly $r$. Look at the surviving edges of the two shifts. If the maximum matching has more than $r$ edges, use the exchange lemma. Otherwise both pure matchings are maximum. Every path component with an edge has odd order, since an even-order path would have a unique perfect matching and both pure matchings must attain that component's maximum. If $q$ intact cycles of length $2d$ remain, these cycles each supply either zero or $d$ shifted edges. All path components together supply any count between zero and $r-qd$. Thus every multiplicity works exactly when $q=0$ or $r-qd\ge d-1$.
 
-In the long-distance case, each row leaves at most six off-path vertices beyond the removed leaves. The same prefix-sum proof gives a 27-vertex piece with at least 21 consecutive path vertices and at most six side leaves. The one-leaf period theorem and the ring census cited above restore every such piece. For residue 27, the earlier bound of 25 also follows from the total leaf count bound.
+In the long-distance case, each row leaves at most six off-path vertices beyond the removed leaves. The same prefix-sum proof gives a 27-vertex piece with at least 21 consecutive path vertices and at most six side leaves. The one-leaf period theorem and the ring census cited above restore every such piece. For residue 27, the total leaf count is at most 25. If the two busiest parents had 25 leaves between them, every leaf would be adjacent to one of these two vertices. Every component off the path between the two vertices would then be a single leaf at one endpoint. The tree would be a caterpillar, which is cordial at every modulus. A single leaf parent gives a star. More generally, in any smallest failure at any modulus the two busiest parents together must account for strictly fewer than all leaves. [Hovey, *A-Cordial Graphs*](https://doi.org/10.1016/0012-365X(91)90254-Y)
 
 ### Reproducing the strategy checks
 
