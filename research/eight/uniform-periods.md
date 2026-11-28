@@ -4,6 +4,8 @@
 
 Eight is the sharp tip limit for this universal assertion starting at sixteen vertices. Take a 15-vertex complete binary tree and a singleton, attached at old labels 0 and 1. The forest has nine tips. The sum of its entering and internal weights minus the sum of its vertex labels is the sum of the two boundary labels plus the sum of each free label times its number of children. This difference is odd, whereas equal increments to each vertex and edge histogram would give difference zero.
 
+At every multiple of eight **from twenty-four onward**, the same conclusion holds with **nine rooted tips**. At sixteen vertices and up to nine tips the only failures consist of two full binary trees whose old parent labels have opposite parity. A full binary tree here has zero or two children at each vertex, including the one-vertex case.
+
 With at most **three tips**, the conclusion holds already at $q=1$. In fact one can prescribe any parent-first order and obtain uniform increments on every successive block of eight vertices. For a single block the results below give a complete test with no tip limit, including an optional prescribed label at any one new vertex.
 
 ## Exactly eight new vertices
@@ -55,6 +57,18 @@ Of **443,407** rooted forests, 443,251 admit such a cut. For the other 156 shape
 
 Now suppose $q\ge3$. Take the largest odd number $r$ no greater than the number of components. There are at most eight components, so $1\le r\le7$. If the number is odd, the chosen $r$ components contain the whole mass. If it is even, omit a smallest component. The other $r$ contain at least half the mass, hence at least eight vertices. Take a nonempty ancestor-closed subset in each chosen component, of combined size exactly eight. Start with their roots and add available children until reaching eight. The first block works because it has an odd number of components. Its complement has order at least sixteen and at most eight tips: any vertex remaining has all its original descendants remaining. Induction labels it at its now prescribed parents. Adding the two histogram increments proves the theorem.
 
+## Nine tips
+
+At order sixteen with exactly nine tips, seven vertices have children. If every child count is even, there are at least fourteen internal edges, and the number of components is even. There must then be two components and all seven positive child counts must be two. Conversely every such pair has gcd two, so opposite boundary parities preclude a uniform extension. There are 46 unordered full binary pairs of total order sixteen.
+
+The cut and direct checks at sixteen [extend to all 108,692 nine-tip forests](period_blocks.py). An eight-vertex cut works on 108,385 shapes. On the remaining 307, the [labeling certificate](period-16-nine.txt.gz) covers all 10,042 normalized boundary assignments satisfying the moment condition. The other 184 assignments, four on each binary pair, have opposite parity. This proves necessity and sufficiency of the moment condition at order sixteen with up to nine tips.
+
+At order twenty-four first take an ancestor-closed block of eight vertices with an odd number of components. To find it among at most nine components, select the largest one, three, five or seven components, taking the largest odd count at most seven available. These contain at least eight vertices: when eight or nine components are present, the seven largest contain at least $7/9$ of the mass. With an even count at most six the chosen components contain at least half the mass. Start at their roots and extend the block to size eight. It is universally labelable by the eight-vertex table.
+
+Its complement now works unless it consists of two full binary components at distinct sites. In that case the complement has nine tips, hence uses every original tip. Reconstruct a possible original shape from the binary pair by adding back the eight removed vertices in reverse parent-first order. Each must parent a nonempty subset of the current roots, since every original tip is already present. The result has one or two components. There are only **2,070** possible shapes, including 1,656 connected ones. A [separate enumeration](nine_tip_period.py) instead lists each eight-vertex prefix with at most two tips and grafts the binary pair at all sites, requiring every prefix tip to gain a child. It recovers the identical set.
+
+For **all 2,070 shapes**, the checker finds an alternative ancestor-closed eight-vertex subset. It verifies that the first block works at its actual boundary sites and that the remaining sixteen vertices either have a shape other than a full binary pair or have both roots at one site. In the latter case their old parent labels agree. This proves the assertion at twenty-four for arbitrary old labels. At each larger multiple of eight use the odd-component first block again and apply induction to its complement, which retains at most nine tips.
+
 ## Verification
 
 For all 5,287 affine representatives at size eight, the [permutation test](period_pins.py) starts with every one of the $8!$ assignments and intersects bit masks excluding each pairwise edge collision. A [second verifier](check_period_pins.py) assigns actual labels consecutively, checks every entering sum as it goes and reproduces both the solution count and every pin mask. It independently generates every colored shape by one-leaf insertion and requires the recorded affine orbits to cover that set without any overlap.
@@ -77,3 +91,17 @@ shasum -a 256 "$out/cuts" "$out/direct"
 ~~~
 
 The uncompressed SHA-256 digests are `0a77a8c87cdb8a9d40e9c4594b7f86f2f09d8500245568401512ad4b77ca934b` for the eight-vertex catalog, `056bab63a06605ecc0f3ddce930995d1fb7b90cb88d1a901b6b74c1902ed4100` for the cut stream and `018d75009aead75c87afab373342e83aae18d89d508ffd6d13300cd7bc732556` for the direct rows. These exact-increment results strengthen the attachment theory at eight. The [ordinary eight-label theorem](README.md) and [extension across arbitrary attachments to a surplus core](surplus.md) have separate proofs.
+
+
+To reproduce the nine-tip classification and the twenty-four-vertex reduction with the same generator and flags, run the following additional commands.
+
+~~~bash
+"$out/generate" "$out/flags" --nine-tips > "$out/nine.cuts"
+python3 -B -m research.eight.period_blocks --cuts "$out/nine.cuts" --nine-tips
+python3 -B -m research.eight.period_blocks --cuts "$out/nine.cuts" --nine-tips --generate-direct > "$out/nine.direct"
+gzip -dc research/eight/period-16-nine.txt.gz | cmp - "$out/nine.direct"
+shasum -a 256 "$out/nine.cuts" "$out/nine.direct"
+python3 -B -m research.eight.nine_tip_period
+~~~
+
+The nine-tip cut stream has SHA-256 `c977f5cdcb46ad8fb0dd6b81c0b0fc073e58abf83d4becbb40af3b3119658f65`. The direct rows have SHA-256 `cd547ad8a925a191bac70fda3f815e710855368bb54c2f92ee1f3cd06016f25e`.

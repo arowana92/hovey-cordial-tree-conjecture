@@ -6,6 +6,7 @@
 #include <fstream>
 #include <iostream>
 #include <stdexcept>
+#include <string>
 
 using Mask = std::uint32_t;
 using Flags = std::array<int,65536>;
@@ -63,7 +64,8 @@ struct Forest {
 };
 
 int main(int argc, char** argv) {
-    if (argc != 2) return 2;
+    const bool nine = argc == 3 && std::string(argv[2]) == "--nine-tips";
+    if (argc != 2 && !nine) return 2;
     std::ifstream input(argv[1]);
     Flags bad{};
     int word, flag;
@@ -73,9 +75,16 @@ int main(int argc, char** argv) {
         bad[word] = flag;
     }
     if (!input.eof()) return 2;
-    TipForests shapes(16,8);
+    TipForests shapes(16,nine ? 9 : 8);
     shapes.each(16,[&](std::uint64_t code) {
-        std::cout << code << ' ' << Forest(code).cut(0,8,0,bad) << '\n';
+        Forest forest(code);
+        if (nine) {
+            Mask nonleaves = 0;
+            for (int p : forest.parent)
+                if (p >= 0) nonleaves |= 1u << p;
+            if (__builtin_popcount(nonleaves) != 7) return;
+        }
+        std::cout << code << ' ' << forest.cut(0,8,0,bad) << '\n';
     });
     return !std::cout;
 }

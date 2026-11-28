@@ -3,6 +3,7 @@ import argparse
 from collections import Counter, defaultdict
 import gzip
 from itertools import product
+from math import gcd
 import json
 from pathlib import Path
 
@@ -85,7 +86,7 @@ def direct_witness(parents, colors):
     return labels
 
 
-def check(cuts, catalog, direct, generate):
+def check(cuts, catalog, direct, generate, nine=False):
     _, failures, same = flags(catalog)
     rows = defaultdict(dict)
     if not generate:
@@ -97,7 +98,8 @@ def check(cuts, catalog, direct, generate):
                 rows[code][colors] = labels
     seen = set()
     counts, hard = Counter(), Counter()
-    literal = 0
+    literal = moment = 0
+    allowed = {9} if nine else set(range(1,9))
     with cuts.open() as stream:
         for line in stream:
             code,cut = map(int,line.split())
@@ -105,7 +107,7 @@ def check(cuts, catalog, direct, generate):
             seen.add(code)
             ps = decode(code)
             tips = sum(i not in ps for i in range(16))
-            assert 1 <= tips <= 8
+            assert tips in allowed
             counts[tips] += 1
             if cut:
                 assert 0 < cut < (1 << 16)
@@ -116,8 +118,14 @@ def check(cuts, catalog, direct, generate):
                 continue
             hard[tips] += 1
             roots = [i for i,p in enumerate(ps) if p < 0]
+            divisor = gcd(8,*(ps.count(i) for i in range(16)))
             for tail in product(range(8),repeat=len(roots)-1):
                 colors = (0,)+tail
+                if sum(colors) % divisor:
+                    assert nine and len(roots) == divisor == 2
+                    assert all(ps.count(i) in (0,2) for i in range(16))
+                    moment += 1
+                    continue
                 if generate:
                     print(code,*colors,*direct_witness(ps,colors))
                 else:
@@ -129,17 +137,20 @@ def check(cuts, catalog, direct, generate):
                 literal += 1
             if not generate:
                 assert not rows.pop(code)
-    assert counts == {j:c for j,c in rooted(17).items() if j <= 8} and not rows
+    assert counts == {j:c for j,c in rooted(17).items() if j in allowed} and not rows
     if not generate:
         print('forests',sum(counts.values()),'direct shapes',sum(hard.values()),'direct inputs',literal)
         print('direct shapes by tip count',sorted(hard.items()))
+        if nine:
+            print('normalized inputs excluded by the moment',moment)
 
 
 if __name__ == '__main__':
     here = Path(__file__).resolve().parent
     cli = argparse.ArgumentParser(description=__doc__)
     cli.add_argument('--catalog',type=Path,default=here/'period-pins.jsonl.gz')
-    cli.add_argument('--direct',type=Path,default=here/'period-16-direct.txt.gz')
+    cli.add_argument('--direct',type=Path)
+    cli.add_argument('--nine-tips',action='store_true')
     action = cli.add_mutually_exclusive_group(required=True)
     action.add_argument('--flags',action='store_true')
     action.add_argument('--cuts',type=Path)
@@ -149,4 +160,5 @@ if __name__ == '__main__':
         for word,flag in sorted(flags(args.catalog)[0].items()):
             print(word,flag)
     else:
-        check(args.cuts,args.catalog,args.direct,args.generate_direct)
+        direct = args.direct or here / ('period-16-nine.txt.gz' if args.nine_tips else 'period-16-direct.txt.gz')
+        check(args.cuts,args.catalog,direct,args.generate_direct,args.nine_tips)
