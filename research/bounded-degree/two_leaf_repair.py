@@ -25,8 +25,9 @@ def transfer(k,g,m,edge_high,vertex_high):
 def build(edges,ports,old,removed,edge_high,vertex_high,rng):
     k = len(edges)+1
     adj = adjacency(k,edges)
+    multiplicity = Counter(ports)
     marked_ports = set(ports)
-    c = [len(row)-1+(v in marked_ports) for v,row in enumerate(adj)]
+    c = [len(row)-1+multiplicity[v] for v,row in enumerate(adj)]
     m = sum(removed)-sum(old)
     divisor = reduce(gcd,c,k)
     assert m%divisor

@@ -1,4 +1,5 @@
 """Prescribed cores for multiport repairs with all leaves among the ports."""
+from collections import Counter
 from functools import reduce
 from math import gcd
 
@@ -50,7 +51,7 @@ def select(k,h,target,positive,ports,old,moves):
     bins = (e,v)[which]
     values = chosen if len(bins[0])>=len(bins[1]) else gaps
     choices = max(bins,key=len)
-    attach = dict(zip(ports,old))
+    joint_sites = [a for v,a in zip(ports,old) if v in positive] if len(positive)==1 else []
     for x in choices:
         values[which] = x
         shift = (chosen[0]-gaps[0] if e else 0)-2*(chosen[1]-gaps[1] if v else 0)
@@ -60,7 +61,7 @@ def select(k,h,target,positive,ports,old,moves):
         joint,d = next(iter(positive.items()))
         base = (total//h)*pow(d//h,-1,k//h)%(k//h)
         for a in range(base,k,k//h):
-            if a not in old and a!=gaps[1] and (joint not in attach or (a+attach[joint])%k!=gaps[0]):
+            if a not in old and a!=gaps[1] and all((a+b)%k!=gaps[0] for b in joint_sites):
                 return chosen,gaps,total,a
     raise ValueError('insufficient choices for a joint label')
 
@@ -120,8 +121,8 @@ def windows(adj,protected,count):
 def build(edges,ports,old,removed,edge_high,vertex_high,rng):
     k = len(edges)+1
     adj = adjacency(k,edges)
-    boundary = set(ports)
-    delta = [len(row)-2+(v in boundary) for v,row in enumerate(adj)]
+    boundary = Counter(ports)
+    delta = [len(row)-2+boundary[v] for v,row in enumerate(adj)]
     outside_leaves = [v for v,c in enumerate(delta) if c<0]
     positive = {v:c for v,c in enumerate(delta) if c>0}
     target = sum(removed)-sum(old)-k*(k-1)//2
@@ -141,7 +142,7 @@ def build(edges,ports,old,removed,edge_high,vertex_high,rng):
             dup,gap,total = [None,b],[None,f],2*(f-b)
     else:
         h = reduce(gcd,positive.values(),k)
-        assert h>1 and (positive or target%k)
+        assert (h>1 or len(positive)==1) and (positive or target%k)
         moves = plan(k,h,target,edge_high,vertex_high)
         if moves is None:
             return None
