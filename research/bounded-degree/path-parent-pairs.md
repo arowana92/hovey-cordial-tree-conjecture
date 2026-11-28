@@ -8,6 +8,8 @@ $$
 $$
 The last path vertex must receive $z$. With the first label free, the sole condition is $S+b+c\ne0$. The free-first-label criterion also holds at every $3\le k\le8$. At eight, with the first label prescribed, the extra failures beyond the displayed test are exactly the unit multiples of $(x,b,c)=(2,1,7)$ with the pair unordered.
 
+For other bounded-degree rooted trees at large moduli, every parent pair works when the first label is free. Prescribing it gives a sharp gcd criterion. [General tree proof and sharp star examples](tree-parent-pairs.md)
+
 ## Counting incidences and completing the path
 
 The $k-2$ internal weights of a successful row are distinct. They omit exactly $x+b$ and $x+c$. Their sum is $S-2x-b-c$. Counting the same weights at their incident vertices gives $2S-x-z$. Equality forces the stated endpoint. Distinct nonzero path labels require $z\notin\{0,x\}$. If $x$ is free and $S+b+c\ne0$, choose $x$ outside $\{0,-S-b-c\}$.
