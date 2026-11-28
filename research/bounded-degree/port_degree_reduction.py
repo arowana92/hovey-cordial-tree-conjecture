@@ -2,22 +2,24 @@
 from check import adjacency
 
 
-def reduce_degree(edges,marked):
+def reduce_degree(edges,marked,*,root=None,degree_bound=3,reserved=(),site_degree=2):
     k = len(edges)+1
     graph = adjacency(k,edges)
-    root = next(v for v in range(k) if len(graph[v])==1)
+    if root is None:
+        root = next(v for v in range(k) if len(graph[v])==1)
+    reserved = set(reserved)
     parent = {root:None}
     order = [root]
     cut = []
     for v in order:
-        children = sorted(w for w in graph[v] if w!=parent[v])
+        children = sorted((w for w in graph[v] if w!=parent[v]),key=lambda w:(w not in reserved,w))
         for w in children:
             parent[w] = v
             order.append(w)
-        cut.extend((v,w) for w in children[2:])
+        cut.extend((v,w) for w in children[degree_bound-1:])
     cut_set = {frozenset(e) for e in cut}
     retained = [e for e in edges if frozenset(e) not in cut_set]
-    blocked = {v for e in cut for v in e}|{root}|set(marked)
+    blocked = {v for e in cut for v in e}|{root}|set(marked)|reserved
     extra = []
     for a,b in retained:
         if a not in blocked and b not in blocked:
@@ -31,13 +33,14 @@ def reduce_degree(edges,marked):
     forest = adjacency(k,kept)
     roots = {w for _,w in cut}|{root}
     fixed = set(marked)|roots|{v for v,_ in cut}
-    blocked = fixed.union(*(forest[v] for v in fixed))
+    protect = fixed|reserved
+    blocked = protect.union(*(forest[v] for v in protect))
     pools = {r:[] for r in roots}
     component = {}
     for v in order:
         r = v if v in roots else component[parent[v]]
         component[v] = r
-        if v not in blocked and len(graph[v])==2:
+        if v not in blocked and len(graph[v])==site_degree:
             pools[r].append(v)
             blocked.update(forest[v])
     priority = sorted(roots,key=lambda v:(-len(pools[v]),v))
