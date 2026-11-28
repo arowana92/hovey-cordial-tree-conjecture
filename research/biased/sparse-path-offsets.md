@@ -10,6 +10,8 @@ These are all possible literal path inputs. Across the thirty moduli, 264,039 pe
 
 Pad the first block to $k$ with ordinary edges and restrict its labeling. Its original vertices and adjusted edges remain injectively labeled. Label each subsequent block in isolation, restore its common offset, and let $w$ be its single missing weight. If its entering port has label $p$, the preceding endpoint has label $a$ and their joining edge has offset $b$, translate this block by $a+p+b-w$. The entering weight now fills its translated hole. Each new block contributes exactly one to every vertex and edge bin. This proves the arbitrary-order assertion. Separate results treat arbitrary offsets at primes and at the composite moduli 6, 8, 9, 10 and 12. [Prime path theorem](prime-paths.md) · [Composite path theorem](composite-paths.md)
 
+At 27 labels the same two-exception result holds on every tree with at most three leaves. [Proof and three-arm certificates](three-leaf-offsets.md)
+
 ## Compressing a tree between two ports
 
 At any modulus let a cordially labeled tree of order $qk$ have low edge residue $w$ and two marked vertex labels $p,r$. The two marks may be the same vertex. Insert this tree between old vertices labeled $a,b$, joining the first to port $p$ and the second to port $r$. The effective offset on the old edge is

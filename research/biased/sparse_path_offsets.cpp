@@ -1,4 +1,4 @@
-// Find an explicit permutation for each pair of exceptional path offsets up to units.
+// Find permutations for up to two exceptional offsets on a path or a subdivided claw.
 #include <algorithm>
 #include <cstdint>
 #include <iostream>
@@ -10,11 +10,11 @@
 
 using Mask = std::uint64_t;
 
-class PathSearch {
+class Search {
     int k, budget = 0;
     Mask all;
     std::uint32_t seed = 1991;
-    std::vector<int> offsets, labels;
+    std::vector<int> offsets, labels, parents;
 
     unsigned random() {
         seed ^= seed << 13;
@@ -25,7 +25,7 @@ class PathSearch {
     bool visit(int position, Mask vertices, Mask weights) {
         if (!vertices) return true;
         if (--budget <= 0) return false;
-        int shift = (labels[position-1] + offsets[position]) % k;
+        int shift = (labels[parents[position]] + offsets[position]) % k;
         Mask choices = vertices & ((weights >> shift) | (weights << (k-shift)));
         Mask split = (Mask(1) << (random() % k)) - 1;
         for (Mask side : {choices & ~split, choices & split}) {
@@ -41,8 +41,14 @@ class PathSearch {
     }
 
 public:
-    explicit PathSearch(int n)
-        : k(n), all((Mask(1) << n)-1), offsets(n), labels(n) {}
+    Search(int n, int first_arm, int second_arm)
+        : k(n), all((Mask(1) << n)-1), offsets(n), labels(n), parents(n) {
+        for (int v=1; v<n; ++v) parents[v]=v-1;
+        if (first_arm) {
+            parents[first_arm+1]=0;
+            parents[first_arm+second_arm+1]=0;
+        }
+    }
 
     void emit(int i, int j, int a, int b) {
         std::fill(offsets.begin(), offsets.end(), 0);
@@ -61,9 +67,15 @@ public:
 };
 
 int main(int argc, char** argv) {
-    if (argc != 2) return 2;
+    if (argc != 2 && argc != 4) return 2;
     int k = std::stoi(argv[1]);
     if (k < 2 || k > 63) return 2;
+    int first_arm=0, second_arm=0;
+    if (argc==4) {
+        first_arm=std::stoi(argv[2]);
+        second_arm=std::stoi(argv[3]);
+        if (first_arm<1 || second_arm<first_arm || k-1-first_arm-second_arm<second_arm) return 2;
+    }
     std::vector<std::pair<int,int>> representatives;
     for (int a=0; a<k; ++a) for (int b=1; b<k; ++b) {
         auto pair = std::make_pair(a,b), least = pair;
@@ -71,7 +83,7 @@ int main(int argc, char** argv) {
             least = std::min(least, std::make_pair(a*u%k,b*u%k));
         if (pair == least) representatives.push_back(pair);
     }
-    PathSearch search(k);
+    Search search(k,first_arm,second_arm);
     search.emit(0,0,0,0);
     for (int j=1; j<k; ++j) for (int i=0; i<j; ++i)
         for (auto [a,b] : representatives) if ((a==0) == (i==0))
