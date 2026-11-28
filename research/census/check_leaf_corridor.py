@@ -10,8 +10,8 @@ from research.rainbow.spine_counts import partitions
 from research.rainbow.verify import rooted_shapes
 
 
-def endpoint_cases(t):
-    for hs in partitions(7):
+def endpoint_cases(t, tips=7):
+    for hs in partitions(tips):
         if len(hs) < 2:
             continue
 

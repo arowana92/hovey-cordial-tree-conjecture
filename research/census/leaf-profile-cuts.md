@@ -1,6 +1,6 @@
 # Cordial growth for trees with at most thirteen leaves at 27 labels
 
-**Theorem (computer-assisted).** Every finite tree with at most thirteen leaves has one labeling that is 27-cordial on every prefix of a connected vertex order. Any specified leaf can be placed in the last block of 27 vertices (or the final shorter block) and receive a most-frequent vertex residue. Every tree with at most fifteen leaves and at most 51 vertices also satisfies these assertions. A least failure within fifteen leaves must have order 52, 53 or 54.
+**Theorem (computer-assisted).** Every finite tree with at most thirteen leaves has one labeling that is 27-cordial on every prefix of a connected vertex order. Any specified leaf can be placed in the last block of 27 vertices (or the final shorter block) and receive a most-frequent vertex residue. Every tree with at most fifteen leaves and at most 51 vertices also satisfies these assertions. Within fourteen leaves the same assertions hold through order 52. A least failure within fifteen leaves must have order 52, 53 or 54, and within fourteen leaves only orders 53 and 54 remain.
 
 The earlier results cover [every tree through 49 vertices](../rainbow/twenty-one-free.md) and [at most eleven leaves at every order](eleven-leaves.md). The [three-group reduction](../rainbow/few-leaves.md#a-finite-reduction-for-eleven-leaves) puts the least counterexample within thirteen leaves at order at most 54 using six tips. The [seven-tip certificate](../rainbow/seven-tip-27.md) gives the same bound within fifteen leaves. This leaves five orders to verify for an all-orders theorem.
 
@@ -51,6 +51,7 @@ At each order the profile dictionaries are cumulative in leaf count. Each manife
 | 13 | 54 | 11,655 | 822 | 60,001,367 | 4,824,484,964 | 496,958,855,715 |
 | 14 | 50 | 780 | 237 | 7,233,287 | 144,783,375 | 37,597,824,351 |
 | 14 | 51 | 1,186 | 388 | 15,878,970 | 459,395,255 | 103,700,019,582 |
+| 14 | 52 | 1,732 | 183 | 16,028,313 | 877,505,837 | 172,313,857,575 |
 | 15 | 50 | 2,186 | 329 | 16,019,357 | 274,022,699 | 71,146,816,965 |
 | 15 | 51 | 3,768 | 554 | 35,862,672 | 930,592,083 | 209,257,110,180 |
 
