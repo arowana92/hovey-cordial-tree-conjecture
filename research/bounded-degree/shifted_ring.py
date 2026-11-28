@@ -25,21 +25,38 @@ def cycle_edge(graph):
                 for w in sorted(row) if degrees[w])
 
 
-def construct(edges, offsets, rng, cap=3):
+def construct(edges, offsets, rng, cap=3, parallel=None):
+    """For a digon supply (edge, second offset) for its extra copy."""
     k = len(edges)
-    graph = adjacency(k,edges)
+    graph = adjacency(k,edges if parallel is None else sorted({edge(*e) for e in edges}))
     off = {edge(a,b): x%k for (a,b),x in offsets.items() if x%k}
-    leaves = [v for v,row in enumerate(graph) if len(row)==1]
-    correction = (sum(range(k))+sum(off.values()))%k
+    degree = list(map(len,graph))
+    if parallel is None:
+        closing = cycle_edge(graph)
+        tree = [e for e in edges if edge(*e)!=closing]
+        tree_off = {e:x for e,x in off.items() if e!=closing}
+        closing_shift = off.get(closing,0)
+    else:
+        pair,closing_shift = parallel
+        closing = edge(*pair)
+        tree = [edge(*e) for e in edges]
+        if tree.count(closing)!=2:
+            raise ValueError("the marked digon must have two parallel edges")
+        if (closing_shift-off.get(closing,0))%k==0:
+            return None
+        tree.remove(closing)
+        tree_off = off
+        for v in closing:
+            degree[v]+=1
+    total_shift = sum(tree_off.values())+closing_shift
+    leaves = [v for v,d in enumerate(degree) if d==1]
+    correction = (sum(range(k))+total_shift)%k
     if not leaves and correction:
         return None
     if len(leaves)==1 and not correction:
         return None
-    if len(leaves)>=2 and sum(off.values())%reduce(gcd,(len(row)-1 for row in graph),k):
+    if len(leaves)>=2 and total_shift%reduce(gcd,(d-1 for d in degree),k):
         return None
-    closing = cycle_edge(graph)
-    tree = [e for e in edges if edge(*e)!=closing]
-    tree_off = {e:x for e,x in off.items() if e!=closing}
     tree_graph = adjacency(k,tree)
     main,remaining = cap_tree(tree_graph,tree_off,cap)
     fixed = {v for e in main for v in e} | set(closing)
@@ -48,15 +65,15 @@ def construct(edges, offsets, rng, cap=3):
     modulus = 1
     residues = {}
     if len(free)>=2:
-        site_degree = Counter(len(row) for row in graph if 2<=len(row)<=cap).most_common(1)[0][0]
+        site_degree = Counter(d for d in degree if 2<=d<=cap).most_common(1)[0][0]
         modulus = gcd(k,site_degree-1)
-        reps = {(len(row)-1)%modulus:v for v,row in enumerate(graph) if (len(row)-1)%modulus}
-        residues = dict(zip(reps.values(),residue_sums(modulus,reps,-sum(off.values()))))
+        reps = {(d-1)%modulus:v for v,d in enumerate(degree) if (d-1)%modulus}
+        residues = dict(zip(reps.values(),residue_sums(modulus,reps,-total_shift)))
         fixed.update(reps.values())
         reserved = free[:2]
         selected = []
     else:
-        fixed.update(v for v,row in enumerate(graph) if len(row)!=2)
+        fixed.update(v for v,d in enumerate(degree) if d!=2)
         reserved = []
         selected = leaves[:2]
     kept,sites,buffers,order = move_pairs(tree,tree_graph,remaining,main,fixed,reserved,site_degree)
@@ -70,14 +87,14 @@ def construct(edges, offsets, rng, cap=3):
     forms = {v:expression((i,modulus),constant=residues.get(v,0)) for v,i in index.items()}
     if len(selected)==1:
         y = selected[0]
-        j = next(v for v,row in enumerate(graph) if len(row)==3)
+        j = degree.index(3)
         z = next(iter(graph[y]))
         if z in graph[j] and (correction+off.get(edge(z,y),0)-off.get(edge(z,j),0))%k==0:
             return None
         forms[y] = expression((index[j],1),constant=correction)
     elif len(selected)==2:
         y = selected[1]
-        forms[y] = expression(*[(i,len(graph[v])-2) for v,i in index.items()],
+        forms[y] = expression(*[(i,degree[v]-2) for v,i in index.items()],
                               constant=correction)
 
     def weight(pair):
@@ -86,10 +103,11 @@ def construct(edges, offsets, rng, cap=3):
 
     for s,(pair,r) in sites.items():
         forms[s] = expression(*weight(pair).items(),*((i,-v) for i,v in forms[r].items()))
-    weights = [weight((a,b)) for a,b in edges if a in fixed and b in fixed]
+    closing_form = expression(*forms[closing[0]].items(), *forms[closing[1]].items(), constant=closing_shift)
+    weights = [weight((a,b)) for a,b in tree if a in fixed and b in fixed]+[closing_form]
     evaluate = choose_variables(list(forms.values()),weights,k,rng)
     pins = {v:evaluate(f) for v,f in forms.items()}
-    missing = evaluate(weight(closing))
+    missing = evaluate(closing_form)
     labels = build(kept,pins,missing,rng)
     assert labels is not None
     return kept,closing,missing,pins,labels
